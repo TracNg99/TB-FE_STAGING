@@ -26,7 +26,7 @@ jobs:
 
     - name: Sync Fork with Upstream
       run: |
-        git checkout upstream/main -- .
+        git checkout upstream/staging -- .
         git reset HEAD .github/workflows
         git checkout origin/main -- .github/workflows
         git commit -m "Sync with upstream, excluding workflows"
