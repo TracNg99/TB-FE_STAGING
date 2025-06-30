@@ -27,7 +27,7 @@ const FeatureGrid = ({
       {experiences.map((experience) => (
         <FeatureCard
           key={experience.id}
-          experience={experience}
+          item={experience}
           handleCardClick={handleCardClick}
           handleQrIconClick={handleQrIconClick}
         />
