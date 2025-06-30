@@ -1,0 +1,157 @@
+@layer theme, base, mantine, components, utilities;
+
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/preflight.css' layer(base);
+@import 'tailwindcss/utilities.css' layer(utilities);
+@import '@mantine/core/styles.layer.css' layer(mantine);
+@import '@mantine/charts/styles.layer.css' layer(mantine);
+@import '@mantine/notifications/styles.layer.css' layer(mantine);
+@import '@mantine/dropzone/styles.layer.css' layer(mantine);
+
+:root {
+  --color-base-black: hsl(0, 0%, 10%, 1);
+  --color-base-white: hsl(0, 0%, 100%, 1);
+
+  --color-orange-50: hsl(19, 100%, 95%);
+  --color-orange-75: hsl(20, 100%, 91%);
+  --color-orange-100: hsl(20, 97%, 85%);
+  --color-orange-200: hsl(19, 97%, 77%);
+  --color-orange-300: hsl(20, 96%, 67%);
+  --color-orange-400: hsl(19, 97%, 61%);
+  --color-orange-500: hsl(19, 97%, 51%);
+  --color-orange-600: hsl(19, 95%, 46%);
+  --color-orange-700: hsl(19, 95%, 36%);
+  --color-orange-800: hsl(19, 94%, 28%);
+  --color-orange-900: hsl(19, 94%, 21%);
+
+  --color-purple-50: hsl(267, 82%, 96%);
+  --color-purple-100: hsl(266, 82%, 87%);
+  --color-purple-200: hsl(265, 82%, 80%);
+  --color-purple-300: hsl(265, 82%, 71%);
+  --color-purple-400: hsl(265, 83%, 66%);
+  --color-purple-500: hsl(265, 83%, 57%);
+  --color-purple-600: hsl(265, 67%, 52%);
+  --color-purple-700: hsl(265, 62%, 41%);
+  --color-purple-800: hsl(265, 61%, 32%);
+  --color-purple-900: hsl(265, 61%, 24%);
+
+  --color-red-50: hsl(0, 89%, 96%);
+  --color-red-100: hsl(0, 90%, 89%);
+  --color-red-200: hsl(0, 89%, 83%);
+  --color-red-300: hsl(0, 89%, 75%);
+  --color-red-400: hsl(0, 88%, 70%);
+  --color-red-500: hsl(0, 88%, 63%);
+  --color-red-600: hsl(0, 70%, 57%);
+  --color-red-700: hsl(0, 52%, 45%);
+  --color-red-800: hsl(0, 52%, 35%);
+  --color-red-900: hsl(0, 52%, 26%);
+
+  --color-green-50: hsl(128, 48%, 94%);
+  --color-green-100: hsl(126, 49%, 81%);
+  --color-green-200: hsl(126, 50%, 73%);
+  --color-green-300: hsl(126, 49%, 60%);
+  --color-green-400: hsl(126, 49%, 52%);
+  --color-green-500: hsl(126, 74%, 40%);
+  --color-green-600: hsl(126, 74%, 37%);
+  --color-green-700: hsl(126, 74%, 28%);
+  --color-green-800: hsl(126, 73%, 22%);
+  --color-green-900: hsl(127, 74%, 17%);
+}
+
+.paper-torn {
+  mask-image: url('/assets/torn-edge-vertical.svg');
+  mask-size: 100% auto;
+  mask-repeat: repeat;
+  mask-position: center;
+}
+
+@theme {
+  --font-oswald: var(--font-oswald);
+  --font-poppins: var(--font-poppins);
+
+  --color-base-black: var(--color-base-black);
+  --color-base-white: var(--color-base-white);
+
+  --color-orange-50: var(--color-orange-50);
+  --color-orange-75: var(--color-orange-75);
+  --color-orange-100: var(--color-orange-100);
+  --color-orange-200: var(--color-orange-200);
+  --color-orange-300: var(--color-orange-300);
+  --color-orange-400: var(--color-orange-400);
+  --color-orange-500: var(--color-orange-500);
+  --color-orange-600: var(--color-orange-600);
+  --color-orange-700: var(--color-orange-700);
+  --color-orange-800: var(--color-orange-800);
+  --color-orange-900: var(--color-orange-900);
+
+  --color-purple-50: var(--color-purple-50);
+  --color-purple-100: var(--color-purple-100);
+  --color-purple-200: var(--color-purple-200);
+  --color-purple-300: var(--color-purple-300);
+  --color-purple-400: var(--color-purple-400);
+  --color-purple-500: var(--color-purple-500);
+  --color-purple-600: var(--color-purple-600);
+  --color-purple-700: var(--color-purple-700);
+  --color-purple-800: var(--color-purple-800);
+  --color-purple-900: var(--color-purple-900);
+
+  --color-red-50: var(--color-red-50);
+  --color-red-100: var(--color-red-100);
+  --color-red-200: var(--color-red-200);
+  --color-red-300: var(--color-red-300);
+  --color-red-400: var(--color-red-400);
+  --color-red-500: var(--color-red-500);
+  --color-red-600: var(--color-red-600);
+  --color-red-700: var(--color-red-700);
+  --color-red-800: var(--color-red-800);
+  --color-red-900: var(--color-red-900);
+
+  --color-green-50: var(--color-green-50);
+  --color-green-100: var(--color-green-100);
+  --color-green-200: var(--color-green-200);
+  --color-green-300: var(--color-green-300);
+  --color-green-400: var(--color-green-400);
+  --color-green-500: var(--color-green-500);
+  --color-green-600: var(--color-green-600);
+  --color-green-700: var(--color-green-700);
+  --color-green-800: var(--color-green-800);
+  --color-green-900: var(--color-green-900);
+
+  --text-display-lg: 3rem; /* 48px */
+  --text-display-lg--line-height: 3.75rem; /* 60px */
+  --text-display-lg--letter-spacing: 0rem; /* 0px */
+
+  --text-display-md: 2.25rem; /* 36px */
+  --text-display-md--line-height: 2.75rem; /* 44px */
+  --text-display-md--letter-spacing: 0rem; /* 0px */
+
+  --text-display-sm: 1.5rem; /* 24px */
+  --text-display-sm--line-height: 2rem; /* 32px */
+  --text-display-sm--letter-spacing: 0rem; /* 0px */
+
+  --text-display-xs: 1.25rem; /* 20px */
+  --text-display-xs--line-height: 2rem; /* 32px */
+  --text-display-xs--letter-spacing: 0rem; /* 0px */
+
+  --text-lg: 1.125rem; /* 18px */
+  --text-lg--line-height: 1.75rem; /* 28px */
+  --text-lg--letter-spacing: 0rem; /* 0px */
+
+  --text-md: 1rem; /* 16px */
+  --text-md--line-height: 1.5rem; /* 24px */
+  --text-md--letter-spacing: 0rem; /* 0px */
+
+  --text-sm: 0.875rem; /* 14px */
+  --text-sm--line-height: 1.25rem; /* 20px */
+  --text-sm--letter-spacing: 0rem; /* 0px */
+
+  --text-xs: 0.75rem; /* 12px */
+  --text-xs--line-height: 1.125 rem; /* 18px */
+  --text-xs--letter-spacing: 0rem; /* 0px */
+
+  --spacing-pc: 100rem; /* 1600px */
+  --spacing-mobile: 22.5rem; /* 360px */
+
+  --shadow-carousel:
+    0 14px 32px hsla(0, 0%, 0%, 0.09), 0 231px 92px hsla(0, 0%, 0%, 0.01);
+}
