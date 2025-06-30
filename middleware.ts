@@ -1,9 +1,14 @@
-import { type NextRequest } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 
-import { updateSession } from '@/utils/supabase/middleware';
+// import { isAuthenticated } from '@/utils/supabase/authorization';
+
+// import { updateSession } from '@/utils/supabase/middleware';
 
 export async function middleware(request: NextRequest) {
-  return await updateSession(request);
+  const url = request.nextUrl.clone();
+  console.log('Middleware triggered for:', url.pathname);
+  // Check if the request is for the login page
+  return NextResponse.next();
 }
 
 export const config = {
