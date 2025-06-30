@@ -1,0 +1,35 @@
+name: Sync with Upstream
+
+on:
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Fork
+      uses: actions/checkout@v3
+      with:
+        token: ${{ secrets.PAT_TOKEN }}
+        fetch-depth: 0 # Ensure full history is fetched
+
+    - name: Add Upstream Repository
+      run: |
+        git remote add upstream https://github.com/talentedgeai/travel-buddy-fe.git
+        git fetch upstream
+
+    - name: Configure Git User
+      run: |
+        git config --global user.email "trac.nguyen@talentedge.ai"
+        git config --global user.name "TracNg99"
+
+    - name: Sync Fork with Upstream
+      run: |
+        git checkout upstream/main -- .
+        git reset HEAD .github/workflows
+        git checkout origin/main -- .github/workflows
+        git commit -m "Sync with upstream, excluding workflows"
+        git push origin main --force
+      env:
+        GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
