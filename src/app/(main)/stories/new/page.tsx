@@ -264,6 +264,7 @@ const NewStoryPage = () => {
               data={experiences}
               onChange={onChange}
               value={value as any}
+              searchable
             />
           )}
         />
@@ -327,6 +328,7 @@ const NewStoryPage = () => {
                 onClick={() => {
                   handleInputsUpload(form.getValues());
                 }}
+                asFloating={false}
               />
             </div>
           </>

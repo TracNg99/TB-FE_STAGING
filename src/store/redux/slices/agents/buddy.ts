@@ -7,8 +7,17 @@ export interface BuddyAgentReq {
   query: string;
   images?: string[];
   num_results?: number;
-  filters?: { [key: string]: string } | string;
+  filters?: { [key: string]: string | undefined } | string;
   session_id?: string | null;
+}
+
+interface Source {
+  id: number;
+  logo: string;
+  name: string;
+  url: string;
+  title: string;
+  snippet: string;
 }
 
 interface BuddyAgentRes {
@@ -16,10 +25,32 @@ interface BuddyAgentRes {
   error?: any;
 }
 
+interface BuddyHistoryProps {
+  id: string;
+  user_id: string;
+  chat_messages: {
+    id: string;
+    user_id: string;
+    role: string;
+    content: string;
+    metadata: {
+      images?: string[];
+      sources?: Source[];
+      suggestions?: string[];
+    };
+    created_at: string;
+    thread_id: string;
+  }[];
+}
+interface BuddyHistoryRes {
+  data?: BuddyHistoryProps;
+  error?: any;
+}
+
 interface StreamMessageProps {
   response?: string;
   images?: string[];
-  souces?: string[];
+  sources?: Source[];
   suggestions?: string[];
   follow_ups?: string[];
   event?: string;
@@ -62,8 +93,21 @@ const BuddyAgentApi = createApi({
       }),
     }),
 
-    restChatMemory: builder.query<
-      { data: string },
+    getChatHistory: builder.query<
+      BuddyHistoryRes,
+      { session_id: string | null }
+    >({
+      query: ({ session_id }) => ({
+        url: `/chat/get-history`,
+        method: 'GET',
+        params: {
+          session_id: session_id,
+        },
+      }),
+    }),
+
+    resetChatMemory: builder.query<
+      { data: { session_id?: string | null } | string },
       { session_id: string | null }
     >({
       query: ({ session_id }) => ({
@@ -93,11 +137,13 @@ const streamBuddyApi = createApi({
       }
     >({
       query: ({ body, onChunk }) => ({
-        url: '/chat/stream',
+        url: '/chat/stream_v2',
         method: 'POST',
         body,
         headers: {
+          'Content-Type': 'application/json',
           Accept: 'text/event-stream',
+          Authorization: `Bearer ${localStorage.getItem('jwt')}`,
         },
         responseHandler: async (response: any) => {
           if (!response.ok) {
@@ -303,8 +349,11 @@ const streamBuddyApi = createApi({
   }),
 });
 
-export const { useCallBuddyAgentMutation, useRestChatMemoryQuery } =
-  BuddyAgentApi;
+export const {
+  useCallBuddyAgentMutation,
+  useResetChatMemoryQuery,
+  useGetChatHistoryQuery,
+} = BuddyAgentApi;
 
 export const { useBuddyStreamMutation } = streamBuddyApi;
 export { BuddyAgentApi, streamBuddyApi };

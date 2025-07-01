@@ -111,7 +111,7 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
       {messages.map(
         (msg, i) =>
           msg.text && (
-            <div key={i} className={`flex flex-col gap-2 w-full`} ref={ref}>
+            <div key={i} className={`flex flex-col w-full`} ref={ref}>
               <div
                 className={`max-w-4xl p-2 sm:p-6 bg-[#FFF9F5] ${isMobile ? 'w-[80%]' : 'w-full'}`}
               >

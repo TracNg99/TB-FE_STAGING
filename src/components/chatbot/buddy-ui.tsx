@@ -27,7 +27,7 @@ import {
   // useGetStreamResultsQuery,
   // useCallBuddyAgentMutation,
   // usePostStreamMutation,
-  useRestChatMemoryQuery,
+  useResetChatMemoryQuery,
   // usePostStreamNativeMutation
 } from '@/store/redux/slices/agents/buddy';
 
@@ -213,7 +213,7 @@ const BuddyUI = ({ context }: { context?: { [key: string]: string } }) => {
 
   const isMobile = useMediaQuery('(max-width: 640px)');
 
-  const { data: resetData } = useRestChatMemoryQuery(
+  const { data: resetData } = useResetChatMemoryQuery(
     {
       session_id: chatSessionId.current,
     },

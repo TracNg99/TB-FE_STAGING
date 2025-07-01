@@ -79,8 +79,6 @@ export default function FeatureCarousel<T>({
     setIsLoading(!items || items.length === 0);
   }, [items]);
 
-  console.log('currentSlide', currentSlide);
-
   const variables = useMemo(() => {
     let size = 100;
     if (isSm && slideSize?.sm) {

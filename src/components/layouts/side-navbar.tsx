@@ -53,7 +53,7 @@ const Navbar = () => {
       return;
     }
 
-    // router.push('/stories/new');
+    router.push('/stories/new');
   };
 
   const handleTabChange = (href: string) => {
@@ -64,7 +64,7 @@ const Navbar = () => {
   return (
     <aside
       onMouseEnter={() => setIsSidebarOpen(true)}
-      onMouseLeave={() => setIsSidebarOpen(false)}
+      // onMouseLeave={() => setIsSidebarOpen(false)}
       className="flex w-24 flex-shrink-0 flex-col items-center border-r border-gray-200 bg-white py-4 z-10"
     >
       <Link href="/">

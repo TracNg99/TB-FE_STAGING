@@ -28,7 +28,7 @@ export const baseQueryAgent = fetchBaseQuery({
       : 'https://travelbuddy-agents-server-797173526974.us-central1.run.app/api/v1', // Base URL for all API routes
   prepareHeaders: (headers) => {
     // Add custom headers if needed, like Authorization
-    const token = localStorage?.getItem('jwt') || '';
+    const token = localStorage?.getItem('jwt');
     // headers.set('Content-Type', 'application/json');
     headers.set('Authorization', `Bearer ${token}`);
     return headers;

@@ -5,7 +5,7 @@ import { cn } from '@/utils/class';
 
 const AiButton = ({
   className,
-  // displayText,
+  displayText,
   additionalClassName,
   asFloating,
   ...props
@@ -37,14 +37,14 @@ const AiButton = ({
       className={cn(
         `rounded-full p-2 gap-2
         flex items-center justify-center
-        ${additionalClassName ?? 'text-purple-500 bg-purple-50 hover:bg-purple-100/50'}
-        text-sm font-medium transition-colors border-2 border-purple-500`,
+        ${additionalClassName ?? 'text-purple-500 bg-purple-50 hover:bg-purple-100/50 border-purple-500'}
+        text-sm font-medium transition-colors border-2`,
         className,
       )}
       {...props}
     >
       <IconSparkles className="size-6" />
-      {/* {displayText} */}
+      {displayText}
     </button>
   );
 };

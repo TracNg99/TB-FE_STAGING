@@ -24,19 +24,15 @@ import React, { useEffect, useRef, useState } from 'react';
 import { FaMicrophone } from 'react-icons/fa';
 
 import VoiceButtonForm from '@/components/audio-handler/voice-to-text';
-import useStream, {
-  base64ToUnicode,
-} from '@/components/chatbot/streaming-hook';
+import { base64ToUnicode } from '@/components/chatbot/streaming-hook';
 import ImageUploader from '@/components/image-uploader/image-picker';
 import InchatUploader from '@/components/image-uploader/image-picker-in-chat';
 import TextCarousel from '@/components/text-carousel';
 import { useSidebar } from '@/contexts/sidebar-provider';
 import {
-  // useGetStreamResultsQuery,
-  // useCallBuddyAgentMutation,
-  // usePostStreamMutation,
-  useRestChatMemoryQuery,
-  // usePostStreamNativeMutation
+  useBuddyStreamMutation,
+  // useGetChatHistoryQuery,
+  useResetChatMemoryQuery,
 } from '@/store/redux/slices/agents/buddy';
 import { useGetExperiencePublicQuery } from '@/store/redux/slices/user/experience';
 import { cn } from '@/utils/class';
@@ -116,8 +112,9 @@ const BuddyUI = ({ context }: { context?: { [key: string]: string } }) => {
   const experienceId = params.experienceId ?? searchParams.get('experienceId');
   const threadId = searchParams.get('threadId');
   const isHome = pathname === '/';
-  const { isSidebarOpen } = useSidebar();
-  const [isSent, setIsSent] = useState(false);
+  const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
+  const [buddyStreamMutation] = useBuddyStreamMutation();
+  // const [isSent, setIsSent] = useState(false);
   const [resetState, setResetState] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [snack, setSnack] = useState({
@@ -139,8 +136,6 @@ const BuddyUI = ({ context }: { context?: { [key: string]: string } }) => {
     { id: '3', name: 'Local specialty in Delkong Meta', messages: [] },
   ]);
 
-  const [activeThread, setActiveThread] = useState(threadId ?? 'new');
-
   const { data: experienceData } = useGetExperiencePublicQuery(
     {
       id: experienceId as string,
@@ -153,7 +148,10 @@ const BuddyUI = ({ context }: { context?: { [key: string]: string } }) => {
   const messages = useRef<MessagesProps[]>([]);
   const [latestBotMessage, setLatestBotMessage] =
     useState<MessagesProps | null>(null);
-  const chatSessionId = useRef<string | null>(null);
+  const chatSessionId = useRef<string | null>(threadId ?? null);
+  const [activeThread, setActiveThread] = useState<string | null>(
+    threadId ?? chatSessionId.current ?? '',
+  );
   const [input, setInput] = useState('');
   const [selectedImages, setSelectedImages] = useState<
     Array<{ image: string | null; name: string | null }>
@@ -161,7 +159,7 @@ const BuddyUI = ({ context }: { context?: { [key: string]: string } }) => {
 
   const isMobile = useMediaQuery('(max-width: 640px)');
 
-  const { data: resetData } = useRestChatMemoryQuery(
+  const { data: resetData } = useResetChatMemoryQuery(
     {
       session_id: chatSessionId.current,
     },
@@ -170,11 +168,48 @@ const BuddyUI = ({ context }: { context?: { [key: string]: string } }) => {
     },
   );
 
+  // const { data: historyData } = useGetChatHistoryQuery(
+  //   {
+  //     session_id: chatSessionId.current,
+  //   },
+  //   {
+  //     skip: !chatSessionId.current,
+  //   },
+  // );
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  // useEffect(() => {
+  //   if (historyData && historyData.data && historyData.data.chat_messages) {
+  //     messages.current = historyData.data.chat_messages.map((message) => ({
+  //       from: message.role,
+  //       text: message.content,
+  //       tag: message.role === 'user' ? 'user' : 'bot',
+  //       images: message.metadata?.images,
+  //       sources: message.metadata?.sources,
+  //       suggestions: message.metadata?.suggestions,
+  //     }));
+  //     setThreadsList((prevThreadList) => [
+  //       ...prevThreadList,
+  //       {
+  //         id: historyData.data?.id || '',
+  //         name: historyData.data?.chat_messages[0]?.content || '',
+  //         messages: historyData.data?.chat_messages?.map((message) => ({
+  //           from: message.role,
+  //           text: message.content,
+  //           tag: message.role === 'user' ? 'user' : 'bot',
+  //           images: message.metadata?.images,
+  //           sources: message.metadata?.sources,
+  //           suggestions: message.metadata?.suggestions,
+  //         })) || [],
+  //       },
+  //     ]);
+  //   }
+  // }, [historyData]);
 
   useEffect(() => {
     scrollToBottom();
@@ -182,6 +217,8 @@ const BuddyUI = ({ context }: { context?: { [key: string]: string } }) => {
 
   useEffect(() => {
     if (resetData) {
+      // setActiveThread(resetData.data?.session_id)
+      // chatSessionId.current = resetData.data?.session_id;
       notifications.show({
         title: 'Chat Reset',
         message: 'Your chat has been reset.',
@@ -201,6 +238,9 @@ const BuddyUI = ({ context }: { context?: { [key: string]: string } }) => {
   }, [snack]);
 
   const handleReset = () => {
+    const newMessage = messages.current.length > 0 ? messages.current : [];
+    const newThreadName =
+      newMessage.length > 0 ? `${newMessage?.[0]?.text?.slice(0, 10)}...` : '';
     setThreadsList(
       (
         prevThreadsList: {
@@ -212,17 +252,18 @@ const BuddyUI = ({ context }: { context?: { [key: string]: string } }) => {
         ...prevThreadsList,
         {
           id: (prevThreadsList.length + 1).toString(),
-          name: `${messages.current[0].text?.slice(0, 10)}...`,
-          messages: messages.current,
+          name: newThreadName,
+          messages: newMessage,
         },
       ],
     );
-    setActiveThread(threadsList[threadsList.length - 1].id);
+    setActiveThread(null);
+    chatSessionId.current = null;
     messages.current = [];
     setInput('');
     setSelectedImages([]);
     setResetState(true);
-    setIsSent(false);
+    // setIsSent(false);
     setDisplayedText('');
     setCharIndex(0);
     setFloatingTexts('');
@@ -233,6 +274,7 @@ const BuddyUI = ({ context }: { context?: { [key: string]: string } }) => {
     setActiveThread(threadId);
     messages.current =
       threadsList.find((thread) => thread.id === threadId)?.messages || [];
+    chatSessionId.current = threadId;
   };
 
   const handleSuggestion = (suggestion: string) => {
@@ -297,21 +339,21 @@ const BuddyUI = ({ context }: { context?: { [key: string]: string } }) => {
     }
   }, [charIndex, displayedText, latestBotMessage]);
 
-  useStream({
-    body: {
-      query: messages.current[messages.current.length - 1]?.text ?? '',
-      images: messages.current[messages.current.length - 1]?.images || [],
-      filters: {
-        ...context,
-      },
-      session_id: chatSessionId.current,
-    },
-    onDataAvailable: handleOnChunkAvailable,
-    isSent,
-    isLoading,
-    setIsSent,
-    setIsLoading,
-  });
+  // useStream({
+  //   body: {
+  //     query: messages.current[messages.current.length - 1]?.text ?? '',
+  //     images: messages.current[messages.current.length - 1]?.images || [],
+  //     filters: {
+  //       ...context,
+  //     },
+  //     session_id: chatSessionId.current,
+  //   },
+  //   onDataAvailable: handleOnChunkAvailable,
+  //   isSent,
+  //   isLoading,
+  //   setIsSent,
+  //   setIsLoading,
+  // });
 
   const handleSend = async () => {
     if (!input.trim() && selectedImages.length === 0) return;
@@ -330,16 +372,39 @@ const BuddyUI = ({ context }: { context?: { [key: string]: string } }) => {
         images: selectedImages.map((image) => image.image || ''),
       },
     ];
+    try {
+      await buddyStreamMutation({
+        body: {
+          query: messages.current[messages.current.length - 1]?.text ?? '',
+          images: messages.current[messages.current.length - 1]?.images || [],
+          filters: {
+            ...context,
+            experience_id: (experienceId as string) || undefined,
+          },
+          session_id: chatSessionId.current,
+        },
+        onChunk: handleOnChunkAvailable,
+      }).unwrap();
+    } catch (error) {
+      console.error('Error streaming:', error);
+      notifications.show({
+        title: 'Error: Chat failure',
+        message: 'Failure during buddy response! Please try again!',
+        color: 'red',
+      });
+    }
     setDisplayedText('');
     setCharIndex(0);
     setInput('');
-    setIsSent(true);
+    // setIsSent(true);
     setSelectedImages([]);
   };
 
   const handleKeyPress = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter' && !event.shiftKey) {
+      // console.log('Enter pressed');
       event.preventDefault();
+      event.stopPropagation();
       handleSend();
     }
   };
@@ -355,6 +420,7 @@ const BuddyUI = ({ context }: { context?: { [key: string]: string } }) => {
       {/* Header */}
       {isHome && (
         <aside
+          onMouseLeave={() => setIsSidebarOpen(false)}
           className={cn(
             'h-screen flex-col border-r border-gray-200 bg-white p-4 z-10 transition-all duration-300 ease-in-out flex overflow-hidden',
             isSidebarOpen ? 'w-80' : 'w-0 p-0 border-none',
@@ -439,7 +505,7 @@ const BuddyUI = ({ context }: { context?: { [key: string]: string } }) => {
               : 'absolute bottom-5 flex flex-col self-center rounded-md'
           }
             w-[calc(100vw-20px)]
-            `}
+          `}
         >
           {messages.current.length === 0 && isHome && (
             <>
@@ -457,7 +523,13 @@ const BuddyUI = ({ context }: { context?: { [key: string]: string } }) => {
             </>
           )}
           <div
-            className={`flex-1 max-h-[calc(100vh-200px)] w-full transition-all ${!isHome && 'hidden'}`}
+            className={`
+              flex-1 max-h-[calc(100vh-200px)] 
+              ${isMobile ? 'w-[90%] ' : 'ml-100 w-[90%]'} 
+              transition-all ${!isHome && 'hidden'} 
+              mb-10
+              ${messages.current.length > 0 && 'min-h-[calc(100vh-200px)]'}
+            `}
           >
             {experienceData && (
               <Link href={`/experiences/${experienceData.id}`}>
@@ -488,7 +560,9 @@ const BuddyUI = ({ context }: { context?: { [key: string]: string } }) => {
                 </Container>
               </Link>
             )}
-            <ScrollArea className={`h-full overflow-y-auto`}>
+            <ScrollArea
+              className={`h-full overflow-y-auto self-center items-center overscroll-x-none`}
+            >
               <div
                 className={`flex flex-col p-4 pb-10 w-full text-[14px] transition-all`}
               >
@@ -563,7 +637,8 @@ const BuddyUI = ({ context }: { context?: { [key: string]: string } }) => {
               <TextInput
                 className={`
                     ${isMobile ? 'col-span-2' : 'col-span-4'} 
-                    w-full bg-white pb-4 pl-1 text-base`}
+                    w-full bg-white pb-4 pl-1 text-base
+                `}
                 placeholder="Ask me anything..."
                 value={input}
                 onChange={(e) => setInput(e.currentTarget.value)}
