@@ -87,7 +87,7 @@ const Navbar = () => {
   return (
     <>
       {pathname === '/' && (
-        <div className="fixed top-[2dvh] left-[2dvh] flex flex-row z-5">
+        <div className="fixed top-[2dvh] left-[2dvh] flex flex-row z-1000">
           {user ? (
             <Popover position="top-end" withArrow>
               <Popover.Target>
