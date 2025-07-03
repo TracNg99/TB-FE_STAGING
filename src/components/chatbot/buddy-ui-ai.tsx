@@ -623,7 +623,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
             <div
               className={`
              absolute inset-0 bg-gradient-to-b 
-             from-gray-600/20 from-10% to-white to-60% z-0
+             from-gray-600/20 from-10% to-white to-50% z-0
             ${!isHome && 'hidden'}
             `}
             />
