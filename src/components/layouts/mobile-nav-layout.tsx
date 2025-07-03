@@ -159,7 +159,7 @@ const Navbar = () => {
       <footer
         className={`
         fixed bottom-0 left-0 right-0 
-        z-10 flex h-16 w-full items-center 
+        z-1000 flex h-16 w-full items-center 
         justify-around border-t border-gray-200 
         bg-white md:hidden
       `}
