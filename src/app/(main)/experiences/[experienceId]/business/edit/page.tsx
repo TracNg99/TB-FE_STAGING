@@ -487,7 +487,8 @@ const ExperienceDetailPage = () => {
   const params = useParams<{ experienceId: string }>();
   const experienceId = params!.experienceId;
   const [checkIn, setCheckIn] = useState<boolean>(false);
-  const [experience, setExperience] = useState<ExperienceDetail | null>(null);
+  const [experience, setExperience] =
+    useState<Partial<ExperienceDetail> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [currentActivity, setCurrentActivity] = useState<Activity | null>(null);
@@ -691,13 +692,13 @@ const ExperienceDetailPage = () => {
     <div className="overflow-x-hidden">
       {experience ? (
         <ExperienceDetailHeader
-          id={experience.id}
-          name={experience.name}
-          status={experience.status}
-          description={experience.description}
-          thumbnail_description={experience.thumbnail_description}
-          location={experience.location}
-          imageUrl={experience.imageUrl}
+          id={experience.id || ''}
+          name={experience.name || ''}
+          status={experience.status || ''}
+          description={experience.description || ''}
+          thumbnail_description={experience.thumbnail_description || ''}
+          location={experience.location || ''}
+          imageUrl={experience.imageUrl || ''}
           checked={checkIn}
           onCheckIn={handleCheckIn}
         />
@@ -827,13 +828,13 @@ const ExperienceDetailPage = () => {
       </Section>
       {experience ? (
         <EditableExperienceIconicPhotos
-          iconicPhotos={experience?.iconicPhotos}
+          iconicPhotos={experience?.iconicPhotos || []}
         />
       ) : (
         <div></div>
       )}
       {experience ? (
-        <PhotosFromTravelers userPhotos={experience?.userPhotos} />
+        <PhotosFromTravelers userPhotos={experience?.userPhotos || []} />
       ) : (
         <div></div>
       )}
