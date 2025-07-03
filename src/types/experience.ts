@@ -2,13 +2,32 @@ import { User } from './user';
 
 export type Experience = {
   id: string;
+  created_by: string;
   name: string;
+  primary_photo: string;
+  photos: string[];
+  address: string;
   status: string;
+  created_at: string;
+  updated_at: string;
+  primary_keyword: string;
+  url_slug: string;
   description: string;
   thumbnail_description: string;
+  primary_video: string;
+  parent_experience: string;
+  primary_photo_id: string;
+  photos_id: string[];
+  primary_video_id: string;
+  embedding: any;
+  owned_by: string;
+  is_deleted: boolean;
+  // legacy/old fields for compatibility
   location: string;
   imageUrl: string;
 };
+
+export type PartialExperience = Partial<Experience>;
 
 export type ExperienceDetail = Experience & {
   // attractions: Experience[];

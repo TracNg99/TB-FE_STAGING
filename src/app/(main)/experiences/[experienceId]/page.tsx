@@ -9,12 +9,12 @@ import {
   IconCircle,
   IconClock,
   IconMapPin,
+  IconQrcode,
   IconX,
 } from '@tabler/icons-react';
-import { IconQrcode } from '@tabler/icons-react';
 import Image from 'next/image';
 import { useParams, useSearchParams } from 'next/navigation';
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import BuddyAI from '@/components/chatbot/buddy-ui-ai';
 import FeatureCarousel from '@/components/feature-carousel';
@@ -41,11 +41,12 @@ import {
 } from '@/store/redux/slices/user/experience';
 import { useGetAllPublishedStoryQuery } from '@/store/redux/slices/user/story';
 import {
+  ExperienceDetail,
   ExperienceDetailHeaderProps,
   ExperienceIconicPhotosProps,
+  IconicPhoto,
   PhotosFromTravelersProps,
 } from '@/types/experience';
-import { ExperienceDetail, IconicPhoto } from '@/types/experience';
 import { cn } from '@/utils/class';
 
 const notesIconsPairs = {
@@ -385,7 +386,8 @@ const ExperienceDetailPage = () => {
   }, []);
 
   const [checkIn, setCheckIn] = useState<boolean>(false);
-  const [experience, setExperience] = useState<ExperienceDetail | null>(null);
+  const [experience, setExperience] =
+    useState<Partial<ExperienceDetail> | null>(null);
   const [activites, setActivities] = useState<
     {
       id: string;
@@ -607,13 +609,13 @@ const ExperienceDetailPage = () => {
         <div className="overflow-x-hidden">
           {experience ? (
             <ExperienceDetailHeader
-              id={experience.id}
-              name={experience.name}
-              status={experience.status}
-              description={experience.description}
-              thumbnail_description={experience.thumbnail_description}
-              location={experience.location}
-              imageUrl={experience.imageUrl}
+              id={experience.id || ''}
+              name={experience.name || ''}
+              status={experience.status || ''}
+              description={experience.description || ''}
+              thumbnail_description={experience.thumbnail_description || ''}
+              location={experience.location || ''}
+              imageUrl={experience.imageUrl || ''}
               checked={checkIn}
               onCheckIn={handleCheckIn}
             />
@@ -701,16 +703,18 @@ const ExperienceDetailPage = () => {
               isOpen={!!selectedActivity}
               onClose={handleCloseModal}
               activity={selectedActivity}
-              experience_name={experience.name}
+              experience_name={experience?.name || ''}
             />
           )}
           {experience ? (
-            <ExperienceIconicPhotos iconicPhotos={experience?.iconicPhotos} />
+            <ExperienceIconicPhotos
+              iconicPhotos={experience?.iconicPhotos || []}
+            />
           ) : (
             <div></div>
           )}
           {experience ? (
-            <PhotosFromTravelers userPhotos={experience?.userPhotos} />
+            <PhotosFromTravelers userPhotos={experience?.userPhotos || []} />
           ) : (
             <div></div>
           )}

@@ -28,6 +28,7 @@
     "dayjs": "^1.11.13",
     "embla-carousel": "8.5.2",
     "embla-carousel-react": "8.5.2",
+    "framer-motion": "^12.23.0",
     "jwt-decode": "^4.0.0",
     "next": "15.3.2",
     "qrcode": "^1.5.4",
