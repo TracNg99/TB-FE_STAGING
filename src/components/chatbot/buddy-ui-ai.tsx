@@ -218,12 +218,6 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
   };
 
   useEffect(() => {
-    if (isThreadFetching) {
-      setIsLoading(true);
-    }
-  }, [isThreadFetching]);
-
-  useEffect(() => {
     if (
       fetchedInitialSuggestions &&
       fetchedInitialSuggestions.data &&
