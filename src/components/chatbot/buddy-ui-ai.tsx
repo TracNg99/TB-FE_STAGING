@@ -736,7 +736,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
               ${
                 isInputActive
                   ? `relative h-[5vh] left-[60dvw] ${isKeyboardVisible ? `bottom-auto` : 'top-[10%]'} `
-                  : 'absolute bottom-[15%] h-[15vh]'
+                  : 'fixed bottom-[10%] h-[15vh]'
               }
               flex flex-col w-full items-center gap-5`}
           >
