@@ -4,6 +4,8 @@ import { useMediaQuery } from '@mantine/hooks';
 import { IconPlus, IconX } from '@tabler/icons-react';
 import React from 'react';
 
+import { cn } from '@/utils/class';
+
 // import { handleImageUpload } from './image-picker';
 
 interface ImageDisplayProps {
@@ -36,29 +38,26 @@ const BaseImageGridDisplay: React.FC<ImageDisplayProps> = ({
   CustomChildren,
   // onAdd
 }) => {
-  const isMobile = useMediaQuery('(max-width: 640px)');
+  const isMobile = useMediaQuery('(max-width: 768px)');
   return (
     <div
-      className={
+      className={cn(
         className ??
-        `${allowMultiple ? `grid grid-cols-4 gap-2` : `flex`} 
-          align-center justify-center items-center
-          pointer-events-auto
-        `
-      }
+          `align-center justify-center items-center
+        pointer-events-auto`,
+        allowMultiple ? `grid grid-cols-4` : `flex`,
+      )}
     >
       {allowAddNew && allowMultiple && (
         <Box
-          className={
-            singleImageClassName ??
-            `
+          className={`
+            ${singleImageClassName && 'hidden'}
             relative 
             overflow-hidden 
             rounded-md border 
             ${isMobile ? `w-[80px] h-[80px]` : `w-[150px] h-[150px]`}
             border-gray-300 bg-black/80
-        `
-          }
+        `}
         >
           <button
             type="button"

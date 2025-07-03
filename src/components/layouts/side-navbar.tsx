@@ -19,16 +19,16 @@ const navbarLinks = [
     href: '/',
     icon: '/assets/camera.svg',
   },
-  {
-    title: 'Discover',
-    href: '/discoveries',
-    icon: '/assets/location.svg',
-  },
-  {
-    title: 'Experiences',
-    href: '/experiences/8efd1b59-fc69-4290-8bf3-20f39dff72e6',
-    icon: '/assets/backpack.svg',
-  },
+  // {
+  //   title: 'Discover',
+  //   href: '/discoveries',
+  //   icon: '/assets/location.svg',
+  // },
+  // {
+  //   title: 'Experiences',
+  //   href: '/experiences/8efd1b59-fc69-4290-8bf3-20f39dff72e6',
+  //   icon: '/assets/backpack.svg',
+  // },
   {
     title: 'Stories',
     icon: '/assets/sparkle_pen.svg',
@@ -40,7 +40,7 @@ const Navbar = () => {
   const { setIsSidebarOpen } = useSidebar();
   const router = useRouter();
 
-  const [activeTab, setActiveTab] = useState('home');
+  const [activeTab, setActiveTab] = useState('/');
 
   const handleAiButtonClicked = () => {
     if (!user) {

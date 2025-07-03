@@ -16,7 +16,7 @@ import Image from 'next/image';
 import { useParams, useSearchParams } from 'next/navigation';
 import React, { useEffect, useRef, useState } from 'react';
 
-import BuddyUI from '@/components/chatbot/buddy-ui-ai';
+import BuddyAI from '@/components/chatbot/buddy-ui-ai';
 import FeatureCarousel from '@/components/feature-carousel';
 import IconFeatureCamera from '@/components/icons/icon-feature-camera';
 import IconFeatureLocation from '@/components/icons/icon-feature-location';
@@ -420,9 +420,12 @@ const ExperienceDetailPage = () => {
   const { data: storiesData } = useGetAllPublishedStoryQuery();
 
   const { data: visitData, refetch: refetchVisitData } =
-    useGetExperienceVisitsByUserIdQuery({
-      id: experienceId,
-    });
+    useGetExperienceVisitsByUserIdQuery(
+      {
+        id: experienceId,
+      },
+      { skip: !user },
+    );
 
   const [recordVisit] = useCreateExperienceVisitsByUserIdMutation();
 
@@ -717,7 +720,7 @@ const ExperienceDetailPage = () => {
             onClose={() => setShowLoginModal(false)}
             onSuccess={handleLoginSuccess}
           />
-          <BuddyUI context={{ experience_id: experienceId }} />
+          <BuddyAI context={{ experience_id: experienceId }} />
         </div>
       )}
     </div>

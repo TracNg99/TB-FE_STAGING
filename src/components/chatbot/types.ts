@@ -8,10 +8,9 @@ export interface MessagesProps {
 }
 
 export interface Source {
-  id: number;
-  logo: string;
-  name: string;
+  id?: number;
+  logo?: string;
   url: string;
-  title: string;
+  title?: string;
   snippet: string;
 }

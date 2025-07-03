@@ -367,6 +367,7 @@ const BuddyUI = ({ context }: { context?: { [key: string]: string } }) => {
   const handleKeyPress = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
+      event.stopPropagation();
       handleSend();
     }
   };
@@ -402,7 +403,7 @@ const BuddyUI = ({ context }: { context?: { [key: string]: string } }) => {
       {/* Header */}
       <div className="bg-orange-400 text-white p-3 rounded-t-lg flex justify-between items-center">
         {/* AI Buddy text component */}
-        <span className="font-semibold text-lg ml-2">AI Buddy</span>
+        <span className="font-semibold text-lg ml-2">Travel Buddy</span>
         {/* Right side - Button group */}
         <div className="flex items-center mr-2">
           {/* Clear chat button - matched to close button size */}

@@ -28,22 +28,25 @@ interface BuddyAgentRes {
 interface BuddyHistoryProps {
   id: string;
   user_id: string;
+  created_at: string;
+  context?: string;
   chat_messages: {
     id: string;
     user_id: string;
     role: string;
     content: string;
-    metadata: {
+    metadata?: {
       images?: string[];
       sources?: Source[];
       suggestions?: string[];
+      follow_up_questions?: string[];
     };
     created_at: string;
     thread_id: string;
   }[];
 }
 interface BuddyHistoryRes {
-  data?: BuddyHistoryProps;
+  data?: BuddyHistoryProps[];
   error?: any;
 }
 
@@ -93,15 +96,36 @@ const BuddyAgentApi = createApi({
       }),
     }),
 
-    getChatHistory: builder.query<
-      BuddyHistoryRes,
+    getAllChatThreads: builder.query<BuddyHistoryRes, void>({
+      query: () => ({
+        url: `/chat/history`,
+        method: 'GET',
+      }),
+    }),
+
+    getThreadById: builder.query<
+      { data: BuddyHistoryProps },
       { session_id: string | null }
     >({
       query: ({ session_id }) => ({
-        url: `/chat/get-history`,
+        url: `/chat/history/thread`,
         method: 'GET',
         params: {
           session_id: session_id,
+        },
+      }),
+    }),
+
+    getInitialSuggestions: builder.query<
+      { data: string[] },
+      { experienceId: string; companyId: string }
+    >({
+      query: ({ experienceId, companyId }) => ({
+        url: `/chat/initial-suggestions`,
+        method: 'GET',
+        params: {
+          experience_id: experienceId,
+          company_id: companyId,
         },
       }),
     }),
@@ -147,11 +171,11 @@ const streamBuddyApi = createApi({
         },
         responseHandler: async (response: any) => {
           if (!response.ok) {
-            console.error(
-              '[STREAM DEBUG story.ts] Response not OK:',
-              response.status,
-              response.statusText,
-            );
+            // console.error(
+            //   '[STREAM DEBUG story.ts] Response not OK:',
+            //   response.status,
+            //   response.statusText,
+            // );
             const errorText = await response
               .text()
               .catch(() => `Request failed with status ${response.status}`);
@@ -176,9 +200,9 @@ const streamBuddyApi = createApi({
             });
             throw new Error('No response body received for streaming.');
           }
-          console.log(
-            '[STREAM DEBUG story.ts] Response OK, body exists. Starting stream processing.',
-          );
+          // console.log(
+          //   '[STREAM DEBUG story.ts] Response OK, body exists. Starting stream processing.',
+          // );
 
           return new Promise<StreamMessage>((resolve, reject) => {
             const reader = response.body!.getReader();
@@ -190,15 +214,10 @@ const streamBuddyApi = createApi({
 
             const processStream = async () => {
               try {
-                console.log(
-                  '[STREAM DEBUG story.ts] processStream: Calling reader.read()...',
-                );
                 const { done, value } = await reader.read();
 
                 if (done) {
-                  // console.log('[STREAM DEBUG story.ts] processStream: Stream is DONE.');
                   if (lastValidStoryStreamRes) {
-                    // console.log('[STREAM DEBUG story.ts] processStream: Resolving with the last valid parsed event:', lastValidStoryStreamRes);
                     onChunk({
                       event: 'done',
                       data: lastValidStoryStreamRes.data,
@@ -206,30 +225,20 @@ const streamBuddyApi = createApi({
                     });
                     resolve(lastValidStoryStreamRes);
                   } else if (accumulatedData.trim()) {
-                    // console.log('[STREAM DEBUG story.ts] processStream: Stream DONE, no prior valid events, but accumulatedData exists:', accumulatedData);
                     const finalRawEvent = sseDecoder.parseEvent(
                       accumulatedData.trim(),
                     );
-                    // console.log('[STREAM DEBUG story.ts] processStream: Parsed finalRawEvent from accumulatedData:', finalRawEvent);
                     if (
                       finalRawEvent &&
                       typeof finalRawEvent.event === 'string' &&
                       finalRawEvent.data
                     ) {
-                      console.log(
-                        '[STREAM DEBUG story.ts] processStream: Channel: ',
-                        finalRawEvent.channel_type,
-                      );
                       const channelTypeFromEvent = finalRawEvent.channel_type;
                       const finalStoryStreamRes: StreamMessage = {
                         event: finalRawEvent.event,
                         data: finalRawEvent.data as StreamMessageProps,
                         channel_type: channelTypeFromEvent!,
                       };
-                      console.log(
-                        '[STREAM DEBUG story.ts] processStream: Resolving with final event from accumulatedData:',
-                        finalStoryStreamRes,
-                      );
                       onChunk({
                         event: 'done',
                         data: finalStoryStreamRes.data,
@@ -237,7 +246,9 @@ const streamBuddyApi = createApi({
                       });
                       resolve(finalStoryStreamRes);
                     } else {
-                      // console.warn('[STREAM DEBUG story.ts] processStream: Stream ended. Accumulated data did not parse into a conclusive event. Rejecting.');
+                      console.warn(
+                        '[STREAM DEBUG buddy.ts] processStream: Stream ended. Accumulated data did not parse into a conclusive event. Rejecting.',
+                      );
                       onChunk({
                         event: 'error',
                         data: {
@@ -253,7 +264,9 @@ const streamBuddyApi = createApi({
                       );
                     }
                   } else {
-                    // console.warn('[STREAM DEBUG story.ts] processStream: Stream ended. No valid events processed and no remaining data. Rejecting.');
+                    console.warn(
+                      '[STREAM DEBUG buddy.ts] processStream: Stream ended. No valid events processed and no remaining data. Rejecting.',
+                    );
                     onChunk({
                       event: 'done',
                       data: {
@@ -295,10 +308,10 @@ const streamBuddyApi = createApi({
                       typeof parsedRawEvent.event === 'string' &&
                       parsedRawEvent.data
                     ) {
-                      console.log(
-                        '[STREAM DEBUG story.ts] processStream: Channel: ',
-                        parsedRawEvent.channel_type,
-                      );
+                      // console.log(
+                      //   '[STREAM DEBUG story.ts] processStream: Channel: ',
+                      //   parsedRawEvent.channel_type,
+                      // );
                       const channelTypeFromEvent = parsedRawEvent.channel_type;
                       const currentChunkRes: StreamMessage = {
                         event: parsedRawEvent.event,
@@ -306,23 +319,21 @@ const streamBuddyApi = createApi({
                         channel_type: channelTypeFromEvent || '',
                       };
                       lastValidStoryStreamRes = currentChunkRes;
-                      console.log(
-                        `[STREAM DEBUG story.ts] processStream: Event #${eventCount} is valid. Calling onChunk with:`,
-                        currentChunkRes,
-                      );
                       onChunk(currentChunkRes);
                     } else {
                       console.log(
-                        `[STREAM DEBUG story.ts] processStream: Event #${eventCount} parsed but not valid for storing (event type or data missing).`,
+                        `[STREAM DEBUG buddy.ts] processStream: Event #${eventCount} parsed but not valid for storing (event type or data missing).`,
                       );
                     }
                   }
                 }
 
-                // console.log('[STREAM DEBUG story.ts] processStream: No complete event in current accumulation or processed all in chunk, continuing to read stream...');
                 processStream();
               } catch (error) {
-                // console.error('[STREAM DEBUG story.ts] processStream: ERROR during stream processing:', error);
+                console.error(
+                  '[STREAM DEBUG buddy.ts] processStream: ERROR during stream processing:',
+                  error,
+                );
                 const errorMessage =
                   error instanceof Error
                     ? error.message
@@ -352,7 +363,9 @@ const streamBuddyApi = createApi({
 export const {
   useCallBuddyAgentMutation,
   useResetChatMemoryQuery,
-  useGetChatHistoryQuery,
+  useGetThreadByIdQuery,
+  useGetAllChatThreadsQuery,
+  useGetInitialSuggestionsQuery,
 } = BuddyAgentApi;
 
 export const { useBuddyStreamMutation } = streamBuddyApi;

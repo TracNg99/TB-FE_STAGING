@@ -1,11 +1,12 @@
 'use client';
 
 import { Loader, Text } from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
-import Footer from '@/components/layouts/footer';
-import Navbar from '@/components/layouts/navbar';
+import TransitionTopbar from '@/components/layouts/logo-bar';
+import MobileNavbar from '@/components/layouts/mobile-nav-layout';
 import { authKey } from '@/contexts/auth-provider';
 import { useFetchUserAfterOAuthQuery } from '@/store/redux/slices/user/auth';
 
@@ -14,6 +15,7 @@ const OAuthCallback = () => {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [refreshToken, setRefreshToken] = useState<string | null>(null);
   const hash = localStorage.getItem('hash');
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   // Extract access token on mount
   useEffect(() => {
@@ -62,14 +64,14 @@ const OAuthCallback = () => {
 
   return (
     <>
-      <Navbar />
+      {isMobile && <TransitionTopbar />}
       <div className="flex items-center justify-center align-middle mt-20">
         <Text size="xl" style={{ fontWeight: 'bold' }}>
-          <Loader className="flex self-center" size={50} />
+          <Loader className="flex place-self-center" size={50} />
           {isFetching ? 'Loading...' : 'Redirecting...'}
         </Text>
       </div>
-      <Footer />
+      {isMobile && <MobileNavbar />}
     </>
   );
 };

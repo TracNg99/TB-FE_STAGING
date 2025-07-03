@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 
+import { cn } from '@/utils/class';
+
 const TextUnfolder = ({
   text,
   className,
@@ -14,22 +16,18 @@ const TextUnfolder = ({
 
   useEffect(() => {
     const timer = setTimeout(() => {
+      if (charIndex >= text.length) {
+        return;
+      }
       setUnfoldedText((prevText) => prevText + text[charIndex]);
       setCharIndex((prevIndex) => prevIndex + 1);
     }, delay); // Adjust delay as needed
 
     return () => clearTimeout(timer);
-  }, [text, unfoldedText, charIndex]);
-
-  useEffect(() => {
-    if (charIndex >= text.length) {
-      setUnfoldedText('');
-      setCharIndex(0); // Reset for next unfolding
-    }
-  }, [charIndex, text.length]);
+  }, [text, unfoldedText, charIndex, delay]);
 
   return (
-    <span className={className + ' ml-4 wrap-break-word text-pretty'}>
+    <span className={cn(className, 'ml-4 wrap-break-word text-pretty')}>
       {unfoldedText}
     </span>
   );
