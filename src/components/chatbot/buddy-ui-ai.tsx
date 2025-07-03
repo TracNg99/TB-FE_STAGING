@@ -263,8 +263,13 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
     const handleResize = () => {
       if (visualViewport) {
         const { height, offsetTop } = visualViewport;
+        console.log('Height: ', height);
+        console.log('Offset Top: ', offsetTop);
+        console.log('Window Inner Height: ', window.innerHeight);
         const keyboardOffset = window.innerHeight - height - offsetTop;
-        setKeyboardHeight(keyboardOffset > 0 ? keyboardOffset : 0);
+        setKeyboardHeight(
+          keyboardOffset > 0 ? (keyboardOffset * 100) / window.innerHeight : 0,
+        );
         console.log('Keyboard Height: ', keyboardHeight);
       }
     };
@@ -601,6 +606,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
         className={`
         flex flex-col 
         w-full
+        h-[calc(100vh-${keyboardHeight}px)]
         items-center justify-center overflow-hidden
         ${
           messages.current.length === 0 && !isInputActive && !isThreadFetching
@@ -617,7 +623,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
             <div
               className={`
              absolute inset-0 bg-gradient-to-b 
-             from-gray-600/20 to-white z-0
+             from-gray-600/20 from-10% to-white to-60% z-0
             ${!isHome && 'hidden'}
             `}
             />
@@ -631,29 +637,31 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
           }
             w-[calc(100vw-20px)]
             ${isMobile && isKeyboardVisible && `h-[1vh]`}
-            ${isMobile && !isKeyboardVisible && `h-[85vh]`}
-            ${!isMobile && `h-[65vh]`}
+            ${isMobile && !isKeyboardVisible && `h-[90vh]`}
+            ${!isMobile && `h-[80vh]`}
             ${!isMobile && messages.current.length > 0 && `h-[100vh]`}
           `}
         >
-          {messages.current.length === 0 &&
-            !isInputActive &&
-            !isThreadFetching &&
-            isHome && (
-              <>
-                <div className="mb-2">
-                  <Image
-                    src="/assets/buddy_mascot.svg"
-                    alt="Travel Buddy Mascot"
-                    width={240}
-                    height={180}
-                  />
-                </div>
-                <h1 className="mb-1 text-2xl font-bold text-[#F47920]">
-                  Welcome to Travel Buddy!
-                </h1>
-              </>
-            )}
+          <div className="fixed top-[20%] flex flex-col items-center">
+            {messages.current.length === 0 &&
+              !isInputActive &&
+              !isThreadFetching &&
+              isHome && (
+                <>
+                  <div className="mb-2">
+                    <Image
+                      src="/assets/buddy_mascot.svg"
+                      alt="Travel Buddy Mascot"
+                      width={240}
+                      height={180}
+                    />
+                  </div>
+                  <h1 className="mb-1 text-2xl font-bold text-[#F47920]">
+                    Welcome to Travel Buddy!
+                  </h1>
+                </>
+              )}
+          </div>
           <div
             className={`
               fixed
@@ -723,69 +731,77 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
               </ScrollArea>
             )}
           </div>
-
-          {messages.current.length === 0 && !isInputActive && isHome && (
-            <TextCarousel
-              items={initialSuggestions}
-              showControls={true}
-              renderItem={(item) => (
-                <button
-                  key={item}
-                  className="text-nowrap rounded-full bg-[#FFF2E5] px-2 py-2 text-[12px] text-gray-600 shadow-lg hover:bg-gray-100 cursor-pointer"
-                  onClick={() => handleSend(item)}
-                >
-                  {item}
-                </button>
-              )}
-              className={`absolute bottom-20 ${isMobile ? 'w-[90%]' : 'w-[60%]'}`}
-              slideSize={{ base: 25, sm: 50, md: 20 }}
-              slideGap={16}
-              // paginationType="none"
-              duration={25}
-            />
-          )}
-
           <div
             className={`
+              ${
+                isInputActive
+                  ? `relative h-[5vh] left-[60dvw] ${isKeyboardVisible ? `bottom-auto` : 'top-[10%]'} `
+                  : 'absolute bottom-[15%] h-[15vh]'
+              }
+              flex flex-col w-full items-center gap-5`}
+          >
+            {messages.current.length === 0 && !isInputActive && isHome && (
+              <TextCarousel
+                items={initialSuggestions}
+                showControls={true}
+                renderItem={(item) => (
+                  <button
+                    key={item}
+                    className="text-nowrap rounded-full bg-[#FFF2E5] px-2 py-2 text-[12px] text-gray-600 shadow-lg hover:bg-gray-100 cursor-pointer"
+                    onClick={() => handleSend(item)}
+                  >
+                    {item}
+                  </button>
+                )}
+                className={`absolute bottom-20 ${isMobile ? 'w-[90%]' : 'w-[60%]'}`}
+                slideSize={{ base: 25, sm: 50, md: 20 }}
+                slideGap={16}
+                // paginationType="none"
+                duration={25}
+              />
+            )}
+
+            <div
+              className={`
               absolute bottom-1
               ${isMobile ? 'w-[90%] overflow-y-auto' : 'w-[60%]'}
               bg-white rounded-md
               ${!isHome ? 'm-10' : 'mx-6'}
-              ${isInputActive ? 'right-1 bg-[#FCFCF9]' : 'pl-2 pr-2 pb-2 border-gray-300 bg-black/80 shadow-lg shadow-orange-400/50'}
+              ${isInputActive ? 'right-1 bg-[#FCFCF9]' : 'pl-2 pr-2 pb-2 border-black bg-black/80 shadow-md shadow-orange-400'}
               self-center
             `}
-          >
-            <InchatUploader
-              className={`
+            >
+              <InchatUploader
+                className={`
                 ${isInputActive && 'fixed top-[10dvh] left-[2dvh] right-[2dvh]'}
                 flex flex-row 
                 lg:mx gap-4 my-3
               `}
-              selectedImages={selectedImages}
-              handleRemoveImage={handleRemoveImage}
-              CustomChildren={CustomImageDisplay}
-              singleImageClassName="hidden"
-            />
+                selectedImages={selectedImages}
+                handleRemoveImage={handleRemoveImage}
+                CustomChildren={CustomImageDisplay}
+                singleImageClassName="hidden"
+              />
 
-            {/* Input bar - now with proper spacing and scaling */}
-            <div
-              className={`
+              {/* Input bar - now with proper spacing and scaling */}
+              <div
+                className={`
               grid ${isMobile ? 'grid-cols-3' : 'grid-cols-5'} 
               w-full 
               bg-white rounded-md
             `}
-            >
-              {isInputActive && messages.current.length === 0 && (
-                <button
-                  className="fixed top-[1dvh] left-[1dvh] z-1000"
-                  onClick={() => setIsInputActive(false)}
-                >
-                  <IconX />
-                </button>
-              )}
-              {/* Text input (flexible width) */}
-              <TextInput
-                className={`
+              >
+                {isInputActive && messages.current.length === 0 && (
+                  <button
+                    className="fixed top-[1dvh] left-[1dvh] z-1000"
+                    onClick={() => setIsInputActive(false)}
+                  >
+                    <IconX />
+                  </button>
+                )}
+                {/* Text input (flexible width) */}
+                <TextInput
+                  className={`
                     ${isMobile ? 'col-span-2' : 'col-span-4'} 
                     ${
                       isInputActive && messages.current.length === 0
@@ -796,61 +812,61 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                         : 'pt-1 pb-4 pl-1 w-full bg-white h-[6vh]'
                     }
                 `}
-                placeholder="Ask me anything..."
-                value={input}
-                onChange={(e) => setInput(e.currentTarget.value)}
-                onKeyDown={handleKeyPress}
-                onFocus={() =>
-                  isMobile && messages.current.length === 0 && pathname === '/'
-                    ? setIsInputActive(true)
-                    : undefined
-                }
-                variant="unstyled"
-                // disabled={isInputActive}
-                size={isInputActive ? '25px' : 'base'}
-              />
+                  placeholder="Ask me anything..."
+                  value={input}
+                  onChange={(e) => setInput(e.currentTarget.value)}
+                  onKeyDown={handleKeyPress}
+                  onFocus={() =>
+                    isMobile &&
+                    messages.current.length === 0 &&
+                    pathname === '/'
+                      ? setIsInputActive(true)
+                      : undefined
+                  }
+                  variant="unstyled"
+                  // disabled={isInputActive}
+                  size={isInputActive ? '25px' : 'base'}
+                />
 
-              <div
-                className={`
-                 flex grid grid-cols-3
-                 columns-3xs
-                 right-0 shrink-0 
-                 justify-items-center
+                <div
+                  className={`
+                 flex justify-items-center
                  items-end
-                 place-self-end
+                 place-self-end grid grid-cols-3
+                 columns-xs shrink-0
                  ${isMobile ? 'w-[90%] gap-x-1' : 'w-full gap-x-0'}
                  ${isInputActive ? 'bg-[#FCFCF9]' : ''}
                 `}
-              >
-                {/* Image upload */}
-                <div className="col-span-1">
-                  <ImageUploader
-                    onImageUpload={setSelectedImages}
-                    fetchImages={selectedImages}
-                    className={`
+                >
+                  {/* Image upload */}
+                  <div className="col-span-1">
+                    <ImageUploader
+                      onImageUpload={setSelectedImages}
+                      fetchImages={selectedImages}
+                      className={`
                      flex
                      text-gray-200 rounded-full cursor-pointer 
                      ${isMobile ? 'size-8' : 'size-10'}
                      align-items-end
                     `}
-                    allowMultiple={true}
-                  >
-                    <Image
-                      src="/assets/image_uploader_icon.svg"
-                      alt="Upload"
-                      width={isMobile ? 56 : 76}
-                      height={isMobile ? 56 : 76}
-                    />
-                  </ImageUploader>
-                </div>
+                      allowMultiple={true}
+                    >
+                      <Image
+                        src="/assets/image_uploader_icon.svg"
+                        alt="Upload"
+                        width={isMobile ? 56 : 76}
+                        height={isMobile ? 56 : 76}
+                      />
+                    </ImageUploader>
+                  </div>
 
-                {/* Voice button */}
-                <div className="col-span-1">
-                  <VoiceButtonForm
-                    language="en-US"
-                    onTranscribe={(e) => setInput(e)}
-                    existingTexts={input}
-                    className={`
+                  {/* Voice button */}
+                  <div className="col-span-1">
+                    <VoiceButtonForm
+                      language="en-US"
+                      onTranscribe={(e) => setInput(e)}
+                      existingTexts={input}
+                      className={`
                     flex flex-end
                     text-gray-600 bg-transparent 
                     rounded-full cursor-pointer 
@@ -858,30 +874,31 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                     items-center
                     ${isMobile ? 'size-6 pb-1' : 'size-10'}
                   `}
-                    customIcon={<FaMicrophone className="size-5" />}
-                    asModal
-                  />
-                </div>
+                      customIcon={<FaMicrophone className="size-5" />}
+                      asModal
+                    />
+                  </div>
 
-                {/* Send button (properly sized) */}
-                <div className="col-span-1">
-                  <button
-                    className={`ml-1 mb-1 rounded-md bg-orange-500 hover:bg-orange-600 text-white cursor-pointer p-2`}
-                    onClick={() => handleSend()}
-                    disabled={input === ''}
-                  >
-                    {isHome ? (
-                      <SendIcon
-                        className="text-white"
-                        size={isMobile ? 14 : 20}
-                      />
-                    ) : (
-                      <IconGitFork
-                        className="text-white"
-                        size={isMobile ? 14 : 20}
-                      />
-                    )}
-                  </button>
+                  {/* Send button (properly sized) */}
+                  <div className="col-span-1">
+                    <button
+                      className={`ml-1 mb-1 rounded-md bg-orange-500 hover:bg-orange-600 text-white cursor-pointer p-2`}
+                      onClick={() => handleSend()}
+                      disabled={input === ''}
+                    >
+                      {isHome ? (
+                        <SendIcon
+                          className="text-white"
+                          size={isMobile ? 14 : 20}
+                        />
+                      ) : (
+                        <IconGitFork
+                          className="text-white"
+                          size={isMobile ? 14 : 20}
+                        />
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

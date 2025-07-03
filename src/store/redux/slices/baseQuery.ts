@@ -36,9 +36,11 @@ export const baseQueryAgent = fetchBaseQuery({
 });
 
 export const baseUrl =
-  process.env.NODE_ENV === 'development'
-    ? 'http://localhost:3000'
-    : 'https://travelbuddy8.com';
+  process.env.NODE_ENV !== 'production'
+    ? process.env.NODE_ENV === 'development'
+      ? 'http://localhost:3000'
+      : process.env.NEXT_PUBLIC_STAGING_URL
+    : process.env.NEXT_PUBLIC_BASE_URL;
 
 export const agentServerUrl =
   process.env.NODE_ENV === 'development'
