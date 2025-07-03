@@ -101,7 +101,7 @@ const Navbar = () => {
       </nav>
       <div className="mt-auto">
         {user ? (
-          <Popover position="right-end" withArrow>
+          <Popover position="top" withArrow>
             <Popover.Target>
               <UnstyledButton>
                 <Avatar
@@ -111,15 +111,22 @@ const Navbar = () => {
                 />
               </UnstyledButton>
             </Popover.Target>
-            <Popover.Dropdown>
+            <Popover.Dropdown className="flex flex-col gap-2 bg-white/50">
               <Button
+                className="bg-orange-500 text-white"
                 fullWidth
                 variant="subtle"
                 onClick={() => router.push('/profile')}
               >
                 Profile
               </Button>
-              <Button fullWidth variant="subtle" color="red" onClick={logout}>
+              <Button
+                className="bg-red-500 text-white"
+                fullWidth
+                variant="subtle"
+                color="red"
+                onClick={logout}
+              >
                 Logout
               </Button>
             </Popover.Dropdown>

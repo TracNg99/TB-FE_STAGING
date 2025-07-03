@@ -104,7 +104,7 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
           msg.text && (
             <div key={i} className={`flex flex-col w-full`} ref={ref}>
               <div
-                className={`sm:p-6 bg-[#FFF9F5] ${isMobile ? 'w-full' : 'w-full'}`}
+                className={`sm:p-6 bg-[#FCFCF9] ${isMobile ? 'w-full' : 'w-full'}`}
               >
                 {msg.from === 'user' && (
                   <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">

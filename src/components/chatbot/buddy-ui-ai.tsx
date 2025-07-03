@@ -668,8 +668,8 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
               flex flex-col max-h-[30vh]
               ${isMobile ? `top-[6dvh] w-[90%]` : 'top-[6dvh] w-[60%]'} 
               transition-all ${!isHome && 'hidden'} 
-              mt-10 mb-40 overflow-y-auto
-              ${messages.current.length > 0 && 'min-h-[calc(100vh-200px)]'}
+              mt-10 mb-60 overflow-y-auto
+              ${messages.current.length > 0 && 'min-h-[calc(100vh-250px)]'}
               ${messages.current.length === 0 && 'mb-70'}
             `}
           >

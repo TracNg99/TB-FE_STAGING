@@ -6,7 +6,7 @@ import { IconDoorExit, IconUserCircle } from '@tabler/icons-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 // import Image from 'next/image';
 import { BiCompass } from 'react-icons/bi';
 import { BsPersonCircle } from 'react-icons/bs';
@@ -48,9 +48,13 @@ const Navbar = () => {
   //   const { setIsSidebarOpen } = useSidebar();
   const router = useRouter();
   const pathname = usePathname();
-  const isOAuthCallback = pathname === '/auth/callbackv1';
+  const [isOAuthCallback, setIsOAuthCallback] = useState(false);
 
   const [activeTab, setActiveTab] = useState('/');
+
+  useEffect(() => {
+    setIsOAuthCallback(pathname === '/auth/callbackv1');
+  }, [pathname]);
 
   const handleAiButtonClicked = () => {
     if (!user) {
