@@ -1,7 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 
-import { baseUrl } from '../baseQuery';
-import { baseQuery } from '../baseQuery';
+import { baseQuery, baseUrl } from '../baseQuery';
 
 interface AuthReq {
   firstName?: string;
