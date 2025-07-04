@@ -2,7 +2,7 @@
 
 import { useParams } from 'next/navigation';
 
-import BuddyUI from '@/components/chatbot/buddy-ui-ai';
+import BuddyAI from '@/components/chatbot/buddy-ui-ai';
 import IconInfo from '@/components/icons/icon-info';
 import Section from '@/components/layouts/section';
 import SectionHeader from '@/components/section-header';
@@ -85,9 +85,9 @@ const ExperienceDetailPage = () => {
           </div>
         </Section>
       )}
-
       {/* Chatbot */}
-      <BuddyUI context={{ experience_id: experienceId as string }} />
+
+      <BuddyAI context={{ experience_id: experienceId as string }} />
     </div>
   );
 };

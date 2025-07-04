@@ -89,12 +89,18 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'answer' | 'sources'>('answer');
   const [isCopied, setIsCopied] = useState(false);
+  const [currentMessage, setCurrentMessage] = useState(messages.length - 1);
 
   const handleShare = () => {
     if (navigator.clipboard && typeof window !== 'undefined') {
       navigator.clipboard.writeText(window.location.href);
       setIsCopied(true);
     }
+  };
+
+  const handleTabSelect = (index: number, tab: 'answer' | 'sources') => {
+    setCurrentMessage(index);
+    setActiveTab(tab);
   };
 
   return (
@@ -130,7 +136,7 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                   <div className={`text-wrap w-full`}>
                     <div className={`flex border-b mb-4`}>
                       <button
-                        onClick={() => setActiveTab('answer')}
+                        onClick={() => handleTabSelect(i, 'answer')}
                         className={cn(
                           'py-2 px-4 text-md',
                           activeTab === 'answer'
@@ -141,7 +147,7 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                         Answer
                       </button>
                       <button
-                        onClick={() => setActiveTab('sources')}
+                        onClick={() => handleTabSelect(i, 'sources')}
                         className={cn(
                           'py-2 px-4 text-md',
                           activeTab === 'sources'
@@ -215,60 +221,64 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                             </span>
                           </button>
                         </div>
-                        {msg.suggestions && msg.suggestions.length > 0 && (
-                          <div className="mt-8">
-                            <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-800 mb-3">
-                              <IconHelpCircle
-                                size={24}
-                                className="text-orange-500"
-                              />
-                              Follow-up Questions
-                            </h3>
-                            <div className="border-t border-gray-200">
-                              {(msg.suggestions && msg.suggestions.length > 0
-                                ? msg.suggestions
-                                : mockSuggestions
-                              ).map((q, i) => (
-                                <button
-                                  key={i}
-                                  onClick={() => setInput(q)}
-                                  className="w-full text-left flex justify-between items-center py-3 px-2 border-b border-gray-200 hover:bg-gray-50 cursor-pointer"
-                                >
-                                  <span className="text-gray-700">{q}</span>
-                                  <IconArrowUpRight
-                                    size={20}
-                                    className="text-gray-400"
-                                  />
-                                </button>
-                              ))}
+                        {msg.suggestions &&
+                          msg.suggestions.length > 0 &&
+                          i === messages.length - 1 && (
+                            <div className="mt-8">
+                              <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-800 mb-3">
+                                <IconHelpCircle
+                                  size={24}
+                                  className="text-orange-500"
+                                />
+                                Follow-up Questions
+                              </h3>
+                              <div className="border-t border-gray-200">
+                                {(msg.suggestions && msg.suggestions.length > 0
+                                  ? msg.suggestions
+                                  : mockSuggestions
+                                ).map((q, i) => (
+                                  <button
+                                    key={i}
+                                    onClick={() => setInput(q)}
+                                    className="w-full text-left flex justify-between items-center py-3 px-2 border-b border-gray-200 hover:bg-gray-50 cursor-pointer"
+                                  >
+                                    <span className="text-gray-700">{q}</span>
+                                    <IconArrowUpRight
+                                      size={20}
+                                      className="text-gray-400"
+                                    />
+                                  </button>
+                                ))}
+                              </div>
                             </div>
-                          </div>
-                        )}
+                          )}
                       </div>
                     ) : (
-                      <div>
-                        {(msg.sources && msg.sources.length > 0
-                          ? msg.sources
-                          : []
-                        )?.map((source, index) => (
-                          <div key={index} className="mb-6 gap-4">
-                            <p className="text-gray-600 font-bold mt-1">
-                              {`Source [${index + 1}]`}
-                            </p>
-                            <a
-                              href={`https://${source.url}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-lg font-semibold text-blue-600 hover:underline"
-                            >
-                              {source.url}
-                            </a>
-                            <p className="text-gray-600 mt-1">
-                              {source.snippet}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
+                      i === currentMessage && (
+                        <div>
+                          {(msg.sources && msg.sources.length > 0
+                            ? msg.sources
+                            : []
+                          )?.map((source, index) => (
+                            <div key={index} className="mb-6 gap-4">
+                              <p className="text-gray-600 font-bold mt-1">
+                                {`Source [${index + 1}]`}
+                              </p>
+                              <a
+                                href={`https://${source.url}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-lg font-semibold text-blue-600 hover:underline"
+                              >
+                                {source.url}
+                              </a>
+                              <p className="text-gray-600 mt-1">
+                                {source.snippet}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      )
                     )}
                   </div>
                 )}

@@ -41,7 +41,7 @@ const DiscoveriesMain: React.FC = () => {
   }
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col mb-20">
       {/* Sticky Header and Chips */}
       <div className="sticky top-0 z-30 bg-gray-50 px-4 py-2 border-b border-gray-200">
         <h1 className="text-2xl font-bold my-2" style={{ color: '#333333' }}>

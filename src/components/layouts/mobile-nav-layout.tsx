@@ -11,8 +11,8 @@ import { useEffect, useState } from 'react';
 import { BiCompass } from 'react-icons/bi';
 import { BsPersonCircle } from 'react-icons/bs';
 import { GrDocumentText } from 'react-icons/gr';
-// import { IoMdSearch } from 'react-icons/io';
 import { GrHistory } from 'react-icons/gr';
+import { IoMdSearch } from 'react-icons/io';
 
 import { useAuth } from '@/contexts/auth-provider';
 // import { useSidebar } from '@/contexts/sidebar-provider';
@@ -22,18 +22,18 @@ import { cn } from '@/utils/class';
 
 const navbarLinks = [
   {
-    title: 'Discover',
+    title: 'Home',
     href: '/',
     icon: <BiCompass size={24} />,
   },
-  // {
-  //   title: 'Experiences',
-  //   href: '/discoveries',
-  //   icon: <IoMdSearch size={24}/>,
-  // },
+  {
+    title: 'Discover',
+    href: '/discoveries',
+    icon: <IoMdSearch size={24} />,
+  },
   {
     title: 'Stories',
-    // href: '/stories/new',
+    href: '/stories/new',
     icon: <GrDocumentText size={24} />,
   },
   {
@@ -87,7 +87,7 @@ const Navbar = () => {
   return (
     <>
       {pathname === '/' && (
-        <div className="fixed top-[2dvh] left-[2dvh] flex flex-row z-1000">
+        <div className="fixed top-[2dvh] left-[2dvh] flex flex-row z-10">
           {user ? (
             <Popover position="top-end" withArrow>
               <Popover.Target>
@@ -169,7 +169,7 @@ const Navbar = () => {
             onClick={() =>
               link.title === 'Stories'
                 ? handleAiButtonClicked()
-                : handleTabChange(link.href ?? '/')
+                : handleTabChange(link.href)
             }
             className={cn(
               'flex flex-col items-center gap-1 rounded-lg p-2',

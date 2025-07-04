@@ -189,9 +189,10 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
     },
   );
 
-  const { data: historyData } = useGetAllChatThreadsQuery(undefined, {
-    skip: !user,
-  });
+  const { data: historyData, refetch: refetchHistoryData } =
+    useGetAllChatThreadsQuery(undefined, {
+      skip: !user,
+    });
 
   const { data: threadData, isFetching: isThreadFetching } =
     useGetThreadByIdQuery(
@@ -203,10 +204,15 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
       },
     );
 
-  const { data: fetchedInitialSuggestions } = useGetInitialSuggestionsQuery({
-    experienceId: experienceId as string,
-    companyId: companyId ?? (experienceData?.owned_by as string),
-  });
+  const { data: fetchedInitialSuggestions } = useGetInitialSuggestionsQuery(
+    {
+      experienceId: experienceId as string,
+      companyId: companyId ?? (experienceData?.owned_by as string),
+    },
+    {
+      skip: !isHome,
+    },
+  );
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -216,6 +222,21 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
       top: messagesEndRef.current?.scrollHeight,
     });
   };
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedInput = localStorage.getItem('chat-input');
+      if (storedInput && storedInput !== '') {
+        handleSend(storedInput);
+        localStorage.removeItem('chat-input');
+      }
+
+      const storedThreadId = localStorage.getItem('thread-id');
+      if (storedThreadId && storedThreadId !== '' && threadsList.length > 0) {
+        handleThreadSelect(storedThreadId);
+      }
+    }
+  }, [threadsList.length]);
 
   useEffect(() => {
     if (
@@ -257,14 +278,10 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
     const handleResize = () => {
       if (visualViewport) {
         const { height, offsetTop } = visualViewport;
-        console.log('Height: ', height);
-        console.log('Offset Top: ', offsetTop);
-        console.log('Window Inner Height: ', window.innerHeight);
         const keyboardOffset = window.innerHeight - height - offsetTop;
         setKeyboardHeight(
           keyboardOffset > 0 ? (keyboardOffset * 100) / window.innerHeight : 0,
         );
-        console.log('Keyboard Height: ', keyboardHeight);
       }
     };
 
@@ -347,29 +364,31 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
       user &&
       threadsList.find((thread) => thread.id === activeThread) === undefined
     ) {
-      const newMessage = messages.current.length > 0 ? messages.current : [];
-      const newThreadName =
-        newMessage.length > 0
-          ? `${newMessage?.[0]?.text?.slice(0, 10)}...`
-          : '';
+      // const newMessage = messages.current.length > 0 ? messages.current : [];
+      // const newThreadName =
+      //   newMessage.length > 0
+      //     ? `${newMessage?.[0]?.text?.slice(0, 50)}...`
+      //     : '';
 
-      setThreadsList(
-        (
-          prevThreadsList: {
-            id: string;
-            name: string;
-            messages: MessagesProps[];
-          }[],
-        ) => [
-          ...prevThreadsList,
-          {
-            id: (prevThreadsList.length + 1).toString(),
-            name: newThreadName,
-            messages: newMessage,
-          },
-        ],
-      );
+      // setThreadsList(
+      //   (
+      //     prevThreadsList: {
+      //       id: string;
+      //       name: string;
+      //       messages: MessagesProps[];
+      //     }[],
+      //   ) => [
+      //     ...prevThreadsList,
+      //     {
+      //       id: (prevThreadsList.length + 1).toString(),
+      //       name: newThreadName,
+      //       messages: newMessage,
+      //     },
+      //   ],
+      // );
+      refetchHistoryData();
     }
+    localStorage.removeItem('thread-id');
     setResetState(true);
     setActiveThread(null);
     chatSessionId.current = null;
@@ -383,6 +402,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
   };
 
   const handleThreadSelect = (selectedThreadId: string) => {
+    localStorage.setItem('thread-id', selectedThreadId);
     setActiveThread(selectedThreadId);
     messages.current =
       threadsList.find((thread) => thread.id === selectedThreadId)?.messages ||
@@ -462,9 +482,8 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
 
   const handleSend = async (directInput?: string) => {
     if (!isHome) {
-      router.push(
-        `/?threadId=${activeThread}${experienceId ? `&experienceId=${experienceId}` : ''}`,
-      );
+      localStorage.setItem('chat-input', input);
+      router.push(`/?experienceId=${experienceId}`);
     }
     setIsLoading(true);
     setIsInputActive(false);
@@ -597,44 +616,38 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
       {/* Chatbot UI */}
       <Container
         fluid
-        className={`
-        flex flex-col 
-        w-full
-        h-[calc(100vh-${keyboardHeight}px)]
-        items-center justify-center overflow-hidden
-        ${
-          messages.current.length === 0 && !isInputActive && !isThreadFetching
-            ? `bg-[url(/assets/backdrop_full.png)] bg-cover transition-discrete`
-            : ''
-        }
-        ${isHome && 'bg-transparent'}
-      `}
+        className={cn('flex flex-col w-full items-center justify-center', {
+          [`h-[calc(100vh-${keyboardHeight}px)] overflow-hidden`]: isHome,
+          'h-[10vh] bg-white': !isHome,
+          'bg-[url(/assets/backdrop_full.png)] bg-cover transition-discrete':
+            messages.current.length === 0 &&
+            !isInputActive &&
+            !isThreadFetching &&
+            isHome,
+          'bg-transparent': isHome,
+        })}
       >
         {/* Gradient Overlay */}
         {messages.current.length === 0 &&
           !isInputActive &&
           !isThreadFetching && (
             <div
-              className={`
-             absolute inset-0 bg-gradient-to-b 
-             from-gray-600/20 from-10% to-white to-50% z-0
-            ${!isHome && 'hidden'}
-            `}
+              className={cn('absolute inset-0 bg-gradient-to-b', {
+                'from-gray-600/20 from-10% to-white to-50% z-0': isHome,
+                hidden: !isHome,
+              })}
             />
           )}
 
         <div
-          className={`${
-            isHome
-              ? `relative z-10 flex flex-col items-center`
-              : 'absolute bottom-5 flex flex-col self-center rounded-md'
-          }
-            w-[calc(100vw-20px)]
-            ${isMobile && isKeyboardVisible && `h-[1vh]`}
-            ${isMobile && !isKeyboardVisible && `h-[90vh]`}
-            ${!isMobile && `h-[80vh]`}
-            ${!isMobile && messages.current.length > 0 && `h-[100vh]`}
-          `}
+          className={cn('flex flex-col', {
+            'relative z-10 items-center w-[calc(100vw-20px)]': isHome,
+            'relative w-full h-full': !isHome,
+            'h-[1vh]': isHome && isMobile && isKeyboardVisible,
+            'h-[90vh]': isHome && isMobile && !isKeyboardVisible,
+            'h-[80vh]': isHome && !isMobile,
+            'h-[100vh]': isHome && !isMobile && messages.current.length > 0,
+          })}
         >
           <div className="fixed top-[20%] flex flex-col items-center">
             {messages.current.length === 0 &&
@@ -657,43 +670,43 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
               )}
           </div>
           <div
-            className={`
-              fixed
-              flex flex-col max-h-[30vh]
-              ${isMobile ? `top-[6dvh] w-[90%]` : 'top-[6dvh] w-[60%]'} 
-              transition-all ${!isHome && 'hidden'} 
-              mt-10 mb-60 overflow-y-auto
-              ${messages.current.length > 0 && 'min-h-[calc(100vh-250px)]'}
-              ${messages.current.length === 0 && 'mb-70'}
-            `}
+            className={cn(
+              'fixed flex flex-col max-h-[30vh] mt-10 mb-60 overflow-y-auto transition-all',
+              {
+                'top-[6dvh] w-[90%]': isMobile,
+                'top-[6dvh] w-[60%]': !isMobile,
+                hidden: !isHome,
+                'min-h-[calc(100vh-250px)]': messages.current.length > 0,
+                'mb-70': messages.current.length === 0,
+              },
+            )}
           >
             {experienceData && (
-              <Link href={`/experiences/${experienceData.id}`}>
+              <Link href={`/discoveries/${experienceData.id}`}>
                 <Container
-                  className={`
-                    flex mb-3 shadow-md 
-                    bg-white rounded-md
-                    max-w-[2000px]
-                    ${isMobile ? 'w-full' : 'w-[60%]'} 
-                    hover:bg-gray-100 cursor-pointer
-                  `}
+                  className={cn(
+                    'flex mb-3 shadow-md bg-white rounded-md max-w-[2000px] hover:bg-gray-100 cursor-pointer w-full justify-between',
+                  )}
                 >
                   <div className="p-2 flex flex-col self-start items-start justify-items-start gap-2">
                     <span className="flex flex-row items-center text-[12px] gap-2">
                       <IconGitFork size={isMobile ? 12 : 16} /> Follow up to
                     </span>
                     <h2
-                      className={`font-semibold ${isMobile ? 'text-[12px]' : 'text-display-[14px]'}`}
+                      className={cn('font-semibold', {
+                        'text-[12px]': isMobile,
+                        'text-display-[14px]': !isMobile,
+                      })}
                     >
                       {experienceData.name}
                     </h2>
                   </div>
                   <Image
-                    className="m-2 self-end rounded-md aspect-square"
+                    className="my-2 self-end rounded-md aspect-square"
                     src={experienceData.primary_photo}
                     alt="Experience Photo"
-                    width={isMobile ? 70 : 100}
-                    height={isMobile ? 70 : 100}
+                    width={70}
+                    height={70}
                   />
                 </Container>
               </Link>
@@ -702,16 +715,12 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
               <ThreadLoading />
             ) : (
               <ScrollArea
-                className={`
-                w-full h-full overflow-y-auto justify-self-center items-start overscroll-x-none
-                ${isMobile && 'mt-10 mb-10'}
-              `}
-                // ref={messagesEndRef}
+                className={cn(
+                  'w-full h-full overflow-y-auto justify-self-center items-start overscroll-x-none',
+                  { 'mt-10 mb-10': isMobile },
+                )}
                 viewportRef={messagesEndRef}
               >
-                {/* <div
-                className={`flex flex-col p-4 pb-10 w-full text-[14px] transition-all border`}
-              > */}
                 <BuddyResponse
                   isLoading={isLoading}
                   displayText={displayedText}
@@ -719,20 +728,22 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                   reasoning={floatingTexts}
                   setInput={(input: string) => handleSend(input)}
                   isMobile={isMobile}
-                  // ref={messagesEndRef}
                 />
-                {/* </div> */}
               </ScrollArea>
             )}
           </div>
           <div
-            className={`
-              ${
-                isInputActive
-                  ? `relative h-[5vh] left-[60dvw] ${isKeyboardVisible ? `bottom-auto` : 'top-[10%]'} `
-                  : 'fixed bottom-[10%] h-[15vh]'
-              }
-              flex flex-col w-full items-center gap-5`}
+            className={cn(
+              'flex flex-col w-full items-center place-self-center gap-5',
+              {
+                'relative h-[5vh] left-[60dvw]': isInputActive,
+                'bottom-auto': isInputActive && isKeyboardVisible,
+                'top-[10%]': isInputActive && !isKeyboardVisible,
+                'fixed bottom-[10%]': !isInputActive,
+                'h-[15vh]': !isInputActive && isHome,
+                'h-[5vh]': !isInputActive && !isHome,
+              },
+            )}
           >
             {messages.current.length === 0 && !isInputActive && isHome && (
               <TextCarousel
@@ -747,30 +758,31 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                     {item}
                   </button>
                 )}
-                className={`absolute bottom-20 ${isMobile ? 'w-[90%]' : 'w-[60%]'}`}
+                className={cn('absolute bottom-20', {
+                  'w-[90%]': isMobile,
+                  'w-[60%]': !isMobile,
+                })}
                 slideSize={{ base: 25, sm: 50, md: 20 }}
                 slideGap={16}
-                // paginationType="none"
                 duration={25}
               />
             )}
 
             <div
-              className={`
-              absolute bottom-1
-              ${isMobile ? 'w-[90%] overflow-y-auto' : 'w-[60%]'}
-              bg-white rounded-md
-              ${!isHome ? 'm-10' : 'mx-6'}
-              ${isInputActive ? 'right-1 bg-[#FCFCF9]' : 'pl-2 pr-2 pb-2 border-black bg-black/80 shadow-md shadow-orange-400'}
-              self-center
-            `}
+              className={cn('bg-white rounded-md self-center', {
+                'w-[90%] overflow-y-auto': isMobile,
+                'w-[60%]': !isMobile,
+                'fixed bottom-[8%] m-1': !isHome && isMobile,
+                'fixed bottom-1 m-1': !isHome && !isMobile,
+                'absolute bottom-1 mx-6': isHome,
+                'right-1 bg-[#FCFCF9]': isInputActive,
+                'pl-2 pr-2 pb-2 shadow-md shadow-orange-400': !isInputActive,
+              })}
             >
               <InchatUploader
-                className={`
-                ${isInputActive && 'fixed top-[10dvh] left-[2dvh] right-[2dvh]'}
-                flex flex-row 
-                lg:mx gap-4 my-3
-              `}
+                className={cn('flex flex-row lg:mx gap-4 my-3', {
+                  'fixed top-[10dvh] left-[2dvh] right-[2dvh]': isInputActive,
+                })}
                 selectedImages={selectedImages}
                 handleRemoveImage={handleRemoveImage}
                 CustomChildren={CustomImageDisplay}
@@ -779,11 +791,10 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
 
               {/* Input bar - now with proper spacing and scaling */}
               <div
-                className={`
-              grid ${isMobile ? 'grid-cols-3' : 'grid-cols-5'} 
-              w-full 
-              bg-white rounded-md
-            `}
+                className={cn('grid w-full bg-white rounded-md', {
+                  'grid-cols-3': isMobile,
+                  'grid-cols-5': !isMobile,
+                })}
               >
                 {isInputActive && messages.current.length === 0 && (
                   <button
@@ -795,17 +806,14 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                 )}
                 {/* Text input (flexible width) */}
                 <TextInput
-                  className={`
-                    ${isMobile ? 'col-span-2' : 'col-span-4'} 
-                    ${
-                      isInputActive && messages.current.length === 0
-                        ? `fixed top-[1dvh] left-[2dvh] 
-                      right-[2dvh] z-50 w-[90%] h-[10vh] 
-                      px-2 py-10 
-                      border-b border-gray-300 bg-[#FCFCF9] z-100`
-                        : 'pt-1 pb-4 pl-1 w-full bg-white h-[6vh]'
-                    }
-                `}
+                  className={cn('w-full', {
+                    'col-span-2': isMobile,
+                    'col-span-4': !isMobile,
+                    'fixed top-[1dvh] left-[2dvh] right-[2dvh] z-50 w-[90%] h-[10vh] px-2 py-10 border-b border-gray-300 bg-[#FCFCF9] z-100':
+                      isInputActive && messages.current.length === 0,
+                    'pt-1 pb-4 pl-1 bg-white h-[6vh]':
+                      !isInputActive || messages.current.length > 0,
+                  })}
                   placeholder="Ask me anything..."
                   value={input}
                   onChange={(e) => setInput(e.currentTarget.value)}
@@ -818,31 +826,28 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                       : undefined
                   }
                   variant="unstyled"
-                  // disabled={isInputActive}
                   size={isInputActive ? '25px' : 'base'}
                 />
 
                 <div
-                  className={`
-                 flex justify-items-center
-                 items-end
-                 place-self-end grid grid-cols-3
-                 columns-xs shrink-0
-                 ${isMobile ? 'w-[90%] gap-x-1' : 'w-full gap-x-0'}
-                 ${isInputActive ? 'bg-[#FCFCF9]' : ''}
-                `}
+                  className={cn(
+                    'flex justify-items-center items-end place-self-end grid grid-cols-3 columns-xs shrink-0',
+                    {
+                      'w-[90%] gap-x-1': isMobile,
+                      'w-full gap-x-0': !isMobile,
+                      'bg-[#FCFCF9]': isInputActive,
+                    },
+                  )}
                 >
                   {/* Image upload */}
                   <div className="col-span-1">
                     <ImageUploader
                       onImageUpload={setSelectedImages}
                       fetchImages={selectedImages}
-                      className={`
-                     flex
-                     text-gray-200 rounded-full cursor-pointer 
-                     ${isMobile ? 'size-8' : 'size-10'}
-                     align-items-end
-                    `}
+                      className={cn(
+                        'flex text-gray-200 rounded-full cursor-pointer align-items-end',
+                        { 'size-8': isMobile, 'size-10': !isMobile },
+                      )}
                       allowMultiple={true}
                     >
                       <Image
@@ -860,14 +865,10 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                       language="en-US"
                       onTranscribe={(e) => setInput(e)}
                       existingTexts={input}
-                      className={`
-                    flex flex-end
-                    text-gray-600 bg-transparent 
-                    rounded-full cursor-pointer 
-                    self-center border 
-                    items-center
-                    ${isMobile ? 'size-6 pb-1' : 'size-10'}
-                  `}
+                      className={cn(
+                        'flex flex-end text-gray-600 bg-transparent rounded-full cursor-pointer self-center border items-center',
+                        { 'size-6 pb-1': isMobile, 'size-10': !isMobile },
+                      )}
                       customIcon={<FaMicrophone className="size-5" />}
                       asModal
                     />
