@@ -45,13 +45,13 @@ const DiscoveriesMain: React.FC = () => {
       {/* Sticky Header and Chips */}
       <div className="sticky top-0 z-30 bg-gray-50 px-4 py-2 border-b border-gray-200">
         <h1 className="text-2xl font-bold my-2" style={{ color: '#333333' }}>
-          Hop on one of our tour!
+          Hop on these cool adventures!
         </h1>
-        <div className="flex gap-3 flex-nowrap overflow-x-auto scrollbar-hide">
+        <div className="flex px-1 gap-3 flex-nowrap overflow-x-auto scrollbar-hide">
           {ADDRESS_LIST.map((address) => (
             <button
               key={address}
-              className={`px-2 py-1 rounded-full text-xs font-medium transition-all border-2 cursor-pointer hover:shadow-sm whitespace-nowrap flex-shrink-0 ${
+              className={`px-2 py-1 rounded-full text-sm font-medium transition-all border-2 cursor-pointer hover:shadow-sm whitespace-nowrap flex-shrink-0 ${
                 selectedAddress === address
                   ? 'bg-orange-50 text-black border-orange-500'
                   : 'bg-orange-50 text-black border-transparent hover:bg-orange-100'
@@ -96,7 +96,7 @@ const DiscoveriesMain: React.FC = () => {
                 <div className="space-y-6">
                   {/* First (featured) card */}
                   <div
-                    className="rounded-xl overflow-hidden cursor-pointer hover:shadow-lg transition-shadow border relative"
+                    className="rounded-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow border relative"
                     style={{ borderColor: '#E2E2E2' }}
                     onClick={() =>
                       experiences[0].id &&
@@ -135,7 +135,7 @@ const DiscoveriesMain: React.FC = () => {
                       </div>
                       <p
                         className="text-sm leading-relaxed"
-                        style={{ color: '#8D8D8D' }}
+                        style={{ color: '#333333' }}
                       >
                         {experiences[0].thumbnail_description ||
                           experiences[0].description ||
@@ -149,7 +149,7 @@ const DiscoveriesMain: React.FC = () => {
                     {experiences.slice(1).map((exp, idx) => (
                       <div
                         key={exp.id || idx}
-                        className="rounded-xl overflow-hidden cursor-pointer transition-shadow border relative"
+                        className="rounded-md overflow-hidden hover:shadow-lg  cursor-pointer transition-shadow border relative"
                         style={{ borderColor: '#E2E2E2' }}
                         onClick={() =>
                           exp.id && router.push(`/discoveries/${exp.id}`)
@@ -185,7 +185,7 @@ const DiscoveriesMain: React.FC = () => {
                               <IconQrcode className="w-5 h-5" />
                             </button>
                           </div>
-                          <p className="text-sm" style={{ color: '#8D8D8D' }}>
+                          <p className="text-sm" style={{ color: '#333333' }}>
                             {exp.thumbnail_description || exp.description || ''}
                           </p>
                         </div>

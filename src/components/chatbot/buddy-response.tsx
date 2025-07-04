@@ -215,7 +215,9 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                         <div className="prose prose-lg max-w-[100%] text-gray-700 text-wrap">
                           <ReactMarkdown>
                             {msg.from === 'assistant' &&
-                            i === messages.length - 1
+                            i === messages.length - 1 &&
+                            displayText &&
+                            displayText !== ''
                               ? displayText
                               : msg.text}
                           </ReactMarkdown>

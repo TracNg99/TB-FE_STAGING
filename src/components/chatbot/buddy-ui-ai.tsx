@@ -653,7 +653,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
         fluid
         className={cn('flex flex-col w-full items-center justify-center', {
           [`h-[calc(100vh-${keyboardHeight}px)] overflow-hidden`]: isHome,
-          'h-[10vh] bg-white': !isHome,
+          'h-[10vh] bg-gray-50': !isHome,
           'bg-[url(/assets/backdrop_full.png)] bg-cover transition-discrete':
             messages.current.length === 0 &&
             !isInputActive &&
@@ -787,7 +787,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                     {item}
                   </button>
                 )}
-                className={cn('absolute bottom-20', {
+                className={cn('absolute bottom-20 mb-4', {
                   'w-[90%]': isMobile,
                   'w-[60%]': !isMobile,
                 })}
@@ -798,15 +798,19 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
             )}
 
             <div
-              className={cn('bg-white rounded-md self-center', {
-                'w-[90%] overflow-y-auto': isMobile,
-                'w-[60%]': !isMobile,
-                'fixed bottom-[8%] m-1': !isHome && isMobile,
-                'fixed bottom-1 m-1': !isHome && !isMobile,
-                'absolute bottom-1 mx-6': isHome,
-                'right-1 bg-[#FCFCF9]': isInputActive,
-                'pl-2 pr-2 pb-2 shadow-md shadow-orange-400': !isInputActive,
-              })}
+              className={cn(
+                'bg-white rounded-md self-center min-h-[8vh] border border-gray-400',
+                {
+                  'w-[90%] overflow-y-auto': isMobile,
+                  'w-[60%]': !isMobile,
+                  'fixed bottom-[8%] m-1': !isHome && isMobile,
+                  'fixed bottom-1': !isHome && !isMobile,
+                  'absolute bottom-1 mx-6': isHome,
+                  'right-1 bg-[#FCFCF9]': isInputActive,
+                  'pl-2 pr-2 pb-2 shadow-md shadow-orange-400':
+                    !isInputActive && isHome,
+                },
+              )}
             >
               <InchatUploader
                 className={cn('flex flex-row lg:mx gap-4 my-3', {
@@ -820,7 +824,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
 
               {/* Input bar - now with proper spacing and scaling */}
               <div
-                className={cn('grid w-full bg-white rounded-md', {
+                className={cn('grid w-[calc(100%-10px)] bg-white m-1', {
                   'grid-cols-3': isMobile,
                   'grid-cols-5': !isMobile,
                 })}
@@ -860,7 +864,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
 
                 <div
                   className={cn(
-                    'flex justify-items-center items-end place-self-end grid grid-cols-3 columns-xs shrink-0',
+                    'flex justify-items-center items-end place-self-end mt-6 grid grid-cols-3 columns-xs shrink-0',
                     {
                       'w-[90%] gap-x-1': isMobile,
                       'w-full gap-x-0': !isMobile,
@@ -906,21 +910,14 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                   {/* Send button (properly sized) */}
                   <div className="col-span-1">
                     <button
-                      className={`ml-1 mb-1 rounded-md bg-orange-500 hover:bg-orange-600 text-white cursor-pointer p-2`}
+                      className={`flex shrink-0 ml-1 rounded-md bg-orange-500 hover:bg-orange-600 text-white cursor-pointer ${isMobile ? 'p-[10%] size-6 mb-1 ' : 'p-1 size-7 mb-[20%]'}`}
                       onClick={() => handleSend()}
                       disabled={input === ''}
                     >
-                      {isHome ? (
-                        <SendIcon
-                          className="text-white"
-                          size={isMobile ? 14 : 20}
-                        />
-                      ) : (
-                        <IconGitFork
-                          className="text-white"
-                          size={isMobile ? 14 : 20}
-                        />
-                      )}
+                      <SendIcon
+                        className="text-white"
+                        // size={20}
+                      />
                     </button>
                   </div>
                 </div>

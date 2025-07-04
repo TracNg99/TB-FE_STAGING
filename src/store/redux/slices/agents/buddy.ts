@@ -121,7 +121,7 @@ const BuddyAgentApi = createApi({
       { experienceId: string; companyId: string }
     >({
       query: ({ experienceId, companyId }) => ({
-        url: `/chat/initial-suggestions`,
+        url: `/chat/suggestions`,
         method: 'GET',
         params: {
           experience_id: experienceId,

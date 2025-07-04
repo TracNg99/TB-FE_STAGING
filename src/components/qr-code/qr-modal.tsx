@@ -5,7 +5,8 @@ import React, { useEffect, useState } from 'react';
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 
 type QRModalComponentProps = {
-  contentId: string;
+  contentId?: string;
+  path?: string;
   displayText: string;
   locationId?: string;
   backgroundImage?: string;
@@ -16,6 +17,7 @@ type QRModalComponentProps = {
 const QRModal: React.FC<QRModalComponentProps> = ({
   displayText,
   contentId,
+  path,
   backgroundImage,
   open,
   onClose,
@@ -23,7 +25,7 @@ const QRModal: React.FC<QRModalComponentProps> = ({
   const [qr, setQr] = useState<string | null>(null);
   const theme = useMantineTheme();
 
-  const url = `${baseUrl}/experiences/${contentId}`;
+  const url = path ?? `${baseUrl}/experiences/${contentId}`;
 
   useEffect(() => {
     if (open) {

@@ -88,7 +88,7 @@ export default function DiscoveriesLayout({
 
       {/* Main Content Area with proper spacing */}
       <main className="flex-1 h-full overflow-y-auto">
-        <div className="max-w-5xl mx-auto px-8 ">{children}</div>
+        <div className="max-w-5xl mx-auto px-3 md:px-8">{children}</div>
       </main>
     </div>
   );

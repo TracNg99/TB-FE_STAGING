@@ -7,16 +7,21 @@ import {
   IconInfoCircle,
   IconQrcode,
 } from '@tabler/icons-react';
-import { useParams } from 'next/navigation';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import BuddyAI from '@/components/chatbot/buddy-ui-ai';
-import FeatureCarousel from '@/components/feature-carousel';
 import IconFeatureCamera from '@/components/icons/icon-feature-camera';
+import IconicPhotoModal from '@/components/modals/IconicPhotoModal';
+import ActivityModal from '@/components/modals/activity';
+import NewCarousel from '@/components/new-carousel';
 import QRModal from '@/components/qr-code/qr-modal';
 import { useGetActivitiesInExperiencePublicQuery } from '@/store/redux/slices/user/activity';
-import { useGetExperiencePublicQuery } from '@/store/redux/slices/user/experience';
+import type { Activity } from '@/store/redux/slices/user/experience';
+import {
+  useGetExperiencePublicQuery,
+  useGetIconicPhotosPublicQuery,
+} from '@/store/redux/slices/user/experience';
 
 const SECTION_TITLE_CLASS =
   'text-[#222] text-[20px] font-semibold flex items-center gap-2 mb-4';
@@ -40,6 +45,10 @@ const ExperienceDetailPage = () => {
       experience_id: experienceId as string,
     });
 
+  // Fetch iconic photos for this experience
+  const { data: iconicPhotos = [], isLoading: isLoadingIconicPhotos } =
+    useGetIconicPhotosPublicQuery({ id: experienceId as string });
+
   // Dummy follow-up questions (replace with real data/component if available)
   const followUpQuestions = [
     {
@@ -55,7 +64,14 @@ const ExperienceDetailPage = () => {
     },
   ];
 
-  if (isLoading || isLoadingActivities)
+  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(
+    null,
+  );
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(
+    null,
+  );
+
+  if (isLoading || isLoadingActivities || isLoadingIconicPhotos)
     return <div className="flex justify-center py-20">Loading...</div>;
   if (error || !experience)
     return (
@@ -73,13 +89,14 @@ const ExperienceDetailPage = () => {
     });
   };
 
+  // Follow-up question click handler (if needed)
   const handleFollowUpClick = (question: string) => {
     localStorage.setItem('chat-input', question);
     router.push(`/?experienceId=${experienceId}`);
   };
 
   return (
-    <div className="w-full px-4 py-3 bg-gray-50 min-h-screen relative">
+    <div className="w-full px-2 md:px-4 py-3 bg-gray-50 min-h-screen relative">
       {/* Floating T icon */}
       <div className="absolute left-1/2 -top-8 transform -translate-x-1/2 z-10">
         <div className="bg-gray-200 rounded-full w-12 h-12 flex items-center justify-center shadow-md border-2 border-white">
@@ -88,25 +105,28 @@ const ExperienceDetailPage = () => {
       </div>
 
       {/* Title and QR icon */}
-      <div className="flex justify-between items-center gap-3 mb-2 mt-4">
-        <h1 className="text-[32px] font-semibold text-gray-900 leading-tight">
-          {experience.name}
-        </h1>
-        <div className="flex items-center gap-2">
-          <button
-            className="ml-2 p-1 rounded text-gray-700 hover:text-orange-500 transition focus:outline-none"
-            onClick={() => setQrOpen(true)}
-            title="Show QR code"
-          >
-            <IconQrcode className="w-8 h-8" />
-          </button>
-          <button
-            className="ml-1 p-1 rounded transition-colors hover:text-orange-500 focus:outline-none"
-            onClick={handleCopy}
-            title="Copy link to clipboard"
-          >
-            <IconCopy className="w-8 h-8 " />
-          </button>
+      <div className="mb-2 mt-4">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-3">
+          <h1 className="text-[32px] font-semibold text-gray-900 leading-tight">
+            {experience.name}
+          </h1>
+          {/* Mobile: buttons below title, Desktop: inline */}
+          <div className="flex gap-2 md:ml-2 md:items-center">
+            <button
+              className="p-1 rounded text-gray-700 hover:text-orange-500 transition focus:outline-none"
+              onClick={() => setQrOpen(true)}
+              title="Show QR code"
+            >
+              <IconQrcode className="w-8 h-8" />
+            </button>
+            <button
+              className="p-1 rounded transition-colors hover:text-orange-500 focus:outline-none"
+              onClick={handleCopy}
+              title="Copy link to clipboard"
+            >
+              <IconCopy className="w-8 h-8 " />
+            </button>
+          </div>
         </div>
         <QRModal
           open={qrOpen}
@@ -118,7 +138,7 @@ const ExperienceDetailPage = () => {
       {/* Divider */}
       <hr className="border-black mb-4" />
       {/* Short Description */}
-      <p className="text-base md:text-lg leading-relaxed mb-6 text-gray-600">
+      <p className="text-base md:text-lg leading-relaxed mb-6 text-black">
         {experience.thumbnail_description || experience.description}
       </p>
       {/* Image */}
@@ -148,36 +168,92 @@ const ExperienceDetailPage = () => {
       {/* Activities You'll Experience */}
       <section className="mt-10">
         <div className={SECTION_TITLE_CLASS}>
-          <IconFeatureCamera className="w-6 h-6 text-[#F59E42]" />
-          <span>Activities You&apos;ll Experience</span>
+          <img src="/assets/idea.svg" alt="Idea" className="w-6 h-6" />
+          <span>{`Activities You'll Experience`}</span>
         </div>
         <div className="mt-4 relative w-full">
-          <FeatureCarousel
+          <NewCarousel
             items={activities}
             renderItem={(activity) => (
-              <div className="min-w-[240px] max-w-[260px] h-80 border border-gray-200 rounded-xl bg-white overflow-hidden flex-shrink-0 flex flex-col justify-between p-0">
+              <div
+                className="min-w-[240px] max-w-[260px] h-full border border-gray-200 rounded-md bg-white overflow-hidden flex-shrink-0 flex flex-col justify-between p-0 cursor-pointer"
+                onClick={() => setSelectedActivity(activity)}
+              >
                 <img
-                  src={activity.primary_photo || ''}
+                  src={
+                    activity.primary_photo ||
+                    '/placeholder.svg?height=192&width=260'
+                  }
                   alt={activity.title}
                   className="w-full h-48 object-cover"
                 />
-                <div className="p-3 flex-1 flex flex-col justify-between">
-                  <div className="font-bold text-gray-800 text-base mb-1">
+                <div className="p-3 flex-1 flex flex-col ">
+                  <div className="font-bold text-gray-800 text-base mb-1 truncate whitespace-nowrap overflow-hidden">
                     {activity.title}
                   </div>
-                  <div className="text-xs text-gray-400 line-clamp-2">
+                  <div className="text-xs text-gray-800 line-clamp-2">
                     {activity.description_thumbnail}
                   </div>
                 </div>
               </div>
             )}
             className=""
-            slideSize={{ base: 100, sm: 50, md: 33.33 }}
-            slideGap={2}
-            paginationType="none"
+            enableInfiniteLoop={false}
+            slideGap={16}
+          />
+          {selectedActivity && (
+            <ActivityModal
+              isOpen={!!selectedActivity}
+              onClose={() => setSelectedActivity(null)}
+              activity={{
+                title: selectedActivity.title,
+                description: selectedActivity.description,
+                description_thumbnail: selectedActivity.description_thumbnail,
+                imageUrl: selectedActivity.primary_photo,
+                location: selectedActivity.address || '',
+                address: selectedActivity.address || '',
+                hours: selectedActivity.hours || '',
+              }}
+              experience_name={experience.name}
+            />
+          )}
+        </div>
+      </section>
+      {/* Iconic Photos */}
+      <section className="mt-10">
+        <div className={SECTION_TITLE_CLASS}>
+          <IconFeatureCamera className="w-6 h-6 text-[#8338EC]" />
+          <span>Iconic Photos</span>
+        </div>
+        <div className="mt-4 relative w-full">
+          <NewCarousel
+            items={iconicPhotos}
+            renderItem={(photo, idx) => (
+              <div
+                key={photo.id}
+                className="h-full flex items-center justify-center rounded-md border border-gray-200 bg-white flex-shrink-0 cursor-pointer overflow-hidden"
+                onClick={() => setSelectedPhotoIndex(idx)}
+              >
+                <img
+                  src={photo.url}
+                  alt={photo.name}
+                  className="w-auto h-80 md:h-96 object-cover rounded-md"
+                />
+              </div>
+            )}
+            className=""
+            enableInfiniteLoop={false}
+            slideGap={16}
           />
         </div>
       </section>
+      {/* Iconic Photo Modal */}
+      <IconicPhotoModal
+        photos={iconicPhotos}
+        selectedIndex={selectedPhotoIndex}
+        onClose={() => setSelectedPhotoIndex(null)}
+        onNavigate={(newIndex) => setSelectedPhotoIndex(newIndex)}
+      />
       {/* Follow-up Questions */}
       <section className="mt-10">
         <div className={SECTION_TITLE_CLASS}>
@@ -201,19 +277,6 @@ const ExperienceDetailPage = () => {
       {/* Chatbot (optional, can be moved to sticky bar if needed) */}
       <div className="mt-10">
         <BuddyAI context={{ experience_id: experienceId as string }} />
-      </div>
-      {/* Sticky Action Bar */}
-      <div className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 shadow-lg flex items-center justify-center gap-4 py-3 z-50 md:static md:shadow-none md:border-0 md:py-0 mt-10">
-        <button className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-2 rounded-full shadow transition-all">
-          <svg width="20" height="20" fill="none" viewBox="0 0 20 20">
-            <path
-              d="M2 10a8 8 0 1116 0A8 8 0 012 10zm8-4a1 1 0 100 2 1 1 0 000-2zm1 7H9v-1h1V9H9V8h2v4z"
-              fill="#fff"
-            />
-          </svg>
-          Ask to edit
-        </button>
-        {/* Add more action icons/buttons as needed */}
       </div>
     </div>
   );

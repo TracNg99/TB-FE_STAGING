@@ -4,8 +4,8 @@ import { Avatar, Button, Popover, UnstyledButton } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 import { useAuth } from '@/contexts/auth-provider';
 import { useChat } from '@/contexts/chat-provider';
@@ -41,8 +41,17 @@ const Navbar = () => {
   const { setIsSidebarOpen } = useSidebar();
   const { triggerReset } = useChat();
   const router = useRouter();
+  const pathname = usePathname();
+  const pathnameSplit = pathname.split('/');
 
   const [activeTab, setActiveTab] = useState('/');
+
+  useEffect(() => {
+    const checkPath = pathnameSplit.find((path) => path.length > 10)
+      ? `/${pathnameSplit.slice(1, -1).join('/')}`
+      : pathname;
+    setActiveTab(checkPath);
+  }, [pathname]);
 
   const handleAiButtonClicked = () => {
     if (!user) {

@@ -80,7 +80,9 @@ const VoiceToTextButton: React.FC<VoiceButtonForm> = ({
   const [openModal, setOpenModal] = useState(false);
   // const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const recognitionInstance = useRef<any>(null);
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useMediaQuery('(max-width: 640px)');
+
+  // const [instantTranscribeTexts, setInstantTranscribeTexts] = useState('');
 
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(
     null,
@@ -149,6 +151,7 @@ const VoiceToTextButton: React.FC<VoiceButtonForm> = ({
     const updatedTranscript = `${uniqueInterim}`.replace(/\s+/g, ' ').trim();
 
     onTranscribe(existingTexts + updatedTranscript);
+    // setInstantTranscribeTexts(existingTexts + updatedTranscript);
   };
 
   const handleRecognitionError = (event: any) => {

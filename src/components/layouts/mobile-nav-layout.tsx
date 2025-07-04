@@ -49,14 +49,20 @@ const Navbar = () => {
   const router = useRouter();
   const pathname = usePathname();
   const [isOAuthCallback, setIsOAuthCallback] = useState(false);
+  const pathnameSplit = pathname.split('/');
 
-  const [activeTab, setActiveTab] = useState('/');
+  const [activeTab, setActiveTab] = useState<string | null>(null);
 
   useEffect(() => {
+    const checkPath = pathnameSplit.find((path) => path.length > 10)
+      ? `/${pathnameSplit.slice(1, -1).join('/')}`
+      : pathname;
+    setActiveTab(checkPath);
     setIsOAuthCallback(pathname === '/auth/callbackv1');
   }, [pathname]);
 
   const handleAiButtonClicked = () => {
+    setActiveTab('/stories/new');
     if (!user) {
       notifications.show({
         title: 'Member-only feature',
