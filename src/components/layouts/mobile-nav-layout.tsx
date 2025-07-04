@@ -8,11 +8,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 // import Image from 'next/image';
-import { BiCompass } from 'react-icons/bi';
 import { BsPersonCircle } from 'react-icons/bs';
-import { GrDocumentText } from 'react-icons/gr';
-import { GrHistory } from 'react-icons/gr';
-import { IoMdSearch } from 'react-icons/io';
 
 import { useAuth } from '@/contexts/auth-provider';
 // import { useSidebar } from '@/contexts/sidebar-provider';
@@ -24,22 +20,22 @@ const navbarLinks = [
   {
     title: 'Home',
     href: '/',
-    icon: <BiCompass size={24} />,
+    icon: '/assets/home.svg',
   },
   {
     title: 'Discover',
     href: '/discoveries',
-    icon: <IoMdSearch size={24} />,
+    icon: '/assets/discover.svg',
   },
   {
     title: 'Stories',
     href: '/stories/new',
-    icon: <GrDocumentText size={24} />,
+    icon: '/assets/story.svg',
   },
   {
     title: 'History',
     href: '/history',
-    icon: <GrHistory size={24} />,
+    icon: '/assets/history.svg',
   },
 ];
 
@@ -51,7 +47,7 @@ const Navbar = () => {
   const [isOAuthCallback, setIsOAuthCallback] = useState(false);
   const pathnameSplit = pathname.split('/');
 
-  const [activeTab, setActiveTab] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<string | null>(pathname);
 
   useEffect(() => {
     const checkPath = pathnameSplit.find((path) => path.length > 10)
@@ -178,14 +174,16 @@ const Navbar = () => {
                 : handleTabChange(link.href)
             }
             className={cn(
-              'flex flex-col items-center gap-1 rounded-lg p-2',
-              activeTab === link.href && !isOAuthCallback && 'text-orange-600',
+              'flex flex-col items-center justify-center gap-1 rounded-lg p-2 size-[50px]',
+              activeTab === link.href &&
+                !isOAuthCallback &&
+                'flex bg-purple-200/50',
             )}
             key={index}
             disabled={isOAuthCallback}
           >
-            {link.icon}
-            <span className="text-xs font-medium">{link.title}</span>
+            <Image src={link.icon} alt="Home" width={28} height={28} />
+            <span className="text-[10px] font-medium">{link.title}</span>
           </UnstyledButton>
         ))}
       </footer>

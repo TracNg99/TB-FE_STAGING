@@ -18,12 +18,12 @@ const navbarLinks = [
   {
     title: 'Home',
     href: '/',
-    icon: '/assets/camera.svg',
+    icon: '/assets/home.svg',
   },
   {
     title: 'Discover',
     href: '/discoveries',
-    icon: '/assets/location.svg',
+    icon: '/assets/discover.svg',
   },
   // {
   //   title: 'Experiences',
@@ -96,7 +96,8 @@ const Navbar = () => {
             }
             className={cn(
               'flex flex-col items-center gap-1 rounded-lg p-2',
-              activeTab === link.href && 'bg-orange-100/50',
+              activeTab === link.href && 'bg-purple-100/50',
+              activeTab !== link.href && 'bg-transparent text-gray-500',
             )}
             key={index}
           >
@@ -107,7 +108,7 @@ const Navbar = () => {
               <div
                 className={cn(
                   activeTab === '/stories/new' &&
-                    'p-2 bg-orange-100/50 rounded-lg',
+                    'p-2 bg-purple-100/50 rounded-lg',
                 )}
               >
                 <AiButton className="flex cursor-pointer" />

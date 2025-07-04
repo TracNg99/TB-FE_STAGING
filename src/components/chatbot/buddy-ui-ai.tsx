@@ -12,7 +12,7 @@ import { Image as ImageDisplay } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import {
-  IconGitFork,
+  // IconGitFork,
   IconPin,
   IconPinFilled,
   IconPlus,
@@ -720,17 +720,24 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
               <Link href={`/discoveries/${experienceData.id}`}>
                 <Container
                   className={cn(
-                    'flex mb-3 shadow-md bg-white rounded-md max-w-[2000px] hover:bg-gray-100 cursor-pointer w-full justify-between',
+                    'flex mb-3 shadow-md bg-[#FFF0E5] rounded-md max-w-[2000px] hover:bg-gray-100 cursor-pointer w-full justify-between',
                   )}
                 >
                   <div className="p-2 flex flex-col self-start items-start justify-items-start gap-2">
-                    <span className="flex flex-row items-center text-[12px] gap-2">
-                      <IconGitFork size={isMobile ? 12 : 16} /> Follow up to
+                    <span className="flex flex-row items-center text-[16px] color-purple-200 text-purple-500 gap-2">
+                      <Image
+                        alt=""
+                        src="/assets/followup.svg"
+                        width={isMobile ? 12 : 16}
+                        height={isMobile ? 12 : 16}
+                        className="size-[24px]"
+                      />{' '}
+                      Follow up to
                     </span>
                     <h2
-                      className={cn('font-semibold', {
-                        'text-[12px]': isMobile,
-                        'text-display-[14px]': !isMobile,
+                      className={cn({
+                        'text-[16px]': isMobile,
+                        'text-display-[16px]': !isMobile,
                       })}
                     >
                       {followUpSnackTitle}
@@ -798,19 +805,19 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
             )}
 
             <div
-              className={cn(
-                'bg-white rounded-md self-center min-h-[8vh] border border-gray-400',
-                {
-                  'w-[90%] overflow-y-auto': isMobile,
-                  'w-[60%]': !isMobile,
-                  'fixed bottom-[8%] m-1': !isHome && isMobile,
-                  'fixed bottom-1': !isHome && !isMobile,
-                  'absolute bottom-1 mx-6': isHome,
-                  'right-1 bg-[#FCFCF9]': isInputActive,
-                  'pl-2 pr-2 pb-2 shadow-md shadow-orange-400':
-                    !isInputActive && isHome,
-                },
-              )}
+              className={cn('bg-white rounded-md self-center', {
+                'w-[90%] overflow-y-auto': isMobile,
+                'w-[60%]': !isMobile,
+                'fixed bottom-[8%] m-1': !isHome && isMobile,
+                'fixed bottom-1': !isHome && !isMobile,
+                'absolute bottom-1 mx-6': isHome,
+                'right-1 bg-[#FCFCF9]': isInputActive,
+                'pl-2 pr-2 pb-2 shadow-md shadow-orange-400':
+                  !isInputActive && isHome,
+                'min-h-[8vh] border border-gray-400': !isInputActive,
+                'bottom-15': isKeyboardVisible && isInputActive,
+                'bottom-20': !isKeyboardVisible && isInputActive,
+              })}
             >
               <InchatUploader
                 className={cn('flex flex-row lg:mx gap-4 my-3', {
@@ -868,7 +875,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                     {
                       'w-[90%] gap-x-1': isMobile,
                       'w-full gap-x-0': !isMobile,
-                      'bg-[#FCFCF9]': isInputActive,
+                      'bg-[#FCFCF9] mt-0': isInputActive,
                     },
                   )}
                 >
@@ -910,7 +917,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                   {/* Send button (properly sized) */}
                   <div className="col-span-1">
                     <button
-                      className={`flex shrink-0 ml-1 rounded-md bg-orange-500 hover:bg-orange-600 text-white cursor-pointer ${isMobile ? 'p-[10%] size-6 mb-1 ' : 'p-1 size-7 mb-[20%]'}`}
+                      className={`flex shrink-0 ml-1 rounded-md bg-orange-500 hover:bg-orange-600 text-white cursor-pointer ${isMobile ? 'p-[6px] size-[24px] mb-1 ' : 'p-[6px] size-[29px] mb-[20%]'}`}
                       onClick={() => handleSend()}
                       disabled={input === ''}
                     >

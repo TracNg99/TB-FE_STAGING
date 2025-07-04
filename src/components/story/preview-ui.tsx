@@ -3,7 +3,7 @@
 import { Box, Card, Loader, Textarea } from '@mantine/core';
 //Avatar, Divider
 import { useMediaQuery } from '@mantine/hooks';
-import { IconChevronLeft } from '@tabler/icons-react';
+import { IconCheck, IconChevronLeft } from '@tabler/icons-react';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 
@@ -77,7 +77,7 @@ const StoryDetailUI: React.FC<StoryDetailProps> = ({
   // const mediaBlob = useRef<File[]>([]);
   const [hashtags, setHashTags] = useState<string[]>([]);
   const isMobile = useMediaQuery('(max-width: 640px)');
-
+  const [isCopied, setIsCopied] = useState(false);
   const channelIcons = (size: number) => {
     return [
       {
@@ -207,14 +207,14 @@ const StoryDetailUI: React.FC<StoryDetailProps> = ({
     });
   };
 
-  const handleSave = async () => {
-    onUpdate({
-      id: chosenChannelData.id,
-      status: 'DRAFT',
-      title: chosenChannelData.title,
-      story: chosenChannelData.story,
-      hashtags,
-    });
+  const handleShare = () => {
+    if (navigator.clipboard && typeof window !== 'undefined') {
+      navigator.clipboard.writeText(`/stories/${chosenChannelData.id}`);
+      setIsCopied(true);
+      setTimeout(() => {
+        setIsCopied(false);
+      }, 3000);
+    }
   };
 
   const handleEditStory = (story: string) => {
@@ -257,7 +257,7 @@ const StoryDetailUI: React.FC<StoryDetailProps> = ({
       onClick: onRegenerate,
     },
     {
-      name: 'Save',
+      name: 'Share',
       icon: (
         <Image
           src="/assets/solar_copy-bold.svg"
@@ -266,7 +266,7 @@ const StoryDetailUI: React.FC<StoryDetailProps> = ({
           height={24}
         />
       ),
-      onClick: handleSave,
+      onClick: handleShare,
     },
     {
       name: 'Publish',
@@ -344,6 +344,33 @@ const StoryDetailUI: React.FC<StoryDetailProps> = ({
           </>
         )}
       </div> */}
+
+      {chosenChannelData.isReady && (
+        <div className="flex mt-16 gap-6 justify-end">
+          {utilButtons.map((item) => (
+            <button
+              key={item.name}
+              className={`
+            flex items-center justify-center align-center
+            gap-2 rounded-full
+            ${isMobile ? 'w-[48px] h-[48px]' : 'w-[64px] h-[64px]'}
+            bg-orange-50 border-2 border-orange-500 cursor-pointer`}
+              onClick={() => item.onClick(chosenChannel, chosenChannelData.id)}
+            >
+              {item.name === 'Share' ? (
+                isCopied ? (
+                  <IconCheck size={24} color="green" />
+                ) : (
+                  item.icon
+                )
+              ) : (
+                item.icon
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+
       {chosenChannel === 'travel_buddy' && chosenChannelData.story && (
         <Textarea
           className=""
@@ -355,37 +382,6 @@ const StoryDetailUI: React.FC<StoryDetailProps> = ({
           value={chosenChannelData.title}
           onChange={(e) => handleEditTitle(e.target.value)}
           disabled={!chosenChannelData.isReady}
-        />
-      )}
-      {photos.length === 0 ? (
-        <GalleryLoading />
-      ) : (
-        <FeatureCarousel
-          className="overflow-hidden mt-5"
-          items={photos}
-          renderItem={(photo, index) => (
-            <Card className="flex flex-col gap-4 lg:gap-8">
-              <div className="relative rounded-xl aspect-video">
-                <Image
-                  width={isMobile ? 500 : 1000}
-                  height={isMobile ? 500 : 1000}
-                  src={photo}
-                  alt={`photo-${index}`}
-                  className="rounded-2xl object-center object-cover"
-                />
-              </div>
-            </Card>
-          )}
-          classNames={{
-            controls: 'justify-center',
-          }}
-          slideSize={{
-            sm: 100,
-            md: 100,
-            base: 100,
-          }}
-          slideGap={32}
-          paginationType="dots"
         />
       )}
 
@@ -425,22 +421,37 @@ const StoryDetailUI: React.FC<StoryDetailProps> = ({
           disabled={!chosenChannelData.isReady}
         />
       )}
-      {chosenChannelData.isReady && (
-        <div className="flex mt-16 gap-6 justify-end">
-          {utilButtons.map((item) => (
-            <button
-              key={item.name}
-              className={`
-            flex items-center justify-center align-center
-            gap-2 rounded-full
-            ${isMobile ? 'w-[48px] h-[48px]' : 'w-[64px] h-[64px]'}
-            bg-orange-50 border-2 border-orange-500 cursor-pointer`}
-              onClick={() => item.onClick(chosenChannel, chosenChannelData.id)}
-            >
-              {item.icon}
-            </button>
-          ))}
-        </div>
+
+      {photos.length === 0 ? (
+        <GalleryLoading />
+      ) : (
+        <FeatureCarousel
+          className="overflow-hidden mt-5"
+          items={photos}
+          renderItem={(photo, index) => (
+            <Card className="flex flex-col gap-4 lg:gap-8">
+              <div className="relative rounded-xl aspect-video">
+                <Image
+                  width={isMobile ? 500 : 1000}
+                  height={isMobile ? 500 : 1000}
+                  src={photo}
+                  alt={`photo-${index}`}
+                  className="rounded-2xl object-center object-cover"
+                />
+              </div>
+            </Card>
+          )}
+          classNames={{
+            controls: 'justify-center',
+          }}
+          slideSize={{
+            sm: 100,
+            md: 100,
+            base: 100,
+          }}
+          slideGap={32}
+          paginationType="dots"
+        />
       )}
     </Section>
   );

@@ -23,6 +23,7 @@ export interface Experience {
   primary_video_id?: string | null;
   parent_experience?: string | null; // Use null for optional fields
   owned_by?: string;
+  default_questions?: string[];
 }
 
 interface ExperienceResponse {

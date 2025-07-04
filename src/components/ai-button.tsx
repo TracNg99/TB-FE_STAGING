@@ -1,5 +1,5 @@
-import { IconSparkles } from '@tabler/icons-react';
 import Image from 'next/image';
+import React from 'react';
 
 import { cn } from '@/utils/class';
 
@@ -8,22 +8,24 @@ const AiButton = ({
   displayText,
   additionalClassName,
   asFloating,
+  altIcon,
   ...props
 }: React.ComponentProps<'button'> & {
   additionalClassName?: string;
   displayText?: string;
   asFloating?: boolean;
+  altIcon?: React.ReactNode;
 }) => {
   if (asFloating) {
     return (
       <div className="fixed bottom-6 right-24 flex flex-col items-end z-50">
         <button
-          className="bg-orange-600 hover:bg-orange-500 rounded-full shadow-lg p-3 transition cursor-pointer"
+          className="bg-purple-200 hover:bg-purple-100 rounded-full shadow-lg p-3 transition cursor-pointer"
           aria-label="Open chatbot"
           {...props}
         >
           <Image
-            src="/assets/sparkle_pen.svg"
+            src="/assets/story.svg"
             alt="Sparkle Pen"
             width={40}
             height={40}
@@ -37,13 +39,15 @@ const AiButton = ({
       className={cn(
         `rounded-full p-2 gap-2
         flex items-center justify-center
-        ${additionalClassName ?? 'text-purple-500 bg-purple-50 hover:bg-purple-100/50 border-purple-500'}
-        text-sm font-medium transition-colors border-2`,
+        ${additionalClassName}
+        text-sm font-medium transition-colors`,
         className,
       )}
       {...props}
     >
-      <IconSparkles className="size-6" />
+      {altIcon || (
+        <Image src="/assets/story.svg" alt="Story" width={32} height={32} />
+      )}
       {displayText}
     </button>
   );

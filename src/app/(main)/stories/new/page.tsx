@@ -3,6 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { InputWrapper, Progress, Select, Textarea } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
+import { IconSparkles } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -321,13 +322,14 @@ const NewStoryPage = () => {
             </div>
             <div className="lg:col-span-2 flex justify-center">
               <AiButton
-                additionalClassName="lg:w-96 h-16 disabled:opacity-50 text-white bg-orange-500 hover:bg-orange-600 cursor-pointer"
+                additionalClassName="lg:w-96 h-16 disabled:opacity-50 text-white bg-orange-500 hover:bg-orange-600 cursor-pointer text-white"
                 type="submit"
                 displayText="Generate your AI-assisted story"
                 disabled={form.formState.isSubmitting}
                 onClick={() => {
                   handleInputsUpload(form.getValues());
                 }}
+                altIcon={<IconSparkles size={24} />}
                 asFloating={false}
               />
             </div>
