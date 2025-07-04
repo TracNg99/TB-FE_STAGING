@@ -1,6 +1,6 @@
 'use client';
 
-import { Skeleton } from '@mantine/core';
+import { ScrollArea, Skeleton } from '@mantine/core';
 import { IconArrowUpRight } from '@tabler/icons-react';
 import { IconHelpCircle } from '@tabler/icons-react';
 import Image from 'next/image';
@@ -111,7 +111,13 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
   };
 
   return (
-    <>
+    <ScrollArea
+      className={cn(
+        'w-full h-full overflow-y-auto justify-self-center items-start overscroll-x-none',
+        { 'mt-10 mb-10': isMobile },
+      )}
+      viewportRef={ref}
+    >
       {messages.map(
         (msg, i) =>
           msg.text && (
@@ -294,7 +300,7 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
             </div>
           ),
       )}
-    </>
+    </ScrollArea>
   );
 };
 

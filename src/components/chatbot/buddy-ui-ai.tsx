@@ -3,7 +3,6 @@
 import {
   Box,
   Container,
-  ScrollArea,
   Skeleton,
   TextInput,
   Tooltip,
@@ -145,6 +144,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
   const [isPinned, setIsPinned] = useState(false);
   const [resetState, setResetState] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [followUpSnackTitle, setFollowUpSnackTitle] = useState<string>('');
   const [snack, setSnack] = useState({
     visible: true,
     message: 'Ask me anything!',
@@ -232,13 +232,22 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
   };
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const storedInput = localStorage.getItem('chat-input');
-      if (storedInput && storedInput !== '') {
-        handleSend(storedInput);
-        localStorage.removeItem('chat-input');
+    const handleFollowUpTitle = () => {
+      if (experienceId && typeof window !== 'undefined') {
+        const storedInput = localStorage.getItem('chat-input');
+        if (storedInput && storedInput !== '') {
+          console.log('storedInput', storedInput);
+          setFollowUpSnackTitle(storedInput);
+          handleSend(storedInput);
+          localStorage.removeItem('chat-input');
+        }
       }
+    };
+    handleFollowUpTitle();
+  }, []);
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
       const storedThreadId = localStorage.getItem('thread-id');
       if (storedThreadId && storedThreadId !== '' && threadsList.length > 0) {
         handleThreadSelect(storedThreadId);
@@ -532,6 +541,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
           filters: {
             ...context,
             experience_id: (experienceId as string) || undefined,
+            company_id: companyId || undefined,
           },
           session_id: chatSessionId.current,
         },
@@ -723,7 +733,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                         'text-display-[14px]': !isMobile,
                       })}
                     >
-                      {experienceData.name}
+                      {followUpSnackTitle}
                     </h2>
                   </div>
                   <Image
@@ -739,23 +749,16 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
             {isThreadFetching ? (
               <ThreadLoading />
             ) : (
-              <ScrollArea
-                className={cn(
-                  'w-full h-full overflow-y-auto justify-self-center items-start overscroll-x-none',
-                  { 'mt-10 mb-10': isMobile },
-                )}
-                viewportRef={messagesEndRef}
-              >
-                <BuddyResponse
-                  threadId={activeThread || ''}
-                  isLoading={isLoading}
-                  displayText={displayedText}
-                  messages={messages.current}
-                  reasoning={floatingTexts}
-                  setInput={(input: string) => handleSend(input)}
-                  isMobile={isMobile}
-                />
-              </ScrollArea>
+              <BuddyResponse
+                threadId={activeThread || ''}
+                isLoading={isLoading}
+                displayText={displayedText}
+                messages={messages.current}
+                reasoning={floatingTexts}
+                setInput={(input: string) => handleSend(input)}
+                isMobile={isMobile}
+                ref={messagesEndRef}
+              />
             )}
           </div>
           <div

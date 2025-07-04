@@ -120,7 +120,7 @@ const DiscoveriesMain: React.FC = () => {
                         </h2>
                         {/* QR Icon Button (moved next to title) */}
                         <button
-                          className="flex-shrink-0 hover:opacity-80 transition-opacity"
+                          className="ml-2 p-1 rounded text-gray-700 hover:text-orange-500 transition focus:outline-none"
                           onClick={(e) => {
                             e.stopPropagation();
                             setQrModal({
@@ -130,7 +130,7 @@ const DiscoveriesMain: React.FC = () => {
                             });
                           }}
                         >
-                          <IconQrcode className="w-5 h-5 text-orange-500" />
+                          <IconQrcode className="w-5 h-5" />
                         </button>
                       </div>
                       <p
@@ -172,7 +172,7 @@ const DiscoveriesMain: React.FC = () => {
                             </h3>
                             {/* QR Icon Button */}
                             <button
-                              className="flex-shrink-0 hover:opacity-80 transition-opacity"
+                              className="ml-2 p-1 rounded text-gray-700 hover:text-orange-500 transition focus:outline-none"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setQrModal({
@@ -182,7 +182,7 @@ const DiscoveriesMain: React.FC = () => {
                                 });
                               }}
                             >
-                              <IconQrcode className="w-5 h-5 text-orange-500" />
+                              <IconQrcode className="w-5 h-5" />
                             </button>
                           </div>
                           <p className="text-sm" style={{ color: '#8D8D8D' }}>
