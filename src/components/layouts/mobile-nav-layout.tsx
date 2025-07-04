@@ -173,7 +173,7 @@ const Navbar = () => {
             }
             className={cn(
               'flex flex-col items-center gap-1 rounded-lg p-2',
-              activeTab === link.href && !isOAuthCallback && 'bg-orange-100/50',
+              activeTab === link.href && !isOAuthCallback && 'text-orange-600',
             )}
             key={index}
             disabled={isOAuthCallback}

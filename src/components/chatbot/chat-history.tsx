@@ -4,7 +4,7 @@ import { Skeleton } from '@mantine/core';
 import { Button, TextInput } from '@mantine/core';
 import { IconClock, IconPlus, IconX } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { IoMdSearch } from 'react-icons/io';
 
 export interface ChatThreadProps {
@@ -55,11 +55,11 @@ export default function ChatHistory({
   isLoading: boolean;
 }) {
   const router = useRouter();
-  const [searchQuery, setSearchQuery] = React.useState('');
-  const [filteredThreads, setFilteredThreads] = React.useState(threads);
-  const [isSearchOpen, setIsSearchOpen] = React.useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredThreads, setFilteredThreads] = useState(threads);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const filtered = threads.filter(
       (thread) =>
         thread.user_query.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -137,7 +137,7 @@ export default function ChatHistory({
                     shadow-lg
                 `}
         variant="contained"
-        onClick={() => router.push('/?threadId=')}
+        onClick={() => router.push('/')}
       >
         <IconPlus size={24} color="white" />
       </Button>

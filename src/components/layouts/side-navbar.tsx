@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { useAuth } from '@/contexts/auth-provider';
+import { useChat } from '@/contexts/chat-provider';
 import { useSidebar } from '@/contexts/sidebar-provider';
 import { cn } from '@/utils/class';
 
@@ -38,6 +39,7 @@ const navbarLinks = [
 const Navbar = () => {
   const { user, logout } = useAuth();
   const { setIsSidebarOpen } = useSidebar();
+  const { triggerReset } = useChat();
   const router = useRouter();
 
   const [activeTab, setActiveTab] = useState('/');
@@ -52,7 +54,7 @@ const Navbar = () => {
       router.push('/auth/login');
       return;
     }
-
+    setActiveTab('/stories/new');
     router.push('/stories/new');
   };
 
@@ -67,7 +69,7 @@ const Navbar = () => {
       // onMouseLeave={() => setIsSidebarOpen(false)}
       className="flex w-24 flex-shrink-0 flex-col items-center border-r border-gray-200 bg-white py-4 z-10"
     >
-      <Link href="/">
+      <Link href="/" onClick={triggerReset}>
         <Image
           src="/assets/travelbuddy_logo_icon.svg"
           alt="Logo"
@@ -93,7 +95,14 @@ const Navbar = () => {
               <Image src={link.icon} alt="Home" width={28} height={28} />
             )}
             {link.title === 'Stories' && (
-              <AiButton className="flex cursor-pointer" />
+              <div
+                className={cn(
+                  activeTab === '/stories/new' &&
+                    'p-2 bg-orange-100/50 rounded-lg',
+                )}
+              >
+                <AiButton className="flex cursor-pointer" />
+              </div>
             )}
             <span className="text-xs font-medium">{link.title}</span>
           </UnstyledButton>

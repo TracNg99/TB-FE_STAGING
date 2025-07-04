@@ -6,6 +6,7 @@ import type { Metadata } from 'next';
 import { Oswald, Poppins } from 'next/font/google';
 
 import AuthProvider from '@/contexts/auth-provider';
+import { ChatProvider } from '@/contexts/chat-provider';
 import ReduxProvider from '@/contexts/redux-provider';
 
 import './globals.css';
@@ -69,12 +70,14 @@ export default function RootLayout({
       >
         <ReduxProvider>
           <AuthProvider>
-            <MantineProvider theme={theme} defaultColorScheme="light">
-              <ModalsProvider>
-                <Notifications />
-                {children}
-              </ModalsProvider>
-            </MantineProvider>
+            <ChatProvider>
+              <MantineProvider theme={theme} defaultColorScheme="light">
+                <ModalsProvider>
+                  <Notifications />
+                  {children}
+                </ModalsProvider>
+              </MantineProvider>
+            </ChatProvider>
           </AuthProvider>
         </ReduxProvider>
       </body>

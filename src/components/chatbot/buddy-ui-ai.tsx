@@ -12,7 +12,13 @@ import {
 import { Image as ImageDisplay } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconGitFork, IconX } from '@tabler/icons-react';
+import {
+  IconGitFork,
+  IconPin,
+  IconPinFilled,
+  IconPlus,
+  IconX,
+} from '@tabler/icons-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -30,6 +36,7 @@ import ImageUploader from '@/components/image-uploader/image-picker';
 import InchatUploader from '@/components/image-uploader/image-picker-in-chat';
 import TextCarousel from '@/components/text-carousel';
 import { useAuth } from '@/contexts/auth-provider';
+import { useChat } from '@/contexts/chat-provider';
 import { useSidebar } from '@/contexts/sidebar-provider';
 import {
   useBuddyStreamMutation,
@@ -127,6 +134,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
   const pathname = usePathname();
   const params = useParams();
   const { user } = useAuth();
+  const { resetState: resetFromContext } = useChat();
   const searchParams = useSearchParams();
   const experienceId = params.experienceId ?? searchParams.get('experienceId');
   const threadId = searchParams.get('threadId');
@@ -134,7 +142,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
   const isHome = pathname === '/';
   const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
   const [buddyStreamMutation] = useBuddyStreamMutation();
-  // const [isSent, setIsSent] = useState(false);
+  const [isPinned, setIsPinned] = useState(false);
   const [resetState, setResetState] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [snack, setSnack] = useState({
@@ -355,6 +363,21 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
     }
   }, [snack]);
 
+  useEffect(() => {
+    // This effect should run only on route changes, not on the initial render.
+    if (resetFromContext) {
+      handleReset();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resetFromContext]);
+
+  const togglePin = () => {
+    setIsPinned((prev) => !prev);
+    if (!isPinned) {
+      setIsSidebarOpen(true);
+    }
+  };
+
   const handleReset = () => {
     // console.log('activeThread: ', threadsList.find((thread) => thread.id === activeThread));
     // console.log('threadsList: ', threadsList);
@@ -544,9 +567,13 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
       {/* Header */}
       {isHome && (
         <aside
-          onMouseLeave={() => setIsSidebarOpen(false)}
+          onMouseLeave={() => {
+            if (!isPinned) {
+              setIsSidebarOpen(false);
+            }
+          }}
           className={cn(
-            'h-screen flex-col border-r border-gray-200 bg-white p-4 z-10 transition-all duration-300 ease-in-out flex overflow-hidden',
+            'h-screen flex-col border-r border-gray-200 bg-white p-4 z-10 transition-all duration-300 ease-in-out flex overflow-hidden justify-items-between',
             isSidebarOpen ? 'w-80' : 'w-0 p-0 border-none',
           )}
         >
@@ -556,22 +583,20 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
             </h2>
             <button
               onClick={() => handleReset()}
-              className="rounded-full bg-orange-100 p-1 text-orange-600 hover:bg-orange-200"
+              className="rounded-full bg-orange-100 p-1 text-orange-600 hover:bg-orange-200 cursor-pointer"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
+              <IconPlus size={16} />
+            </button>
+            <button
+              onClick={togglePin}
+              className="p-1 rounded-full hover:bg-gray-100 transition-colors place-self-end cursor-pointer"
+              title={isPinned ? 'Unpin sidebar' : 'Pin sidebar'}
+            >
+              {isPinned ? (
+                <IconPinFilled className="size-4 text-orange-500" />
+              ) : (
+                <IconPin className="size-4 text-gray-400" />
+              )}
             </button>
           </div>
           {user ? (
