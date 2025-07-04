@@ -641,7 +641,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
 
         <div
           className={cn('flex flex-col', {
-            'relative z-10 items-center w-[calc(100vw-20px)]': isHome,
+            'relative z-10 items-center w-[calc(100vw-20px)] mt-30': isHome,
             'relative w-full h-full': !isHome,
             'h-[1vh]': isHome && isMobile && isKeyboardVisible,
             'h-[90vh]': isHome && isMobile && !isKeyboardVisible,
@@ -722,6 +722,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                 viewportRef={messagesEndRef}
               >
                 <BuddyResponse
+                  threadId={activeThread || ''}
                   isLoading={isLoading}
                   displayText={displayedText}
                   messages={messages.current}

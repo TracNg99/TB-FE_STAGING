@@ -23,6 +23,7 @@ interface BuddyResponseProps {
   reasoning: string;
   displayText: string;
   messages: MessagesProps[];
+  threadId: string;
   isLoading: boolean;
   isMobile?: boolean;
   ref?: React.RefObject<HTMLDivElement | null>;
@@ -80,6 +81,7 @@ const LoadingSkeletion = () => {
 
 const BuddyResponse: React.FC<BuddyResponseProps> = ({
   setInput,
+  threadId,
   messages,
   displayText,
   isLoading,
@@ -93,8 +95,13 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
 
   const handleShare = () => {
     if (navigator.clipboard && typeof window !== 'undefined') {
-      navigator.clipboard.writeText(window.location.href);
+      navigator.clipboard.writeText(
+        window.location.href + `?threadId=${threadId}`,
+      );
       setIsCopied(true);
+      setTimeout(() => {
+        setIsCopied(false);
+      }, 3000);
     }
   };
 
@@ -139,7 +146,7 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                         onClick={() => handleTabSelect(i, 'answer')}
                         className={cn(
                           'py-2 px-4 text-md',
-                          activeTab === 'answer'
+                          activeTab === 'answer' || i !== currentMessage
                             ? 'border-b-2 border-orange-500 text-orange-500'
                             : 'text-gray-500',
                         )}
@@ -150,7 +157,8 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                         onClick={() => handleTabSelect(i, 'sources')}
                         className={cn(
                           'py-2 px-4 text-md',
-                          activeTab === 'sources'
+                          msg.sources && msg.sources.length === 0 && 'hidden',
+                          activeTab === 'sources' && i === currentMessage
                             ? 'border-b-2 border-orange-500 text-orange-500'
                             : 'text-gray-500',
                         )}
@@ -162,7 +170,7 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                         )
                       </button>
                     </div>
-                    {activeTab === 'answer' ? (
+                    {activeTab === 'answer' || i !== currentMessage ? (
                       <div className="prose prose-lg w-full text-wrap">
                         {(msg.images && msg.images.length > 0) ||
                           (mockImages.length > 0 && (
