@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, TextInput } from '@mantine/core';
+import { Button, PasswordInput, TextInput } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { AuthError } from '@supabase/supabase-js';
 import Link from 'next/link';
@@ -100,11 +100,10 @@ const LoginPage = () => {
           error={form.formState.errors.email?.message}
         />
         <div className="flex flex-col gap-2">
-          <TextInput
+          <PasswordInput
             {...form.register('password')}
             label="Password"
             placeholder="******"
-            type="password"
             error={form.formState.errors.password?.message}
           />
           <Link

@@ -11,6 +11,7 @@ import { useEffect, useState } from 'react';
 import { BsPersonCircle } from 'react-icons/bs';
 
 import { useAuth } from '@/contexts/auth-provider';
+import { useChat } from '@/contexts/chat-provider';
 // import { useSidebar } from '@/contexts/sidebar-provider';
 import { cn } from '@/utils/class';
 
@@ -42,6 +43,7 @@ const navbarLinks = [
 
 const Navbar = () => {
   const { user, logout } = useAuth();
+  const { triggerReset } = useChat();
   const router = useRouter();
   const pathname = usePathname();
   // const params = useParams();
@@ -87,6 +89,7 @@ const Navbar = () => {
         title: 'Member-only feature',
         message: 'Please login to use this feature!',
         color: 'yellow',
+        position: 'top-center',
       });
       router.push('/auth/login');
       return;
@@ -157,6 +160,7 @@ const Navbar = () => {
           <Link
             href="/"
             className="fixed top-[2dvh] left-[50%] translate-x-[-50%] p-1 bg-white/50 rounded-xl"
+            onClick={triggerReset}
           >
             <Image
               src="/assets/travelbuddy_logo_icon.svg"

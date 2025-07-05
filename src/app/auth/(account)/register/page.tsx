@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, TextInput } from '@mantine/core';
+import { Button, PasswordInput, TextInput } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { AuthError } from '@supabase/supabase-js';
 import Link from 'next/link';
@@ -20,10 +20,10 @@ const registerSchema = z.object({
     .min(8, 'Password must be at least 8 characters long'),
   firstName: z.string().nonempty('First name is required'),
   lastName: z.string().nonempty('Last name is required'),
-  phoneNumber: z
-    .string()
-    .nonempty('Phone number is required')
-    .regex(/^\+?\d{10,14}$/, 'Invalid phone number format'),
+  // phoneNumber: z
+  //   .string()
+  //   .nonempty('Phone number is required')
+  //   .regex(/^\+?\d{10,14}$/, 'Invalid phone number format'),
 });
 
 type RegisterSchema = z.infer<typeof registerSchema>;
@@ -39,7 +39,7 @@ const RegisterPage = () => {
       password: '',
       firstName: '',
       lastName: '',
-      phoneNumber: '',
+      // phoneNumber: '',
     },
     mode: 'onTouched',
   });
@@ -62,12 +62,14 @@ const RegisterPage = () => {
           color: 'red',
           title: 'Failed to register!',
           message,
+          position: 'top-center',
         });
       } else {
         notifications.show({
           color: 'success',
           title: 'Sign Up successful',
           message: 'Account created successfully!',
+          position: 'top-center',
         });
       }
 
@@ -81,6 +83,7 @@ const RegisterPage = () => {
         color: 'red',
         title: 'Failed to login',
         message,
+        position: 'top-center',
       });
     }
     setLoading(false);
@@ -119,17 +122,16 @@ const RegisterPage = () => {
           placeholder="email@example.com"
           error={form.formState.errors.email?.message}
         />
-        <TextInput
+        {/* <TextInput
           {...form.register('phoneNumber')}
           label="Phone number"
           placeholder="+1234567890"
           error={form.formState.errors.phoneNumber?.message}
-        />
-        <TextInput
+        /> */}
+        <PasswordInput
           {...form.register('password')}
           label="Password"
           placeholder="******"
-          type="password"
           error={form.formState.errors.password?.message}
         />
         <Button

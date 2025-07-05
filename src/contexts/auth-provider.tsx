@@ -1,5 +1,6 @@
 'use client';
 
+import { notifications } from '@mantine/notifications';
 import {
   useParams,
   usePathname,
@@ -81,11 +82,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
-    // const currentPath = localStorage.getItem('currentPath') || '';
-    // if (currentPath) {
-    //   router.replace(currentPath);
-    //   localStorage.removeItem('currentPath');
-    // }
     const checkUserAuth = async () => {
       const jwt = localStorage.getItem('jwt') || '';
       const role = localStorage.getItem('role') || '';
@@ -104,9 +100,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         // Redirect to login if no JWT OR if JWT is invalid
         if (!isValidJwt) {
-          localStorage.clear();
-          sessionStorage.clear();
-          localStorage.setItem('currentPath', pathname);
           if (pathname === '/auth/register/business') {
             return;
           } else if (
@@ -121,7 +114,21 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           ) {
             localStorage.clear();
             sessionStorage.clear();
-            router.replace('/');
+            notifications.show({
+              title: 'Feature for logged in users only',
+              message: 'Please log in to access this feature',
+              color: 'yellow',
+              position: 'top-center',
+            });
+            sessionStorage.setItem('currentPath', pathname);
+            router.replace('/auth/login');
+            return;
+          }
+        } else {
+          const currentPath = sessionStorage.getItem('currentPath') || '';
+          if (currentPath) {
+            router.replace(currentPath);
+            sessionStorage.removeItem('currentPath');
             return;
           }
         }

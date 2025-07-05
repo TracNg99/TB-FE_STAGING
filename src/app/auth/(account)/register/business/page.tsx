@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, TextInput } from '@mantine/core';
+import { Button, PasswordInput, TextInput } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { AuthError } from '@supabase/supabase-js';
 import Link from 'next/link';
@@ -62,12 +62,14 @@ const RegisterPage = () => {
           color: 'red',
           title: 'Failed to register!',
           message,
+          position: 'top-center',
         });
       } else {
         notifications.show({
           color: 'success',
           title: 'Sign Up successful',
           message: 'Account created successfully!',
+          position: 'top-center',
         });
       }
 
@@ -81,6 +83,7 @@ const RegisterPage = () => {
         color: 'red',
         title: 'Failed to login',
         message,
+        position: 'top-center',
       });
     }
     setLoading(false);
@@ -125,11 +128,10 @@ const RegisterPage = () => {
           placeholder="+1234567890"
           error={form.formState.errors.phone?.message}
         />
-        <TextInput
+        <PasswordInput
           {...form.register('password')}
           label="Password"
           placeholder="******"
-          type="password"
           error={form.formState.errors.password?.message}
         />
         <Button
