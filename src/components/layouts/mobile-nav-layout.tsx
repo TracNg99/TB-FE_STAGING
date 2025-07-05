@@ -21,41 +21,64 @@ const navbarLinks = [
     title: 'Home',
     href: '/',
     icon: '/assets/home.svg',
+    tag: 'home',
   },
   {
     title: 'Discover',
-    href: '/discoveries',
+    href: 'discoveries',
     icon: '/assets/discover.svg',
   },
   {
     title: 'Stories',
-    href: '/stories/new',
+    href: 'stories',
     icon: '/assets/story.svg',
   },
   {
     title: 'History',
-    href: '/history',
+    href: 'history',
     icon: '/assets/history.svg',
   },
 ];
 
 const Navbar = () => {
   const { user, logout } = useAuth();
-  //   const { setIsSidebarOpen } = useSidebar();
   const router = useRouter();
   const pathname = usePathname();
+  // const params = useParams();
   const [isOAuthCallback, setIsOAuthCallback] = useState(false);
-  const pathnameSplit = pathname.split('/');
 
-  const [activeTab, setActiveTab] = useState<string | null>(pathname);
+  const [activeTab, setActiveTab] = useState<string | null>(null);
 
   useEffect(() => {
-    const checkPath = pathnameSplit.find((path) => path.length > 10)
-      ? `/${pathnameSplit.slice(1, -1).join('/')}`
-      : pathname;
-    setActiveTab(checkPath);
+    if (pathname === '/') {
+      setActiveTab('/');
+      return;
+    }
+
+    const currentPath = pathname.substring(1);
+
+    for (const link of navbarLinks) {
+      if (link.href !== '/' && currentPath.startsWith(link.href)) {
+        setActiveTab(link.href);
+      }
+    }
+
     setIsOAuthCallback(pathname === '/auth/callbackv1');
   }, [pathname]);
+
+  const handleTabChange = (href: string) => {
+    setActiveTab(href);
+    if (href === '/history' && !user && !localStorage.getItem('jwt')) {
+      notifications.show({
+        title: 'Member-only feature',
+        message: 'Please login to use this feature!',
+        color: 'yellow',
+      });
+      router.push('/auth/login');
+      return;
+    }
+    router.replace(href === '/' ? href : `/${href}`);
+  };
 
   const handleAiButtonClicked = () => {
     setActiveTab('/stories/new');
@@ -70,20 +93,6 @@ const Navbar = () => {
     }
 
     router.push('/stories/new');
-  };
-
-  const handleTabChange = (href: string) => {
-    setActiveTab(href);
-    if (href === '/history' && !user && !localStorage.getItem('jwt')) {
-      notifications.show({
-        title: 'Member-only feature',
-        message: 'Please login to use this feature!',
-        color: 'yellow',
-      });
-      router.push('/auth/login');
-      return;
-    }
-    router.replace(href);
   };
 
   return (
@@ -175,9 +184,10 @@ const Navbar = () => {
             }
             className={cn(
               'flex flex-col items-center justify-center gap-1 rounded-lg p-2 size-[50px]',
-              activeTab === link.href &&
-                !isOAuthCallback &&
-                'flex bg-purple-200/50',
+              {
+                'flex bg-purple-200/50':
+                  activeTab === link.href && !isOAuthCallback,
+              },
             )}
             key={index}
             disabled={isOAuthCallback}

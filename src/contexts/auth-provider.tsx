@@ -81,6 +81,11 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
+    // const currentPath = localStorage.getItem('currentPath') || '';
+    // if (currentPath) {
+    //   router.replace(currentPath);
+    //   localStorage.removeItem('currentPath');
+    // }
     const checkUserAuth = async () => {
       const jwt = localStorage.getItem('jwt') || '';
       const role = localStorage.getItem('role') || '';
@@ -89,7 +94,11 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         // Redirect to role-based dashboard if on root path with valid JWT and role
         if (pathname === '/auth/login' && isValidJwt && role) {
-          router.replace(`/`);
+          if (role === 'user') {
+            router.replace(`/`);
+          } else {
+            router.replace(`/business`);
+          }
           return;
         }
 
@@ -97,6 +106,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (!isValidJwt) {
           localStorage.clear();
           sessionStorage.clear();
+          localStorage.setItem('currentPath', pathname);
           if (pathname === '/auth/register/business') {
             return;
           } else if (
