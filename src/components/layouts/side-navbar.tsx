@@ -113,19 +113,26 @@ const Navbar = () => {
             }
             className={cn(
               'flex flex-col items-center gap-1 rounded-lg p-2',
-              activeTab === link.href && 'bg-purple-100/50',
+              activeTab === link.href && 'bg-gray-300/50',
               activeTab !== link.href && 'bg-transparent text-gray-500',
             )}
             key={index}
           >
             {link.title !== 'Stories' && (
-              <Image src={link.icon} alt="Home" width={28} height={28} />
+              <Image
+                className="grayscale"
+                src={link.icon}
+                alt="Home"
+                width={28}
+                height={28}
+              />
             )}
             {link.title === 'Stories' && (
               <div
                 className={cn(
                   activeTab === '/stories/new' &&
-                    'p-2 bg-purple-100/50 rounded-lg',
+                    'p-2 bg-gray-300/50 rounded-lg',
+                  'grayscale',
                 )}
               >
                 <AiButton className="flex cursor-pointer" />

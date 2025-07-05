@@ -189,14 +189,20 @@ const Navbar = () => {
             className={cn(
               'flex flex-col items-center justify-center gap-1 rounded-lg p-2 size-[50px]',
               {
-                'flex bg-purple-200/50':
+                'flex bg-gray-300/50':
                   activeTab === link.href && !isOAuthCallback,
               },
             )}
             key={index}
             disabled={isOAuthCallback}
           >
-            <Image src={link.icon} alt="Home" width={28} height={28} />
+            <Image
+              className="grayscale"
+              src={link.icon}
+              alt="Home"
+              width={28}
+              height={28}
+            />
             <span className="text-[10px] font-medium">{link.title}</span>
           </UnstyledButton>
         ))}
