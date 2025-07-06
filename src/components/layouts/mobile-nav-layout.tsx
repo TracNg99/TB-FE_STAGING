@@ -41,7 +41,13 @@ const navbarLinks = [
   },
 ];
 
-const Navbar = () => {
+const Navbar = ({
+  isMobile,
+  isKeyboardVisible,
+}: {
+  isMobile?: boolean;
+  isKeyboardVisible?: boolean;
+}) => {
   const { user, logout } = useAuth();
   const { triggerReset } = useChat();
   const router = useRouter();
@@ -79,6 +85,11 @@ const Navbar = () => {
       router.push('/auth/login');
       return;
     }
+
+    if (href === '/' && pathname === '/') {
+      triggerReset();
+    }
+
     router.replace(href === '/' ? href : `/${href}`);
   };
 
@@ -100,8 +111,8 @@ const Navbar = () => {
 
   return (
     <>
-      {pathname === '/' && (
-        <div className="fixed top-[2dvh] left-[2dvh] flex flex-row z-10">
+      {pathname === '/' && isMobile && !isKeyboardVisible && (
+        <div className={cn('fixed top-[2dvh] left-[2dvh] flex flex-row z-10')}>
           {user ? (
             <Popover position="top-end" withArrow>
               <Popover.Target>
@@ -171,42 +182,44 @@ const Navbar = () => {
           </Link>
         </div>
       )}
-      <footer
-        className={`
+      {isMobile && !isKeyboardVisible && (
+        <footer
+          className={`
         fixed bottom-0 left-0 right-0 
         z-1000 flex h-16 w-full items-center 
         justify-around border-t border-gray-200 
         bg-white md:hidden
       `}
-      >
-        {navbarLinks.map((link, index) => (
-          <UnstyledButton
-            onClick={() =>
-              link.title === 'Stories'
-                ? handleAiButtonClicked()
-                : handleTabChange(link.href)
-            }
-            className={cn(
-              'flex flex-col items-center justify-center gap-1 rounded-lg p-2 size-[50px]',
-              {
-                'flex bg-gray-300/50':
-                  activeTab === link.href && !isOAuthCallback,
-              },
-            )}
-            key={index}
-            disabled={isOAuthCallback}
-          >
-            <Image
-              className="grayscale"
-              src={link.icon}
-              alt="Home"
-              width={28}
-              height={28}
-            />
-            <span className="text-[10px] font-medium">{link.title}</span>
-          </UnstyledButton>
-        ))}
-      </footer>
+        >
+          {navbarLinks.map((link, index) => (
+            <UnstyledButton
+              onClick={() =>
+                link.title === 'Stories'
+                  ? handleAiButtonClicked()
+                  : handleTabChange(link.href)
+              }
+              className={cn(
+                'flex flex-col items-center justify-center gap-1 rounded-lg p-2 size-[50px]',
+                {
+                  'flex bg-gray-300/50':
+                    activeTab === link.href && !isOAuthCallback,
+                },
+              )}
+              key={index}
+              disabled={isOAuthCallback}
+            >
+              <Image
+                className="grayscale"
+                src={link.icon}
+                alt="Home"
+                width={28}
+                height={28}
+              />
+              <span className="text-[10px] font-medium">{link.title}</span>
+            </UnstyledButton>
+          ))}
+        </footer>
+      )}
     </>
   );
 };

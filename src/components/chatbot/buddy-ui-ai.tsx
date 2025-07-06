@@ -98,7 +98,7 @@ const CustomImageDisplay: React.FC<{
       key={index}
       className={`relative flex flex-row overflow-hidden rounded-md ${isMobile ? 'w-24 h-16' : 'w-28 h-20'} items-center bg-gray-300/70 mx-2' : 'w-[350px] h-full items-center bg-gray-300/70 mx-2'}`}
     >
-      <Box className="grow-[80vw] h-full items-center bg-transparent p-2 rounded-md ">
+      <Box className="grow-[80vw] h-full items-center bg-transparent p-2 rounded-md overflow-hidden">
         <ImageDisplay
           className="rounded-md"
           src={
@@ -185,6 +185,13 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
   const [isInputActive, setIsInputActive] = useState(false);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [isIOS, setIsIOS] = useState(false);
+  // const [viewPortCoordsTop, setViewPortCoordsTop] = useState<{
+  //   offsetTop: number,  pageTop: number
+  // }>({
+  //   offsetTop: 0,
+  //   pageTop: 0
+  // })
   const [selectedImages, setSelectedImages] = useState<
     Array<{ image: string | null; name: string | null }>
   >([]);
@@ -230,7 +237,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
       companyId: companyId ?? (experienceData?.owned_by as string),
     },
     {
-      skip: !isHome || !experienceId,
+      skip: !isHome,
     },
   );
 
@@ -297,15 +304,31 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
     }
   }, [fetchedInitialSuggestions]);
 
+  // useEffect(() => {
+  //   if(window.visualViewport){
+  //     // const initialHeight = window.innerHeight;
+  //     const { offsetTop, pageTop } = window.visualViewport;
+  //     console.log("offsetTop", offsetTop)
+  //     console.log("pageTop", pageTop)
+  //     setViewPortCoordsTop({
+  //       offsetTop: offsetTop,
+  //       pageTop: pageTop
+  //     })
+  //   }
+  // }, [isKeyboardVisible]);
+
   useEffect(() => {
     const handleResize = () => {
       if (window.visualViewport) {
-        const { height } = window.visualViewport;
+        const { height, offsetTop, pageTop } = window.visualViewport;
         const threshold = window.innerHeight * 0.9; // 90% of the initial height
 
-        if (height < threshold) {
+        if (height < threshold || offsetTop !== 0 || pageTop !== 0) {
           setIsKeyboardVisible(true);
         } else {
+          if (isIOS) {
+            setIsInputActive(false);
+          }
           setIsKeyboardVisible(false);
         }
       }
@@ -320,7 +343,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
         window.visualViewport.removeEventListener('resize', handleResize);
       }
     };
-  }, []);
+  }, [isIOS]);
 
   useEffect(() => {
     const visualViewport = window.visualViewport;
@@ -345,6 +368,43 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
 
     return () => {};
   }, []);
+
+  useEffect(() => {
+    const isIOSCheck =
+      typeof navigator !== 'undefined' &&
+      /iPad|iPhone|iPod/.test(navigator.userAgent);
+    setIsIOS(isIOSCheck);
+
+    const handleFocus = () => {
+      // This is a workaround for iOS where the keyboard pushes the view up.
+      // We scroll the textarea into view after a short delay to ensure the keyboard is up.
+      if (
+        isIOSCheck &&
+        textAreaRef.current &&
+        textAreaRef.current.onfocus &&
+        isIOS
+      ) {
+        textAreaRef.current!.scrollTo({
+          behavior: 'smooth',
+          top: 0,
+        });
+        document.body.scrollTop = 0;
+      }
+    };
+
+    // handleFocus();
+
+    const textArea = textAreaRef.current;
+    if (textArea) {
+      textArea.addEventListener('focus', handleFocus);
+    }
+
+    return () => {
+      if (textArea) {
+        textArea.removeEventListener('focus', handleFocus);
+      }
+    };
+  }, [isIOS]);
 
   useEffect(() => {
     if (
@@ -390,6 +450,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
         title: 'Chat Reset',
         message: 'Your chat has been reset.',
         color: 'green',
+        position: 'top-right',
       });
       setResetState(false);
     }
@@ -524,6 +585,10 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
           item.metadata?.follow_up_questions ||
           [],
       }));
+      scrollToBottom();
+      setActiveThread(threadId);
+      chatSessionId.current = threadId;
+      console.log(messages.current);
     }
   }, [threadId, threadData]);
 
@@ -607,7 +672,12 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
 
   // Active State (Chat Overlay)
   return (
-    <div className="flex h-full w-full bg-[#FCFCF9]">
+    <div
+      className={cn('flex h-full w-full bg-[#FCFCF9]', {
+        'h-[52vh]': isInputActive && isMobile && isIOS,
+        [`fixed overflow-y-scroll`]: isMobile && isIOS && isKeyboardVisible,
+      })}
+    >
       {/* Header */}
       {isHome && (
         <aside
@@ -617,7 +687,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
             }
           }}
           className={cn(
-            'h-screen flex-col border-r border-gray-200 bg-white p-4 z-10 transition-all duration-300 ease-in-out flex overflow-hidden justify-items-between',
+            'h-screen flex-col border-r border-gray-200 bg-white p-4 z-10 transition-all duration-300 ease-in-out flex overflow-clip justify-items-between',
             isSidebarOpen ? 'w-80' : 'w-0 p-0 border-none',
           )}
         >
@@ -695,13 +765,17 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
             messages.current.length === 0 &&
             !isInputActive &&
             !isThreadFetching &&
+            !isKeyboardVisible &&
             isHome,
           'bg-transparent': isHome,
+          'h-[52vh]': isInputActive && isMobile && isIOS,
+          [`fixed overflow-y-scroll`]: isMobile && isIOS && isKeyboardVisible,
         })}
       >
         {/* Gradient Overlay */}
         {messages.current.length === 0 &&
           !isInputActive &&
+          !isKeyboardVisible &&
           !isThreadFetching && (
             <div
               className={cn('absolute inset-0 bg-gradient-to-b', {
@@ -725,6 +799,8 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
             {messages.current.length === 0 &&
               !isInputActive &&
               !isThreadFetching &&
+              !isThreadLoading &&
+              !isKeyboardVisible &&
               isHome && (
                 <>
                   <div className="mb-2">
@@ -790,8 +866,8 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                 </Container>
               </Link>
             )}
-            {isThreadFetching ||
-            (isThreadLoading && messages.current.length === 0) ? (
+            {(isThreadFetching || isThreadLoading) &&
+            messages.current.length === 0 ? (
               <ThreadLoading />
             ) : (
               <BuddyResponse
@@ -812,6 +888,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
               {
                 'relative h-[5vh] left-[60dvw]': isInputActive,
                 'bottom-auto': isInputActive && isKeyboardVisible,
+                'h-[1vh] gap-0': isInputActive && isIOS,
                 'top-[10%]': isInputActive && !isKeyboardVisible,
                 'fixed bottom-[10%]': !isInputActive,
                 'h-[15vh]': !isInputActive && isHome,
@@ -849,12 +926,15 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                 'fixed bottom-[8%] m-1': !isHome && isMobile,
                 'fixed bottom-1': !isHome && !isMobile,
                 'absolute bottom-1 mx-6': isHome,
-                'right-1 bg-[#FCFCF9]': isInputActive,
                 'pl-2 pr-2 pb-2 shadow-md shadow-orange-400':
                   !isInputActive && isHome,
                 'min-h-[8vh] border border-gray-400': !isInputActive,
-                [`bottom-[${keyboardHeight + 5}%]`]: isInputActive,
+                [`bottom-[${keyboardHeight + 5}%] right-1 bg-[#FCFCF9] mb-20`]:
+                  isInputActive,
                 'bottom-20': !isKeyboardVisible && isInputActive,
+
+                // [`top-[42vh] h-[10vh] min-h-[1vh] bg-[#FCFCF9] mt-0 mb-[2vh] py-0 border`]:
+                //    isMobile && isInputActive && isIOS && isKeyboardVisible,
               })}
             >
               <InchatUploader
@@ -876,7 +956,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
               >
                 {isInputActive && messages.current.length === 0 && (
                   <button
-                    className="fixed top-[1dvh] left-[1dvh] z-1000"
+                    className="fixed top-[1vh] left-[1dvh] z-1000"
                     onClick={() => setIsInputActive(false)}
                   >
                     <IconX />
@@ -887,11 +967,22 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                   className={cn('w-full', {
                     'col-span-2 w-[90%]': isMobile,
                     'col-span-4': !isMobile,
+                    [`fixed top-[1dvh] left-[2dvh] right-[2dvh] z-50 w-[90%] h-[10vh] 
+                      px-2 pt-5 pb-20
+                      bg-[#FCFCF9] z-100`]:
+                      isInputActive &&
+                      messages.current.length === 0 &&
+                      isMobile &&
+                      !isIOS,
                     [`fixed top-[1dvh] left-[2dvh] right-[2dvh] 
                       z-50 w-[90%] h-[10vh] 
                       px-2 pt-5 pb-20
                       bg-[#FCFCF9] z-100`]:
-                      isInputActive && messages.current.length === 0,
+                      isInputActive &&
+                      messages.current.length === 0 &&
+                      isKeyboardVisible &&
+                      isIOS &&
+                      isMobile,
                     'pt-1 pb-4 pl-1 bg-white h-[6vh]':
                       !isInputActive || messages.current.length > 0,
                   })}
@@ -913,6 +1004,11 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                   maxRows={isMobile && isInputActive ? 10 : 3}
                   resize="vertical"
                   ref={textAreaRef}
+                  autoFocus={
+                    isInputActive &&
+                    messages.current.length === 0 &&
+                    isKeyboardVisible
+                  }
                 />
 
                 <div
@@ -942,15 +1038,15 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                       fetchImages={selectedImages}
                       className={cn(
                         'flex text-gray-200 rounded-full cursor-pointer align-items-end',
-                        { 'size-8': isMobile, 'size-10': !isMobile },
+                        { 'size-9': isMobile, 'size-10': !isMobile },
                       )}
                       allowMultiple={true}
                     >
                       <Image
                         src="/assets/image_uploader_icon.svg"
                         alt="Upload"
-                        width={isMobile ? 56 : 76}
-                        height={isMobile ? 56 : 76}
+                        width={isMobile ? 86 : 76}
+                        height={isMobile ? 86 : 76}
                       />
                     </ImageUploader>
                   </div>
@@ -963,7 +1059,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                       existingTexts={input}
                       className={cn(
                         'flex flex-end text-gray-600 bg-transparent rounded-full cursor-pointer self-center border items-center',
-                        { 'size-6 pb-1': isMobile, 'size-10': !isMobile },
+                        { 'size-10 pb-[1px]': isMobile, 'size-10': !isMobile },
                       )}
                       customIcon={<FaMicrophone className="size-5" />}
                       asModal
@@ -973,7 +1069,22 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                   {/* Send button (properly sized) */}
                   <div className="col-span-1">
                     <button
-                      className={`flex shrink-0 ml-1 rounded-md bg-orange-500 hover:bg-orange-600 text-white cursor-pointer ${isMobile ? 'p-[6px] size-[24px] mb-1 ' : 'p-[6px] size-[29px] mb-[20%]'}`}
+                      className={cn(
+                        `
+                        flex shrink-0 ml-1 
+                        rounded-md bg-orange-500 hover:bg-orange-600 
+                        text-white cursor-pointer
+                      `,
+                        {
+                          'p-[6px] size-[29px] mb-[4px]': isMobile,
+                          'p-[6px] size-[29px] mb-[20%]': !isMobile,
+                          'p-[6px] size-[29px] mt-1':
+                            isMobile &&
+                            isKeyboardVisible &&
+                            isIOS &&
+                            isInputActive,
+                        },
+                      )}
                       onClick={() => handleSend()}
                       disabled={input === ''}
                     >

@@ -3,6 +3,7 @@ import { ModalsProvider } from '@mantine/modals';
 import { Notifications } from '@mantine/notifications';
 import clsx from 'clsx';
 import type { Metadata } from 'next';
+import type { Viewport } from 'next';
 import { Oswald, Poppins } from 'next/font/google';
 
 import AuthProvider from '@/contexts/auth-provider';
@@ -55,6 +56,12 @@ export const metadata: Metadata = {
   title: 'Travel Buddy',
 };
 
+export const viewport: Viewport = {
+  initialScale: 1,
+  maximumScale: 1,
+  interactiveWidget: 'resizes-content',
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -62,7 +69,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
+      <head className="fixed">
         <ColorSchemeScript defaultColorScheme="light" />
       </head>
       <body
