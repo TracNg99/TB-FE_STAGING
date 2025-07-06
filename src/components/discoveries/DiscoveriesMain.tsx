@@ -44,14 +44,17 @@ const DiscoveriesMain: React.FC = () => {
     <div className="h-full flex flex-col mb-20">
       {/* Sticky Header and Chips */}
       <div className="sticky top-0 z-30 bg-gray-50 px-4 py-2 border-b border-gray-200">
-        <h1 className="text-2xl font-bold my-2" style={{ color: '#333333' }}>
+        <h1
+          className="text-2xl md:text-3xl font-bold my-2"
+          style={{ color: '#333333' }}
+        >
           Hop on these cool adventures!
         </h1>
         <div className="flex px-1 gap-3 flex-nowrap overflow-x-auto scrollbar-hide">
           {ADDRESS_LIST.map((address) => (
             <button
               key={address}
-              className={`px-2 py-1 rounded-full text-sm font-medium transition-all border-2 cursor-pointer hover:shadow-sm whitespace-nowrap flex-shrink-0 ${
+              className={`px-4 py-2 rounded-full text-md font-medium transition-all border-2 cursor-pointer hover:shadow-sm whitespace-nowrap flex-shrink-0 ${
                 selectedAddress === address
                   ? 'bg-orange-50 text-black border-orange-500'
                   : 'bg-orange-50 text-black border-transparent hover:bg-orange-100'
@@ -134,7 +137,7 @@ const DiscoveriesMain: React.FC = () => {
                         </button>
                       </div>
                       <p
-                        className="text-sm leading-relaxed"
+                        className="text-md leading-relaxed"
                         style={{ color: '#333333' }}
                       >
                         {experiences[0].thumbnail_description ||

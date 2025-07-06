@@ -25,7 +25,6 @@ import {
 
 const SECTION_TITLE_CLASS =
   'text-[#222] text-[20px] font-semibold flex items-center gap-2 mb-4';
-const SECTION_CONTENT_CLASS = 'text-[20px] font-normal text-gray-800';
 
 const ExperienceDetailPage = () => {
   const { experienceId } = useParams();
@@ -117,179 +116,181 @@ const ExperienceDetailPage = () => {
         </div>
       </div>
 
-      {/* Title and QR icon */}
-      <div className="mb-2 mt-4">
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-3">
-          <h1 className="text-[32px] font-semibold text-gray-900 leading-tight">
-            {experience.name}
-          </h1>
-          {/* Mobile: buttons below title, Desktop: inline */}
-          <div className="flex gap-2 md:ml-2 md:items-center">
-            <button
-              className="p-1 rounded text-gray-700 hover:text-orange-500 transition focus:outline-none"
-              onClick={() => setQrOpen(true)}
-              title="Show QR code"
-            >
-              <IconQrcode className="w-8 h-8" />
-            </button>
-            <button
-              className="p-1 rounded transition-colors hover:text-orange-500 focus:outline-none"
-              onClick={handleCopy}
-              title="Copy link to clipboard"
-            >
-              <IconCopy className="w-8 h-8 " />
-            </button>
-          </div>
-        </div>
-        <QRModal
-          open={qrOpen}
-          onClose={() => setQrOpen(false)}
-          contentId={experienceId as string}
-          displayText={experience.name}
-        />
-      </div>
-      {/* Divider */}
-      <hr className="border-black mb-4" />
-      {/* Short Description */}
-      <p className="text-base md:text-lg leading-relaxed mb-6 text-black">
-        {experience.thumbnail_description || experience.description}
-      </p>
-      {/* Image */}
-      <div className="relative w-full aspect-[16/9] mb-6 rounded-lg overflow-hidden shadow-md">
-        <img
-          src={experience.primary_photo || ''}
-          alt={experience.name || ''}
-          className="w-full h-full object-cover rounded-lg"
-        />
-      </div>
-      {/* About Section */}
-      <section className="mt-8">
-        <div className={SECTION_TITLE_CLASS}>
-          <IconInfoCircle className="w-6 h-6 text-[#8338EC]" stroke={2} />
-          <span>About</span>
-        </div>
-        <div className={SECTION_CONTENT_CLASS}>
-          {experience.description && (
-            <div
-              dangerouslySetInnerHTML={{
-                __html: experience.description.replace(/\n/g, '<br />'),
-              }}
-            />
-          )}
-        </div>
-      </section>
-      {/* Activities You'll Experience */}
-      <section className="mt-10">
-        <div className={SECTION_TITLE_CLASS}>
-          <img src="/assets/idea.svg" alt="Idea" className="w-6 h-6" />
-          <span>{`Activities You'll Experience`}</span>
-        </div>
-        <div className="mt-4 relative w-full">
-          <NewCarousel
-            items={activities}
-            renderItem={(activity) => (
-              <div
-                className="min-w-[240px] max-w-[260px] h-full border border-gray-200 rounded-md bg-white overflow-hidden flex-shrink-0 flex flex-col justify-between p-0 cursor-pointer"
-                onClick={() => setSelectedActivity(activity)}
+      <div className="flex flex-col gap-6">
+        {/* Title and QR icon */}
+        <div className="mb-2">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-3">
+            <h1 className="text-[32px] font-semibold text-gray-900 leading-tight">
+              {experience.name}
+            </h1>
+            {/* Mobile: buttons below title, Desktop: inline */}
+            <div className="flex gap-2 md:ml-2 md:items-center">
+              <button
+                className="p-1 rounded text-gray-700 hover:text-orange-500 transition focus:outline-none"
+                onClick={() => setQrOpen(true)}
+                title="Show QR code"
               >
-                <img
-                  src={
-                    activity.primary_photo ||
-                    '/placeholder.svg?height=192&width=260'
-                  }
-                  alt={activity.title}
-                  className="w-full h-48 object-cover"
-                />
-                <div className="p-3 flex-1 flex flex-col ">
-                  <div className="font-bold text-gray-800 text-base mb-1 truncate whitespace-nowrap overflow-hidden">
-                    {activity.title}
-                  </div>
-                  <div className="text-xs text-gray-800 line-clamp-2">
-                    {activity.description_thumbnail}
+                <IconQrcode className="w-8 h-8" />
+              </button>
+              <button
+                className="p-1 rounded transition-colors hover:text-orange-500 focus:outline-none"
+                onClick={handleCopy}
+                title="Copy link to clipboard"
+              >
+                <IconCopy className="w-8 h-8 " />
+              </button>
+            </div>
+          </div>
+          <QRModal
+            open={qrOpen}
+            onClose={() => setQrOpen(false)}
+            contentId={experienceId as string}
+            displayText={experience.name}
+          />
+        </div>
+        {/* Divider */}
+        <hr className="border-black" />
+        {/* Short Description */}
+        <p className="text-base leading-relaxed text-black text-[16px]">
+          {experience.thumbnail_description || experience.description}
+        </p>
+        {/* Image */}
+        <div className="relative w-full aspect-[16/9] rounded-lg overflow-hidden shadow-md">
+          <img
+            src={experience.primary_photo || ''}
+            alt={experience.name || ''}
+            className="w-full h-full object-cover rounded-lg"
+          />
+        </div>
+        {/* About Section */}
+        <section>
+          <div className={SECTION_TITLE_CLASS}>
+            <IconInfoCircle className="w-6 h-6 text-[#8338EC]" stroke={2} />
+            <span>About</span>
+          </div>
+          <div className="text-base font-normal text-gray-800">
+            {experience.description && (
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: experience.description.replace(/\n/g, '<br />'),
+                }}
+              />
+            )}
+          </div>
+        </section>
+        {/* Activities You'll Experience */}
+        <section>
+          <div className={SECTION_TITLE_CLASS}>
+            <img src="/assets/idea.svg" alt="Idea" className="w-6 h-6" />
+            <span>{`Activities You'll Experience`}</span>
+          </div>
+          <div className="relative w-full">
+            <NewCarousel
+              items={activities}
+              renderItem={(activity) => (
+                <div
+                  className="min-w-[240px] max-w-[260px] h-full border border-gray-200 rounded-md bg-white overflow-hidden flex-shrink-0 flex flex-col justify-between p-0 cursor-pointer"
+                  onClick={() => setSelectedActivity(activity)}
+                >
+                  <img
+                    src={
+                      activity.primary_photo ||
+                      '/placeholder.svg?height=192&width=260'
+                    }
+                    alt={activity.title}
+                    className="w-full h-48 object-cover"
+                  />
+                  <div className="p-3 flex-1 flex flex-col ">
+                    <div className="font-bold text-gray-800 text-base mb-1 truncate whitespace-nowrap overflow-hidden">
+                      {activity.title}
+                    </div>
+                    <div className="text-base text-gray-800 line-clamp-2">
+                      {activity.description_thumbnail}
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-            className=""
-            enableInfiniteLoop={false}
-            slideGap={16}
-          />
-          {selectedActivity && (
-            <ActivityModal
-              isOpen={!!selectedActivity}
-              onClose={() => setSelectedActivity(null)}
-              activity={{
-                title: selectedActivity.title,
-                description: selectedActivity.description,
-                description_thumbnail: selectedActivity.description_thumbnail,
-                imageUrl: selectedActivity.primary_photo,
-                location: selectedActivity.address || '',
-                address: selectedActivity.address || '',
-                hours: selectedActivity.hours || '',
-              }}
-              experience_name={experience.name}
+              )}
+              className=""
+              enableInfiniteLoop={false}
+              slideGap={16}
             />
-          )}
-        </div>
-      </section>
-      {/* Iconic Photos */}
-      <section className="mt-10">
-        <div className={SECTION_TITLE_CLASS}>
-          <IconFeatureCamera className="w-6 h-6 text-[#8338EC]" />
-          <span>Iconic Photos</span>
-        </div>
-        <div className="mt-4 relative w-full">
-          <NewCarousel
-            items={iconicPhotos}
-            renderItem={(photo, idx) => (
-              <div
-                key={photo.id}
-                className="h-full flex items-center justify-center rounded-md border border-gray-200 bg-white flex-shrink-0 cursor-pointer overflow-hidden"
-                onClick={() => setSelectedPhotoIndex(idx)}
-              >
-                <img
-                  src={photo.url}
-                  alt={photo.name}
-                  className="w-auto h-80 md:h-96 object-cover rounded-md"
-                />
-              </div>
+            {selectedActivity && (
+              <ActivityModal
+                isOpen={!!selectedActivity}
+                onClose={() => setSelectedActivity(null)}
+                activity={{
+                  title: selectedActivity.title,
+                  description: selectedActivity.description,
+                  description_thumbnail: selectedActivity.description_thumbnail,
+                  imageUrl: selectedActivity.primary_photo,
+                  location: selectedActivity.address || '',
+                  address: selectedActivity.address || '',
+                  hours: selectedActivity.hours || '',
+                }}
+                experience_name={experience.name}
+              />
             )}
-            className=""
-            enableInfiniteLoop={false}
-            slideGap={16}
-          />
+          </div>
+        </section>
+        {/* Iconic Photos */}
+        <section>
+          <div className={SECTION_TITLE_CLASS}>
+            <IconFeatureCamera className="w-6 h-6 text-[#8338EC]" />
+            <span>Iconic Photos</span>
+          </div>
+          <div className="relative w-full">
+            <NewCarousel
+              items={iconicPhotos}
+              renderItem={(photo, idx) => (
+                <div
+                  key={photo.id}
+                  className="h-full flex items-center justify-center rounded-md border border-gray-200 bg-white flex-shrink-0 cursor-pointer overflow-hidden"
+                  onClick={() => setSelectedPhotoIndex(idx)}
+                >
+                  <img
+                    src={photo.url}
+                    alt={photo.name}
+                    className="w-auto h-80 md:h-96 object-cover rounded-md"
+                  />
+                </div>
+              )}
+              className=""
+              enableInfiniteLoop={false}
+              slideGap={16}
+            />
+          </div>
+        </section>
+        {/* Iconic Photo Modal */}
+        <IconicPhotoModal
+          photos={iconicPhotos}
+          selectedIndex={selectedPhotoIndex}
+          onClose={() => setSelectedPhotoIndex(null)}
+          onNavigate={(newIndex) => setSelectedPhotoIndex(newIndex)}
+        />
+        {/* Follow-up Questions */}
+        <section>
+          <div className={SECTION_TITLE_CLASS}>
+            <img src="/assets/idea.svg" alt="Idea" className="w-6 h-6" />
+            <span>Follow-up Questions</span>
+          </div>
+          <div className="flex flex-col divide-y divide-gray-200 bg-transparent">
+            {allFollowUpQuestions.map((q, idx) => (
+              <button
+                key={idx}
+                className="flex items-center justify-between py-4 px-0 text-base text-gray-800 hover:text-orange-500 transition font-medium text-left bg-transparent"
+                style={{ outline: 'none', border: 'none' }}
+                onClick={() => handleFollowUpClick(q)}
+              >
+                <span>{q}</span>
+                <IconChevronRight className="w-5 h-5 text-gray-400" />
+              </button>
+            ))}
+          </div>
+        </section>
+        {/* Chatbot (optional, can be moved to sticky bar if needed) */}
+        <div>
+          <BuddyAI context={{ experience_id: experienceId as string }} />
         </div>
-      </section>
-      {/* Iconic Photo Modal */}
-      <IconicPhotoModal
-        photos={iconicPhotos}
-        selectedIndex={selectedPhotoIndex}
-        onClose={() => setSelectedPhotoIndex(null)}
-        onNavigate={(newIndex) => setSelectedPhotoIndex(newIndex)}
-      />
-      {/* Follow-up Questions */}
-      <section className="mt-10">
-        <div className={SECTION_TITLE_CLASS}>
-          <img src="/assets/idea.svg" alt="Idea" className="w-6 h-6" />
-          <span>Follow-up Questions</span>
-        </div>
-        <div className="flex flex-col divide-y divide-gray-200 bg-transparent">
-          {allFollowUpQuestions.map((q, idx) => (
-            <button
-              key={idx}
-              className="flex items-center justify-between py-4 px-0 text-[18px] text-gray-800 hover:text-orange-500 transition font-medium text-left bg-transparent"
-              style={{ outline: 'none', border: 'none' }}
-              onClick={() => handleFollowUpClick(q)}
-            >
-              <span>{q}</span>
-              <IconChevronRight className="w-5 h-5 text-gray-400" />
-            </button>
-          ))}
-        </div>
-      </section>
-      {/* Chatbot (optional, can be moved to sticky bar if needed) */}
-      <div className="mt-10">
-        <BuddyAI context={{ experience_id: experienceId as string }} />
       </div>
     </div>
   );

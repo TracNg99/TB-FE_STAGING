@@ -193,7 +193,7 @@ const ActivityModal = ({
             </div>
 
             {/* Highlights */}
-            <div className="mb-8">
+            {/* <div className="mb-8">
               <h2 className="text-xl font-bold mb-4 text-gray-800">
                 Highlights
               </h2>
@@ -213,7 +213,7 @@ const ActivityModal = ({
                   </span>
                 ))}
               </div>
-            </div>
+            </div> */}
 
             {/* Details */}
             <div className="mb-8">
