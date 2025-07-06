@@ -109,13 +109,6 @@ const ExperienceDetailPage = () => {
 
   return (
     <div className="w-full px-2 md:px-4 py-3 bg-gray-50 min-h-screen relative">
-      {/* Floating T icon */}
-      <div className="absolute left-1/2 -top-8 transform -translate-x-1/2 z-10">
-        <div className="bg-gray-200 rounded-full w-12 h-12 flex items-center justify-center shadow-md border-2 border-white">
-          <span className="text-xl font-bold text-gray-700">T</span>
-        </div>
-      </div>
-
       <div className="flex flex-col gap-6">
         {/* Title and QR icon */}
         <div className="mb-2">
