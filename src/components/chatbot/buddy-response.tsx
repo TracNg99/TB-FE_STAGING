@@ -113,7 +113,7 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
   return (
     <ScrollArea
       className={cn(
-        'w-full h-full overflow-y-auto justify-self-center items-start overscroll-x-none',
+        'w-full h-full overflow-y-auto justify-self-center items-start overscroll-none ',
         { 'mt-10 mb-10': isMobile },
       )}
       viewportRef={ref}

@@ -444,8 +444,8 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
 
   useEffect(() => {
     if (resetData) {
-      // setActiveThread(resetData.data?.session_id)
-      // chatSessionId.current = resetData.data?.session_id;
+      setActiveThread(resetData?.data?.session_id);
+      chatSessionId.current = resetData?.data?.session_id;
       notifications.show({
         title: 'Chat Reset',
         message: 'Your chat has been reset.',
@@ -675,7 +675,9 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
     <div
       className={cn('flex h-full w-full bg-[#FCFCF9]', {
         'h-[52vh]': isInputActive && isMobile && isIOS,
-        [`fixed overflow-y-scroll`]: isMobile && isIOS && isKeyboardVisible,
+        [`fixed`]: isMobile && isIOS && isKeyboardVisible,
+        [`relative overflow-y-clip h-[32vh] overscroll-none`]:
+          !isInputActive && isMobile && isIOS && isKeyboardVisible,
       })}
     >
       {/* Header */}
@@ -769,7 +771,9 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
             isHome,
           'bg-transparent': isHome,
           'h-[52vh]': isInputActive && isMobile && isIOS,
-          [`fixed overflow-y-scroll`]: isMobile && isIOS && isKeyboardVisible,
+          [`fixed`]: isMobile && isIOS && isKeyboardVisible,
+          [`relative h-[32vh] overflow-y-clip`]:
+            !isInputActive && isMobile && isIOS && isKeyboardVisible,
         })}
       >
         {/* Gradient Overlay */}
@@ -819,7 +823,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
           </div>
           <div
             className={cn(
-              'fixed flex flex-col max-h-[30vh] mt-10 mb-60 overflow-y-auto transition-all',
+              'fixed flex flex-col max-h-[30vh] mt-10 mb-60 overflow-y-auto overscroll-none transition-all',
               {
                 'top-[6dvh] w-[90%]': isMobile,
                 'top-[6dvh] w-[60%]': !isMobile,
@@ -905,6 +909,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                     key={item}
                     className="text-nowrap rounded-full bg-[#FFF2E5] px-2 py-2 text-[12px] text-gray-600 shadow-lg hover:bg-gray-100 cursor-pointer"
                     onClick={() => handleSend(item)}
+                    disabled={isThreadFetching || isThreadLoading}
                   >
                     {item}
                   </button>
@@ -923,7 +928,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
               className={cn('bg-white rounded-md self-center', {
                 'w-[90%] overflow-y-auto': isMobile,
                 'w-[60%]': !isMobile,
-                'fixed bottom-[8%] m-1': !isHome && isMobile,
+                'fixed bottom-[15%] m-1': !isHome && isMobile,
                 'fixed bottom-1': !isHome && !isMobile,
                 'absolute bottom-1 mx-6': isHome,
                 'pl-2 pr-2 pb-2 shadow-md shadow-orange-400':
@@ -952,6 +957,8 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                 className={cn('grid w-[calc(100%-10px)] bg-white m-1', {
                   'grid-cols-3': isMobile,
                   'grid-cols-5': !isMobile,
+                  'bg-[#FCFCF9]':
+                    isMobile && isInputActive && isKeyboardVisible,
                 })}
               >
                 {isInputActive && messages.current.length === 0 && (
@@ -967,7 +974,8 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                   className={cn('w-full', {
                     'col-span-2 w-[90%]': isMobile,
                     'col-span-4': !isMobile,
-                    [`fixed top-[1dvh] left-[2dvh] right-[2dvh] z-50 w-[90%] h-[10vh] 
+                    [`fixed top-[1dvh] left-[2dvh] 
+                      right-[2dvh] z-50 w-[90%] h-[10vh] 
                       px-2 pt-5 pb-20
                       bg-[#FCFCF9] z-100`]:
                       isInputActive &&
@@ -984,7 +992,11 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                       isIOS &&
                       isMobile,
                     'pt-1 pb-4 pl-1 bg-white h-[6vh]':
-                      !isInputActive || messages.current.length > 0,
+                      messages.current.length > 0,
+                    'relative bottom-0 pt-1 pb-4 pl-1 bg-white h-[6vh] z-100':
+                      messages.current.length > 0 &&
+                      isMobile &&
+                      isKeyboardVisible,
                   })}
                   placeholder="Ask me anything..."
                   value={input}
@@ -998,17 +1010,18 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                       : undefined
                   }
                   variant="unstyled"
-                  size={isInputActive ? '25px' : 'base'}
+                  size={isInputActive ? '25px' : isMobile ? 'lg' : 'base'}
                   autosize
                   minRows={1}
                   maxRows={isMobile && isInputActive ? 10 : 3}
                   resize="vertical"
                   ref={textAreaRef}
-                  autoFocus={
-                    isInputActive &&
-                    messages.current.length === 0 &&
-                    isKeyboardVisible
-                  }
+                  // autoFocus={
+                  //   isInputActive &&
+                  //   messages.current.length === 0 &&
+                  //   isKeyboardVisible
+                  // }
+                  disabled={isThreadFetching || isThreadLoading}
                 />
 
                 <div

@@ -131,7 +131,7 @@ const BuddyAgentApi = createApi({
     }),
 
     resetChatMemory: builder.query<
-      { data: { session_id?: string | null } | string },
+      { data: { session_id: string } },
       { session_id: string | null }
     >({
       query: ({ session_id }) => ({

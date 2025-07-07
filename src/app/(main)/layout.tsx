@@ -72,7 +72,8 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
     <SidebarProvider>
       <div
         className={cn('flex h-screen overflow-hidden', {
-          'h-[52vh]': isMobile && isKeyboardVisible && isIOS,
+          'fixed h-full bg-[#FCFCF9] bottom-0 overscroll-none':
+            isMobile && isKeyboardVisible && isIOS,
         })}
       >
         {isMobile ? (
@@ -85,7 +86,8 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
         )}
         <main
           className={cn('flex-grow overflow-y-auto', {
-            'h-[52vh]': isMobile && isKeyboardVisible && isIOS,
+            'fixed h-full bg-[#FCFCF9] bottom-0 overscroll-none':
+              isMobile && isKeyboardVisible && isIOS,
           })}
         >
           {children}
