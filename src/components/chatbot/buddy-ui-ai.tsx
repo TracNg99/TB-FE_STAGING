@@ -640,7 +640,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
     try {
       await buddyStreamMutation({
         body: {
-          query: messages.current[messages.current.length - 1]?.text ?? '',
+          query: directInput ?? input ?? '',
           images: messages.current[messages.current.length - 1]?.images || [],
           filters: {
             ...context,
