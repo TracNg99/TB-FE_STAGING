@@ -842,7 +842,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
               },
             )}
           >
-            {followUpExperience && (
+            {followUpExperience && messages.current.length > 0 && (
               <Link href={`/discoveries/${followUpExperience.id}`}>
                 <Container
                   className={cn(
