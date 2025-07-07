@@ -3,12 +3,12 @@
 import {
   Box,
   Container,
+  Image as ImageDisplay,
   Skeleton,
   Textarea,
   Tooltip,
   UnstyledButton,
 } from '@mantine/core';
-import { Image as ImageDisplay } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import {
@@ -149,7 +149,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
   const [isLoading, setIsLoading] = useState(false);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [textAreaHeight, setTextAreaHeight] = useState(0);
-  const [followUpSnackTitle, setFollowUpSnackTitle] = useState<string>('');
+  // const [followUpSnackTitle, setFollowUpSnackTitle] = useState<string>('');
   const [snack, setSnack] = useState({
     visible: true,
     message: 'Ask me anything!',
@@ -276,7 +276,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
           messages.current.length === 0
         ) {
           console.log('storedInput', storedInput);
-          setFollowUpSnackTitle(storedInput);
+          // setFollowUpSnackTitle(storedInput);
           handleSend(storedInput);
           // localStorage.removeItem('chat-input');
         }
@@ -744,7 +744,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
               )}
             </nav>
           ) : (
-            <div className="flex flex-col items-center mt-10 gap-3 items-center justify-items-center">
+            <div className="flex flex-col items-center mt-10 gap-3 justify-items-center">
               <p>Login to see your previous conversations</p>
               <button
                 onClick={() => router.push('/auth/login')}
@@ -823,7 +823,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
           </div>
           <div
             className={cn(
-              'fixed flex flex-col max-h-[30vh] mt-10 mb-60 overflow-y-auto overscroll-none transition-all',
+              'fixed flex flex-col max-h-[30vh] mb-60 overflow-y-auto overscroll-none transition-all',
               {
                 'top-[6dvh] w-[90%]': isMobile,
                 'top-[6dvh] w-[60%]': !isMobile,
@@ -837,7 +837,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
               <Link href={`/discoveries/${experienceData.id}`}>
                 <Container
                   className={cn(
-                    'flex flex-col mb-3 shadow-md bg-[#FFF0E5] rounded-md max-w-[2000px] hover:bg-gray-100 cursor-pointer w-full justify-between',
+                    'flex flex-col gap-[10px] p-3 bg-[#FFF0E5] rounded-sm max-w-[2000px] hover:bg-gray-100 cursor-pointer w-full justify-between',
                   )}
                 >
                   <span className="flex flex-row items-center text-[14px] color-purple-200 text-purple-500 gap-2 w-full">
@@ -848,24 +848,12 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                       height={isMobile ? 12 : 16}
                       className="size-[24px]"
                     />{' '}
-                    Follow up to {experienceData.name}
+                    Follow up to
                   </span>
-                  <div className="py-2 flex flex-row self-start items-center justify-between gap-2 w-full">
-                    <h2
-                      className={cn({
-                        'text-[16px]': isMobile,
-                        'text-display-[16px]': !isMobile,
-                      })}
-                    >
-                      {followUpSnackTitle}
-                    </h2>
-                    <Image
-                      className="my-2 self-end rounded-md aspect-square"
-                      src={experienceData.primary_photo}
-                      alt="Experience Photo"
-                      width={70}
-                      height={70}
-                    />
+                  <div className="w-full">
+                    <p className="text-base font-medium">
+                      {experienceData.name}
+                    </p>
                   </div>
                 </Container>
               </Link>
