@@ -687,14 +687,17 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
       {/* Header */}
       {isHome && (
         <aside
+          data-sidebar="threads"
           onMouseLeave={() => {
             if (!isPinned) {
               setIsSidebarOpen(false);
             }
           }}
           className={cn(
-            'h-screen flex-col border-r border-gray-200 bg-white p-4 z-10 transition-all duration-300 ease-in-out flex overflow-clip justify-items-between',
-            isSidebarOpen ? 'w-80' : 'w-0 p-0 border-none',
+            'h-screen flex-col bg-white z-30 transition-all duration-300 ease-in-out flex overflow-hidden',
+            isSidebarOpen || isPinned
+              ? 'w-80 border-r border-gray-200'
+              : 'w-0 p-0 border-none',
           )}
         >
           <div className="mt-4 flex items-center justify-between px-4 pt-2">
