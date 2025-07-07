@@ -577,7 +577,10 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
 
   useEffect(() => {
     if (threadId && threadId !== '' && threadData && threadData.data) {
-      messages.current = threadData.data.chat_messages?.map((item) => ({
+      const threadSorted = threadData.data.chat_messages?.sort((a, b) => {
+        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      });
+      messages.current = threadSorted?.map((item) => ({
         from: item.role,
         text: item.content,
         tag: item.role === 'user' ? 'user' : 'assistant',
@@ -591,6 +594,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
       scrollToBottom();
       setActiveThread(threadId);
       chatSessionId.current = threadId;
+      console.log("Thread Data",threadData.data);
     }
   }, [threadId, threadData]);
 
@@ -641,7 +645,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
       await buddyStreamMutation({
         body: {
           query: directInput ?? input ?? '',
-          images: messages.current[messages.current.length - 1]?.images || [],
+          images: selectedImages.map((image) => image.image || '') || [],
           filters: {
             ...context,
             experience_id: (experienceId as string) || undefined,
