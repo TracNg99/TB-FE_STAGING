@@ -14,6 +14,7 @@ type ActivityModalProps = {
     location: string;
     address: string;
     hours: string;
+    photos: string[];
   };
   experience_name: string;
 };
@@ -30,26 +31,7 @@ const ActivityModal = ({
   const [isClamped, setIsClamped] = useState(false);
   const descriptionRef = useRef<HTMLDivElement>(null);
 
-  const slides = [
-    {
-      src:
-        activity.imageUrl ||
-        "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='200' viewBox='0 0 400 200'%3E%3Crect width='400' height='200' fill='%23667eea'/%3E%3Crect x='50' y='140' width='300' height='60' fill='%23333' opacity='0.7'/%3E%3Ccircle cx='200' cy='60' r='30' fill='%23FFD700' opacity='0.8'/%3E%3Ctext x='200' y='110' text-anchor='middle' fill='white' font-size='16' font-family='Arial'%3E{activity.title}%3C/text%3E%3C/svg%3E",
-      alt: activity.title,
-    },
-    {
-      src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='200' viewBox='0 0 400 200'%3E%3Crect width='400' height='200' fill='%23764ba2'/%3E%3Crect x='100' y='80' width='200' height='100' fill='%23444' opacity='0.8'/%3E%3Ccircle cx='150' cy='50' r='20' fill='%23FFD700'/%3E%3Ccircle cx='250' cy='60' r='15' fill='%23FFD700'/%3E%3Ctext x='200' y='110' text-anchor='middle' fill='white' font-size='16' font-family='Arial'%3EBar Interior%3C/text%3E%3C/svg%3E",
-      alt: 'Bar Interior',
-    },
-    {
-      src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='200' viewBox='0 0 400 200'%3E%3Crect width='400' height='200' fill='%23556270'/%3E%3Crect x='80' y='120' width='240' height='80' fill='%23333' opacity='0.6'/%3E%3Ccircle cx='160' cy='80' r='25' fill='%23FF6B35'/%3E%3Ccircle cx='240' cy='90' r='20' fill='%23FF6B35'/%3E%3Ctext x='200' y='110' text-anchor='middle' fill='white' font-size='16' font-family='Arial'%3ECocktails%3C/text%3E%3C/svg%3E",
-      alt: 'Signature Cocktails',
-    },
-    {
-      src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='200' viewBox='0 0 400 200'%3E%3Crect width='400' height='200' fill='%234ECDC4'/%3E%3Crect x='0' y='150' width='400' height='50' fill='%23333' opacity='0.5'/%3E%3Ccircle cx='120' cy='70' r='30' fill='%23FFD700'/%3E%3Ccircle cx='280' cy='80' r='25' fill='%23FFD700'/%3E%3Ctext x='200' y='110' text-anchor='middle' fill='white' font-size='16' font-family='Arial'%3ESunset Views%3C/text%3E%3C/svg%3E",
-      alt: 'Sunset Views',
-    },
-  ];
+  const slides = activity?.photos || [];
 
   const handlePrevSlide = () => {
     setCurrentSlide((prev) => (prev > 0 ? prev - 1 : prev));
@@ -128,7 +110,7 @@ const ActivityModal = ({
           {/* Header with image */}
           <div className="relative h-64 md:h-80">
             <Image
-              src={activity.imageUrl || slides[0].src}
+              src={activity.imageUrl}
               alt={activity.title}
               fill
               className="object-cover"
@@ -193,7 +175,7 @@ const ActivityModal = ({
             </div>
 
             {/* Highlights */}
-            {/* <div className="mb-8">
+            <div className="mb-8">
               <h2 className="text-xl font-bold mb-4 text-gray-800">
                 Highlights
               </h2>
@@ -213,7 +195,7 @@ const ActivityModal = ({
                   </span>
                 ))}
               </div>
-            </div> */}
+            </div>
 
             {/* Details */}
             <div className="mb-8">
@@ -248,22 +230,39 @@ const ActivityModal = ({
                 More Images
               </h2>
               <div className="relative mb-5">
-                <div className="overflow-hidden rounded-xl">
-                  <div
-                    className="flex transition-transform duration-300 ease-in-out"
-                    style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-                  >
-                    {slides.map((slide, index) => (
-                      <div key={index} className="min-w-full h-48">
-                        <Image
-                          src={slide.src}
-                          alt={slide.alt}
-                          fill
-                          className="object-cover cursor-pointer"
-                        />
-                      </div>
-                    ))}
-                  </div>
+                <div className="overflow-hidden rounded-xl relative w-full h-80">
+                  {slides?.length > 0 && (
+                    <div
+                      className="flex transition-transform duration-300 ease-in-out h-full"
+                      style={{
+                        width: `${slides.length * 100}%`,
+                        transform: `translateX(-${(currentSlide / slides.length) * 100}%)`,
+                      }}
+                    >
+                      {slides.map((slide, index) => (
+                        <div
+                          key={index}
+                          className="relative h-full"
+                          style={{ width: `${100 / slides.length}%` }}
+                        >
+                          <Image
+                            src={slide}
+                            alt={`Activity image ${index + 1}`}
+                            fill
+                            className="object-cover cursor-pointer"
+                            sizes="(max-width: 768px) 100vw, 50vw"
+                            priority={index === 0}
+                            unoptimized={slide.includes('supabase.co')}
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.onerror = null;
+                              target.src = '/images/placeholder.jpg';
+                            }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {/* Carousel Navigation */}

@@ -25,17 +25,9 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
         const { height, offsetTop, pageTop } = window.visualViewport;
         const threshold = window.innerHeight * 0.9; // 90% of the initial heigh
 
-        console.log('Viewport offeset TOP: ', offsetTop);
-        console.log('Viewport Y Coord TOP: ', pageTop);
-
         if (height < threshold || offsetTop !== 0 || pageTop !== 0) {
-          // document.body.style.overflow = 'hidden';
-          // document.body.style.height = '52vh';
-          // document.body.style.position = 'fixed';
-          console.log('Keyboard Visible');
           setIsKeyboardVisible(true);
         } else {
-          console.log('Keyboard Hidden');
           setIsKeyboardVisible(false);
         }
       }

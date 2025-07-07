@@ -135,7 +135,9 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
   const { user } = useAuth();
   const { resetState: resetFromContext } = useChat();
   const searchParams = useSearchParams();
-  const threadId = searchParams.get('threadId');
+  const storedThreadId =
+    typeof window !== 'undefined' ? localStorage.getItem('thread-id') : null;
+  const threadId = storedThreadId || searchParams.get('threadId');
   const companyId = searchParams.get('companyId');
   const isHome = pathname === '/';
   const [experienceId, setExperienceId] = useState<string | null>(null);
@@ -220,10 +222,10 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
     isLoading: isThreadLoading,
   } = useGetThreadByIdQuery(
     {
-      session_id: threadId,
+      session_id: activeThread,
     },
     {
-      skip: !user || !threadId || threadId === '',
+      skip: activeThread === '' || !threadId || threadId === '',
     },
   );
 
@@ -245,6 +247,13 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
       top: messagesEndRef.current?.scrollHeight,
     });
   };
+
+  useEffect(() => {
+    if (threadId && threadId !== '') {
+      setActiveThread(threadId);
+      chatSessionId.current = threadId;
+    }
+  }, [threadId]);
 
   useEffect(() => {
     if (params.experienceId) {
@@ -286,15 +295,6 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
     };
     handleFollowUpTitle();
   }, [experienceId]);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const storedThreadId = localStorage.getItem('thread-id');
-      if (storedThreadId && storedThreadId !== '' && threadsList.length > 0) {
-        handleThreadSelect(storedThreadId);
-      }
-    }
-  }, [threadsList.length]);
 
   useEffect(() => {
     if (
@@ -534,10 +534,10 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
   const handleThreadSelect = (selectedThreadId: string) => {
     localStorage.setItem('thread-id', selectedThreadId);
     setActiveThread(selectedThreadId);
+    chatSessionId.current = selectedThreadId;
     messages.current =
       threadsList.find((thread) => thread.id === selectedThreadId)?.messages ||
       [];
-    chatSessionId.current = selectedThreadId;
     scrollToBottom();
   };
 
@@ -567,10 +567,12 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
         suggestions: chunk.data?.suggestions || [],
       },
     ];
+
     refetchHistoryData();
     scrollToBottom();
-
     setLatestBotMessage(messages.current[messages.current.length - 1]);
+    setActiveThread(chunk.data?.session_id);
+    localStorage.setItem('thread-id', chunk.data?.session_id);
     chatSessionId.current = chunk.data?.session_id;
 
     return;
@@ -592,7 +594,6 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
       scrollToBottom();
       setActiveThread(threadId);
       chatSessionId.current = threadId;
-      console.log(messages.current);
     }
   }, [threadId, threadData]);
 
@@ -616,7 +617,10 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
   }, [charIndex, displayedText, latestBotMessage]);
 
   const handleSend = async (directInput?: string) => {
+    // setActiveThread('1');
+    // localStorage.setItem('thread-id', '1');
     if (!isHome) {
+      handleReset();
       localStorage.setItem('chat-input', input);
       router.push(`/?experienceId=${experienceId}`);
     }
@@ -652,11 +656,11 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
       }).unwrap();
     } catch (error) {
       console.error('Error streaming:', error);
-      notifications.show({
-        title: 'Error: Chat failure',
-        message: 'Failure during buddy response! Please try again!',
-        color: 'red',
-      });
+      // notifications.show({
+      //   title: 'Error: Chat failure',
+      //   message: 'Failure during buddy response! Please try again!',
+      //   color: 'red',
+      // });
     }
   };
 

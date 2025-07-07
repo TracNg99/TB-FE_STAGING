@@ -8,7 +8,7 @@ import {
   IconQrcode,
 } from '@tabler/icons-react';
 import { useParams, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import BuddyAI from '@/components/chatbot/buddy-ui-ai';
 import IconFeatureCamera from '@/components/icons/icon-feature-camera';
@@ -37,6 +37,7 @@ const ExperienceDetailPage = () => {
 
   // QR Modal state
   const [qrOpen, setQrOpen] = useState(false);
+  const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
 
   // Fetch activities for this experience
   const { data: activities = [], isLoading: isLoadingActivities } =
@@ -63,25 +64,18 @@ const ExperienceDetailPage = () => {
   //   },
   // ];
 
-  const followUpQuestionsCommon = [
-    'Can I ride the Vespa myself on the Saigon After Dark Tour?',
-    'What safety measures are in place if I want to drive the Vespa solo?',
-  ];
-
-  let allFollowUpQuestions: string[] = [];
-  if (experience && experience.default_questions) {
-    allFollowUpQuestions = followUpQuestionsCommon.concat(
-      experience.default_questions,
-    );
-  } else {
-    allFollowUpQuestions = [...followUpQuestionsCommon];
-  }
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(
     null,
   );
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(
     null,
   );
+
+  useEffect(() => {
+    if (experience && experience.default_questions) {
+      setFollowUpQuestions(experience.default_questions);
+    }
+  }, [experience]);
 
   if (isLoading || isLoadingActivities || isLoadingIconicPhotos)
     return <div className="flex justify-center py-20">Loading...</div>;
@@ -212,6 +206,7 @@ const ExperienceDetailPage = () => {
                 isOpen={!!selectedActivity}
                 onClose={() => setSelectedActivity(null)}
                 activity={{
+                  photos: selectedActivity.photos,
                   title: selectedActivity.title,
                   description: selectedActivity.description,
                   description_thumbnail: selectedActivity.description_thumbnail,
@@ -267,7 +262,7 @@ const ExperienceDetailPage = () => {
             <span>Follow-up Questions</span>
           </div>
           <div className="flex flex-col divide-y divide-gray-200 bg-transparent">
-            {allFollowUpQuestions.map((q, idx) => (
+            {followUpQuestions.map((q, idx) => (
               <button
                 key={idx}
                 className="flex items-center justify-between py-4 px-0 text-base text-gray-800 hover:text-orange-500 transition font-medium text-left bg-transparent"
