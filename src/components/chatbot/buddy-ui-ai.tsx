@@ -694,7 +694,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
             }
           }}
           className={cn(
-            'h-screen flex-col bg-white z-30 transition-all duration-300 ease-in-out flex overflow-hidden',
+            'h-screen flex-col bg-white z-50 transition-all duration-300 ease-in-out flex overflow-hidden',
             isSidebarOpen || isPinned
               ? 'w-80 border-r border-gray-200'
               : 'w-0 p-0 border-none',
@@ -855,23 +855,14 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                     />
                     Follow up to
                   </span>
-                  <div className="py-2 flex flex-row self-start items-center justify-between gap-2 w-full">
-                    <h2
-                      className={cn({
-                        'text-[16px]': isMobile,
-                        'text-display-[16px]': !isMobile,
-                      })}
-                    >
-                      {followUpExperience.name}
-                    </h2>
-                    <Image
-                      className="my-2 self-end rounded-md aspect-square"
-                      src={followUpExperience.primary_photo}
-                      alt="Experience Photo"
-                      width={70}
-                      height={70}
-                    />
-                  </div>
+                  <h2
+                    className={cn({
+                      'text-[16px]': isMobile,
+                      'text-display-[16px]': !isMobile,
+                    })}
+                  >
+                    {followUpExperience.name}
+                  </h2>
                 </Container>
               </Link>
             )}
