@@ -306,19 +306,6 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
     }
   }, [fetchedInitialSuggestions]);
 
-  // useEffect(() => {
-  //   if(window.visualViewport){
-  //     // const initialHeight = window.innerHeight;
-  //     const { offsetTop, pageTop } = window.visualViewport;
-  //     console.log("offsetTop", offsetTop)
-  //     console.log("pageTop", pageTop)
-  //     setViewPortCoordsTop({
-  //       offsetTop: offsetTop,
-  //       pageTop: pageTop
-  //     })
-  //   }
-  // }, [isKeyboardVisible]);
-
   useEffect(() => {
     const handleResize = () => {
       if (window.visualViewport) {
@@ -577,10 +564,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
 
   useEffect(() => {
     if (threadId && threadId !== '' && threadData && threadData.data) {
-      const threadSorted = threadData.data.chat_messages?.sort((a, b) => {
-        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-      });
-      messages.current = threadSorted?.map((item) => ({
+      messages.current = threadData?.data?.chat_messages?.map((item) => ({
         from: item.role,
         text: item.content,
         tag: item.role === 'user' ? 'user' : 'assistant',
@@ -594,7 +578,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
       scrollToBottom();
       setActiveThread(threadId);
       chatSessionId.current = threadId;
-      console.log("Thread Data",threadData.data);
+      console.log('Thread Data', threadData.data);
     }
   }, [threadId, threadData]);
 
