@@ -446,6 +446,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
 
   useEffect(() => {
     if (resetData) {
+      localStorage.setItem('thread-id', resetData?.data?.session_id);
       setActiveThread(resetData?.data?.session_id);
       chatSessionId.current = resetData?.data?.session_id;
       notifications.show({
@@ -483,10 +484,6 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
   };
 
   const handleReset = () => {
-    // console.log('activeThread: ', threadsList.find((thread) => thread.id === activeThread));
-    // console.log('threadsList: ', threadsList);
-    // console.log('activeThread: ', activeThread);
-    // console.log('Duplicated: ', threadsList.find((thread) => thread.id === activeThread));
     if (
       user &&
       threadsList.find((thread) => thread.id === activeThread) === undefined
