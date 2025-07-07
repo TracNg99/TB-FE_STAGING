@@ -135,13 +135,15 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
   const { user } = useAuth();
   const { resetState: resetFromContext } = useChat();
   const searchParams = useSearchParams();
-  // const experienceId = params.experienceId ?? searchParams.get('experienceId');
   const threadId = searchParams.get('threadId');
   const companyId = searchParams.get('companyId');
-  // const screenHeight = window.innerHeight;
-  // const screenWidth = window.innerWidth;
   const isHome = pathname === '/';
   const [experienceId, setExperienceId] = useState<string | null>(null);
+  const [followUpExperience, setFollowUpExperience] = useState<{
+    id: string;
+    name: string;
+    primary_photo: string;
+  } | null>(null);
   const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
   const [buddyStreamMutation] = useBuddyStreamMutation();
   const [isPinned, setIsPinned] = useState(false);
@@ -186,12 +188,6 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [isIOS, setIsIOS] = useState(false);
-  // const [viewPortCoordsTop, setViewPortCoordsTop] = useState<{
-  //   offsetTop: number,  pageTop: number
-  // }>({
-  //   offsetTop: 0,
-  //   pageTop: 0
-  // })
   const [selectedImages, setSelectedImages] = useState<
     Array<{ image: string | null; name: string | null }>
   >([]);
@@ -258,6 +254,12 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
       setExperienceId(searchParams.get('experienceId') as string);
     }
   }, [params.experienceId, searchParams.get('experienceId')]);
+
+  useEffect(() => {
+    if (experienceData) {
+      setFollowUpExperience(experienceData);
+    }
+  }, [experienceData]);
 
   useEffect(() => {
     if (textAreaRef.current) {
@@ -516,6 +518,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
     localStorage.removeItem('thread-id');
     localStorage.removeItem('chat-input');
     setExperienceId(null);
+    setFollowUpExperience(null);
     setResetState(true);
     setActiveThread(null);
     chatSessionId.current = null;
@@ -564,6 +567,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
         suggestions: chunk.data?.suggestions || [],
       },
     ];
+    refetchHistoryData();
     scrollToBottom();
 
     setLatestBotMessage(messages.current[messages.current.length - 1]);
@@ -673,7 +677,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
   // Active State (Chat Overlay)
   return (
     <div
-      className={cn('flex h-full w-full bg-[#FCFCF9]', {
+      className={cn('flex h-full w-full bg-[#FCFCF9] overflow-y-auto', {
         'h-[52vh]': isInputActive && isMobile && isIOS,
         [`fixed`]: isMobile && isIOS && isKeyboardVisible,
         [`relative overflow-y-clip h-[32vh] overscroll-none`]:
@@ -716,10 +720,8 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
             </button>
           </div>
           {user ? (
-            <nav className="mt-4 flex-grow">
-              {threadsList.length > 0 &&
-              !isHistoryLoading &&
-              !isHistoryFetching ? (
+            <div className="mt-4 flex flex-grow overflow-y-hidden overscroll-y-none">
+              {!isHistoryLoading && !isHistoryFetching ? (
                 <ul>
                   {threadsList.map((thread) => (
                     <li key={thread.id} className="mb-2">
@@ -742,13 +744,13 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
               ) : (
                 <Skeleton height={20} width={200} />
               )}
-            </nav>
+            </div>
           ) : (
             <div className="flex flex-col items-center mt-10 gap-3 justify-items-center">
               <p>Login to see your previous conversations</p>
               <button
-                onClick={() => router.push('/auth/login')}
-                className="rounded-full bg-orange-500 p-2 text-white font-semibold hover:bg-orange-700"
+                onClick={() => router.replace('/auth/login')}
+                className="rounded-full bg-orange-500 p-2 text-white font-semibold hover:bg-orange-700 cursor-pointer"
               >
                 Login
               </button>
@@ -833,8 +835,8 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
               },
             )}
           >
-            {experienceData && (
-              <Link href={`/discoveries/${experienceData.id}`}>
+            {followUpExperience && (
+              <Link href={`/discoveries/${followUpExperience.id}`}>
                 <Container
                   className={cn(
                     'flex flex-col gap-[10px] p-3 bg-[#FFF0E5] rounded-sm max-w-[2000px] hover:bg-gray-100 cursor-pointer w-full justify-between',
@@ -847,13 +849,25 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                       width={isMobile ? 12 : 16}
                       height={isMobile ? 12 : 16}
                       className="size-[24px]"
-                    />{' '}
+                    />
                     Follow up to
                   </span>
-                  <div className="w-full">
-                    <p className="text-base font-medium">
-                      {experienceData.name}
-                    </p>
+                  <div className="py-2 flex flex-row self-start items-center justify-between gap-2 w-full">
+                    <h2
+                      className={cn({
+                        'text-[16px]': isMobile,
+                        'text-display-[16px]': !isMobile,
+                      })}
+                    >
+                      {followUpExperience.name}
+                    </h2>
+                    <Image
+                      className="my-2 self-end rounded-md aspect-square"
+                      src={followUpExperience.primary_photo}
+                      alt="Experience Photo"
+                      width={70}
+                      height={70}
+                    />
                   </div>
                 </Container>
               </Link>

@@ -278,10 +278,10 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                           )?.map((source, index) => (
                             <div key={index} className="mb-6 gap-4">
                               <p className="text-gray-600 font-bold mt-1">
-                                {`Source [${index + 1}]`}
+                                {`[${index + 1}]`}
                               </p>
                               <a
-                                href={`https://${source.url}`}
+                                href={source.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-lg font-semibold text-blue-600 hover:underline"

@@ -76,6 +76,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const logout = async () => {
     localStorage.clear();
     sessionStorage.clear();
+    sessionStorage.setItem('currentPath', pathname);
     await logOut();
     router.replace('/auth/login');
     return;
@@ -100,6 +101,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         // Redirect to login if no JWT OR if JWT is invalid
         if (!isValidJwt) {
+          localStorage.clear();
           if (pathname === '/auth/register/business') {
             return;
           } else if (
@@ -112,8 +114,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             !PUBLIC_ROUTES.find((route) => pathname.includes(route)) &&
             !(pathname === '/')
           ) {
-            localStorage.clear();
-            sessionStorage.clear();
             notifications.show({
               title: 'Feature for logged in users only',
               message: 'Please log in to access this feature',
@@ -124,7 +124,14 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             router.replace('/auth/login');
             return;
           }
-        } else {
+        }
+
+        if (
+          pathname !== '/auth/login' &&
+          pathname !== '/auth/register' &&
+          pathname !== '/auth/register/business' &&
+          pathname !== '/auth/login/business'
+        ) {
           const currentPath = sessionStorage.getItem('currentPath') || '';
           if (currentPath) {
             router.replace(currentPath);

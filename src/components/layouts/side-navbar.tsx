@@ -72,6 +72,11 @@ const Navbar = () => {
       router.push('/auth/login');
       return;
     }
+
+    if (href === '/' && pathname === '/') {
+      triggerReset();
+    }
+
     router.replace(href === '/' ? href : `/${href}`);
   };
 
@@ -175,9 +180,9 @@ const Navbar = () => {
             </Popover.Dropdown>
           </Popover>
         ) : (
-          <Link href="/auth/login">
+          <div onClick={logout} className="cursor-pointer">
             <Avatar radius="xl" />
-          </Link>
+          </div>
         )}
       </div>
     </aside>

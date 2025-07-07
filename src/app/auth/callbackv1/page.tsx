@@ -52,6 +52,12 @@ const OAuthCallback = () => {
       localStorage.setItem(authKey, JSON.stringify(user));
       localStorage.removeItem('hash');
 
+      const currentPath = sessionStorage.getItem('currentPath') || '';
+      if (currentPath) {
+        router.replace(currentPath);
+        sessionStorage.removeItem('currentPath');
+        return;
+      }
       // Redirect to the Home page
       router.replace(`/`);
     }

@@ -50,7 +50,7 @@ const RegisterPage = () => {
     setLoading(true);
 
     try {
-      const { error } = await signUp(data);
+      const { data: signUpData, error } = await signUp(data);
 
       // If sign up fails, throw the error
       if (error) {
@@ -71,9 +71,19 @@ const RegisterPage = () => {
           message: 'Account created successfully!',
           position: 'top-center',
         });
+        localStorage.setItem('jwt', signUpData?.access_token || '');
+        localStorage.setItem('userId', signUpData?.userId || '');
+        localStorage.setItem('role', 'user');
       }
 
-      router.replace('/auth/login');
+      const currentPath = sessionStorage.getItem('currentPath') || '';
+      if (currentPath) {
+        router.replace(currentPath);
+        sessionStorage.removeItem('currentPath');
+        return;
+      }
+
+      router.replace('/');
     } catch (error) {
       const message =
         error instanceof AuthError

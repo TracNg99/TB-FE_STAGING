@@ -160,13 +160,14 @@ const Navbar = ({
               </Popover.Dropdown>
             </Popover>
           ) : (
-            <Link
-              href="/auth/login"
+            <div
+              // href="/auth/login"
               className="flex flex-col items-center gap-1 rounded-full p-2 bg-white/50"
+              onClick={logout}
             >
               <BsPersonCircle color="#FB5607" size={24} />
               <span className="text-xs font-medium text-orange-500">Login</span>
-            </Link>
+            </div>
           )}
           <Link
             href="/"
