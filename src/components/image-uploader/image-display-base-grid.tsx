@@ -16,6 +16,7 @@ interface ImageDisplayProps {
   setImageError?: (state: boolean) => void;
   className?: string;
   singleImageClassName?: string;
+  loadingFiles?: { name: string }[];
   handleRemoveImage: (index: number) => void;
   onAdd?: () => void;
   CustomChildren?: React.FC<{
@@ -33,6 +34,7 @@ const BaseImageGridDisplay: React.FC<ImageDisplayProps> = ({
   imageError,
   className,
   singleImageClassName,
+  loadingFiles,
   setImageError,
   handleRemoveImage,
   CustomChildren,
@@ -68,6 +70,22 @@ const BaseImageGridDisplay: React.FC<ImageDisplayProps> = ({
           </button>
         </Box>
       )}
+      {loadingFiles?.map((_file, index) => (
+        <Box
+          key={`loading-${index}`}
+          className={`
+            relative 
+            overflow-hidden 
+            rounded-md border 
+            ${isMobile ? `w-[80px] h-[80px]` : `w-[150px] h-[150px]`}
+            border-gray-300 bg-gray-200 animate-pulse
+          `}
+        >
+          <div className="w-full h-full flex items-center justify-center">
+            <p className="text-xs text-gray-500">Converting...</p>
+          </div>
+        </Box>
+      ))}
       {selectedImages.map((img, index) => (
         <>
           {CustomChildren ? (

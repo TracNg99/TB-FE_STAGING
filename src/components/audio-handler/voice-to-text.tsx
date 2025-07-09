@@ -76,19 +76,19 @@ const VoiceToTextButton: React.FC<VoiceButtonForm> = ({
   // onAudioRecorded,
 }) => {
   const [isListening, setIsListening] = useState(false);
-  const [magnitude, setMagnitude] = useState<number[]>([]);
+  // const [magnitude, setMagnitude] = useState<number[]>([]);
   const [openModal, setOpenModal] = useState(false);
   // const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const recognitionInstance = useRef<any>(null);
+  const persistentListening = useRef(false);
   const isMobile = useMediaQuery('(max-width: 640px)');
 
   // const [instantTranscribeTexts, setInstantTranscribeTexts] = useState('');
 
-  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(
-    null,
-  );
-  const persistentListening = useRef(false);
-  const audioChunks = useRef<BlobPart[]>([]);
+  // const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(
+  //   null,
+  // );
+  // const audioChunks = useRef<BlobPart[]>([]);
 
   const SpeechRecognition =
     (typeof window !== 'undefined' && (window as any).SpeechRecognition) ||
@@ -177,66 +177,66 @@ const VoiceToTextButton: React.FC<VoiceButtonForm> = ({
     setIsListening(true);
     recognition.start();
     persistentListening.current = true;
-    let requestDataInterval: NodeJS.Timeout | null = null;
+    // let requestDataInterval: NodeJS.Timeout | null = null;
 
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream);
+    // try {
+    //   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    //   const recorder = new MediaRecorder(stream);
 
-      recorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunks.current.push(event.data);
-          const audioBlob = new Blob(audioChunks.current, {
-            type: 'audio/webm',
-          });
-          extractMagnitudesFromBlob(audioBlob, 12)
-            .then(setMagnitude)
-            .catch((error) =>
-              notifications.show({
-                title: 'Error extracting voice waveform',
-                message: error.message,
-                color: 'red',
-              }),
-            );
-        }
-      };
+    //   recorder.ondataavailable = (event) => {
+    //     if (event.data.size > 0) {
+    //       audioChunks.current.push(event.data);
+    //       const audioBlob = new Blob(audioChunks.current, {
+    //         type: 'audio/webm',
+    //       });
+    //       extractMagnitudesFromBlob(audioBlob, 12)
+    //         .then(setMagnitude)
+    //         .catch((error) =>
+    //           notifications.show({
+    //             title: 'Error extracting voice waveform',
+    //             message: error.message,
+    //             color: 'red',
+    //           }),
+    //         );
+    //     }
+    //   };
 
-      recorder.onstop = () => {
-        if (requestDataInterval) {
-          clearInterval(requestDataInterval);
-          // requestDataInterval = null;
-        }
-        const audioBlob = new Blob(audioChunks.current, { type: 'audio/webm' });
-        console.log('Final audio Blob:', audioBlob);
-        audioChunks.current = []; // Reset chunks
-        extractMagnitudesFromBlob(audioBlob, 12)
-          .then(setMagnitude)
-          .catch((error) =>
-            notifications.show({
-              title: 'Error extracting voice waveform',
-              message: error.message,
-              color: 'red',
-            }),
-          );
-        // onAudioRecorded?.(audioBlob);
-      };
+    //   recorder.onstop = () => {
+    //     if (requestDataInterval) {
+    //       clearInterval(requestDataInterval);
+    //       // requestDataInterval = null;
+    //     }
+    //     const audioBlob = new Blob(audioChunks.current, { type: 'audio/webm' });
+    //     console.log('Final audio Blob:', audioBlob);
+    //     audioChunks.current = []; // Reset chunks
+    //     extractMagnitudesFromBlob(audioBlob, 12)
+    //       .then(setMagnitude)
+    //       .catch((error) =>
+    //         notifications.show({
+    //           title: 'Error extracting voice waveform',
+    //           message: error.message,
+    //           color: 'red',
+    //         }),
+    //       );
+    //     // onAudioRecorded?.(audioBlob);
+    //   };
 
-      recorder.start();
-      setMediaRecorder(recorder);
+    //   recorder.start();
+    //   setMediaRecorder(recorder);
 
-      requestDataInterval = setInterval(() => {
-        if (recorder.state !== 'inactive') {
-          recorder.requestData();
-        }
-      }, 150);
-    } catch (error) {
-      console.error('Error accessing audio stream:', error);
-      notifications.show({
-        title: 'Audio stream accessing error',
-        message: 'Unable to access microphone.',
-        color: 'red',
-      });
-    }
+    //   requestDataInterval = setInterval(() => {
+    //     if (recorder.state !== 'inactive') {
+    //       recorder.requestData();
+    //     }
+    //   }, 150);
+    // } catch (error) {
+    //   console.error('Error accessing audio stream:', error);
+    //   notifications.show({
+    //     title: 'Audio stream accessing error',
+    //     message: 'Unable to access microphone.',
+    //     color: 'red',
+    //   });
+    // }
   };
 
   const stopListening = () => {
@@ -248,15 +248,15 @@ const VoiceToTextButton: React.FC<VoiceButtonForm> = ({
     }
 
     // Stop Media Recorder
-    if (mediaRecorder) {
-      mediaRecorder.stop();
-      setMediaRecorder(null);
-    }
+    // if (mediaRecorder) {
+    //   mediaRecorder.stop();
+    //   setMediaRecorder(null);
+    // }
 
     // Stop all tracks in the media stream
-    if (mediaRecorder?.stream) {
-      mediaRecorder.stream.getTracks().forEach((track) => track.stop());
-    }
+    // if (mediaRecorder?.stream) {
+    //   mediaRecorder.stream.getTracks().forEach((track) => track.stop());
+    // }
 
     setIsListening(false);
   };
@@ -280,7 +280,8 @@ const VoiceToTextButton: React.FC<VoiceButtonForm> = ({
   };
 
   const handleDone = () => {
-    if (recognitionInstance.current && mediaRecorder) {
+    if (recognitionInstance.current) {
+      // && mediaRecorder
       stopListening();
     }
     setOpenModal(false);
@@ -312,7 +313,7 @@ const VoiceToTextButton: React.FC<VoiceButtonForm> = ({
           onClose={() => setOpenModal(false)}
           state={isListening ? 'recording' : 'paused'}
           transcript={existingTexts}
-          magnitude={magnitude}
+          // magnitude={magnitude}
           onMicClick={startListening}
           onPauseClick={stopListening}
           onRedoClick={handleRedo}

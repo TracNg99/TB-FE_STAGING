@@ -15,6 +15,7 @@ interface ImageSubcomponentProps {
   allowAddNew?: boolean;
   fetchImages?: { image: string | null; name: string | null }[];
   withResize?: boolean;
+  loadingFiles?: { name: string }[];
   selectedImages: Array<{ image: string | null; name: string | null }>;
   imageError: boolean;
   asBlob?: boolean;
@@ -34,6 +35,7 @@ const DropzoneUploader: React.FC<ImageSubcomponentProps> = ({
   asBlob = false,
   selectedImages,
   imageError,
+  loadingFiles,
   setImageError,
   setSelectedImages,
   handleRemoveImage,
@@ -68,6 +70,7 @@ const DropzoneUploader: React.FC<ImageSubcomponentProps> = ({
             imageError={imageError}
             setImageError={setImageError}
             handleRemoveImage={handleRemoveImage}
+            loadingFiles={loadingFiles}
           />
         ) : (
           <DropzoneIdle>

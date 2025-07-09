@@ -1,5 +1,6 @@
 // import { Button } from '@mantine/core';
 import { IconCloudUpload } from '@tabler/icons-react';
+import heic2any from 'heic2any';
 import React, { useEffect, useRef, useState } from 'react';
 
 import DropzoneUploader from './image-picker-dropzone';
@@ -102,6 +103,7 @@ interface UploadHandlerProps {
   ) => void;
   withResize?: boolean;
   allowMultiple?: boolean;
+  setLoadingFiles?: (updater: React.SetStateAction<{ name: string }[]>) => void;
 }
 
 export const handleImageUpload = ({
@@ -113,48 +115,78 @@ export const handleImageUpload = ({
   setSelectedImages,
   onImageUpload,
   asBlob = false,
+  setLoadingFiles,
 }: UploadHandlerProps) => {
   if (acceptedFiles && acceptedFiles.length > 0) {
     const files =
       typeof acceptedFiles === 'object'
         ? Array.from(acceptedFiles)
         : acceptedFiles;
-    const images = files.map((file) => {
-      const reader = new FileReader();
-      if (!withResize) {
-        return new Promise<{
-          image: string | null;
-          name: string | null;
-        }>((resolve) => {
-          reader.onload = () => {
-            resolve({ image: reader.result as string, name: file.name });
-          };
-          reader.onerror = () => {
-            setImageError?.(true);
-            resolve({ image: null, name: file.name });
-          };
-          reader.readAsDataURL(file);
-        });
-      } else {
-        // Resize image
 
-        return new Promise<{
-          image: string | null;
-          name: string | null;
-        }>((resolve) => {
-          handleResize(file).then((image) => {
-            resolve(image);
+    const heicFiles = files.filter((f) =>
+      f.name.toLowerCase().endsWith('.heic'),
+    );
+    if (setLoadingFiles && heicFiles.length > 0) {
+      setLoadingFiles((prev) => [
+        ...prev,
+        ...heicFiles.map((f) => ({ name: f.name })),
+      ]);
+    }
+
+    const imageProcessingPromises = files.map(async (file) => {
+      try {
+        let processedFile = file;
+        // Check if the file is a HEIC file and convert it
+        if (file.name.toLowerCase().endsWith('.heic')) {
+          const conversionResult = await heic2any({
+            blob: file,
+            toType: 'image/jpeg',
+            quality: 0.9, // Adjust quality as needed
           });
-        });
+          // heic2any can return a single blob or an array of blobs
+          const finalBlob = Array.isArray(conversionResult)
+            ? conversionResult[0]
+            : conversionResult;
+          processedFile = new File(
+            [finalBlob],
+            file.name.replace(/\.heic$/i, '.jpg'),
+            {
+              type: 'image/jpeg',
+            },
+          );
+        }
+
+        // Now, proceed with the original logic (resize or just read)
+        if (withResize) {
+          return await handleResize(processedFile);
+        } else {
+          const image = await blobToBase64(processedFile);
+          return { image, name: processedFile.name };
+        }
+      } catch (error) {
+        console.error('Error processing image:', error);
+        setImageError?.(true);
+        return { image: null, name: file.name }; // Return a consistent object on error
       }
     });
 
-    Promise.all(images).then((uploadedImages) => {
+    Promise.all(imageProcessingPromises).then((uploadedImages) => {
+      if (setLoadingFiles) {
+        const processedFileNames = files.map((f) => f.name);
+        setLoadingFiles((prev) =>
+          prev.filter((lf) => !processedFileNames.includes(lf.name)),
+        );
+      }
+      const validImages = uploadedImages.filter((img) => img.image !== null);
       const updatedImages = allowMultiple
-        ? [...selectedImages, ...uploadedImages]
-        : uploadedImages.slice(0, 1); // Only take the first image if allowMultiple is false
+        ? [...selectedImages, ...validImages]
+        : validImages.slice(0, 1); // Only take the first image if allowMultiple is false
       setSelectedImages(updatedImages);
-      setImageError?.(false);
+      if (validImages.length < uploadedImages.length) {
+        setImageError?.(true);
+      } else {
+        setImageError?.(false);
+      }
 
       const updatedFiles = updatedImages.map((image) => {
         if (asBlob && image.image) {
@@ -206,6 +238,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     }[]
   >([]);
   const [imageError, setImageError] = useState(false);
+  const [loadingFiles, setLoadingFiles] = useState<{ name: string }[]>([]);
 
   const handleRemoveImage = (index: number) => {
     const updatedImages = selectedImages.filter((_, i) => i !== index);
@@ -244,6 +277,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     setImageError,
     setSelectedImages,
     onImageUpload,
+    setLoadingFiles,
   };
 
   return isStandalone ? (
@@ -251,6 +285,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       allowAddNew={allowAddNew}
       imageError={imageError}
       handleRemoveImage={handleRemoveImage}
+      loadingFiles={loadingFiles}
       {...paramObj}
     >
       {children}

@@ -61,6 +61,9 @@ importers:
       framer-motion:
         specifier: ^12.23.0
         version: 12.23.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      heic2any:
+        specifier: ^0.0.4
+        version: 0.0.4
       jwt-decode:
         specifier: ^4.0.0
         version: 4.0.0
@@ -2231,6 +2234,12 @@ packages:
     resolution:
       {
         integrity: sha512-88JUN06ipLwsnv+dVn+OIYOvAuvBMy/Qoi6O7mQHxdPXpjy+Cd6xRkWwux7DKO+4sYILtLBRIKgsdpS2gQc7qw==,
+      }
+
+  heic2any@0.0.4:
+    resolution:
+      {
+        integrity: sha512-3lLnZiDELfabVH87htnRolZ2iehX9zwpRyGNz22GKXIu0fznlblf0/ftppXKNqS26dqFSeqfIBhAmAj/uSp0cA==,
       }
 
   html-url-attributes@3.0.1:
@@ -5633,6 +5642,8 @@ snapshots:
   hast-util-whitespace@3.0.0:
     dependencies:
       '@types/hast': 3.0.4
+
+  heic2any@0.0.4: {}
 
   html-url-attributes@3.0.1: {}
 
