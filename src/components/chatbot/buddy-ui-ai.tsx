@@ -107,7 +107,11 @@ const SidebarLayer: React.FC<{
       onMouseLeave={onSidebarLeave}
       className={cn(
         'relative left-0 top-0 h-full flex-col border-r border-gray-200 bg-white p-4 z-20 transition-all duration-300 ease-in-out flex overflow-hidden justify-items-between',
-        isSidebarOpen ? 'w-[20%]' : 'w-0 p-0 border-none',
+        isSidebarOpen
+          ? activeThread !== '' && activeThread !== null
+            ? 'w-[50%]'
+            : 'w-[20%]'
+          : 'w-0 p-0 border-none',
       )}
     >
       <div className="mt-4 flex items-center justify-between px-4 pt-2">
