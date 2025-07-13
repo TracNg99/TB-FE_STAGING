@@ -347,7 +347,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
     },
   );
 
-  const messages = useRef<MessagesProps[]>([]);
+  const [messages, setMessages] = useState<MessagesProps[]>([]);
   const [latestBotMessage, setLatestBotMessage] =
     useState<MessagesProps | null>(null);
   const chatSessionId = useRef<string | null>(threadId ?? null);
@@ -436,11 +436,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
     const handleFollowUpTitle = () => {
       if (experienceId && typeof window !== 'undefined') {
         const storedInput = localStorage.getItem('chat-input');
-        if (
-          storedInput &&
-          storedInput !== '' &&
-          messages.current.length === 0
-        ) {
+        if (storedInput && storedInput !== '' && messages.length === 0) {
           console.log('storedInput', storedInput);
           handleSend(storedInput);
           localStorage.removeItem('chat-input'); // Clear after using
@@ -485,10 +481,9 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
           })) || [],
       }));
 
-      setThreadsList((prevThreadList) => [
-        ...prevThreadList,
-        ...mappedChatHistory,
-      ]);
+      // console.log('mappedChatHistory:', mappedChatHistory);
+
+      setThreadsList(mappedChatHistory);
     }
   }, [historyData, threadsList]);
 
@@ -528,7 +523,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
     setResetState(true);
     setActiveThread(null);
     chatSessionId.current = null;
-    messages.current = [];
+    setMessages([]);
     // State is now managed by Chatbox component
     setDisplayedText('');
     setCharIndex(0);
@@ -537,12 +532,14 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
   };
 
   const handleThreadSelect = (selectedThreadId: string) => {
+    // console.log('selectedThreadId:', selectedThreadId);
     sessionStorage.setItem('thread-id', selectedThreadId);
     setActiveThread(selectedThreadId);
     chatSessionId.current = selectedThreadId;
-    messages.current =
+    setMessages(
       threadsList.find((thread) => thread.id === selectedThreadId)?.messages ||
-      [];
+        [],
+    );
     scrollToBottom();
   };
 
@@ -559,8 +556,8 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
       return;
     }
     setIsLoading(false);
-    messages.current = [
-      ...messages.current,
+    setMessages([
+      ...messages,
       {
         from: 'assistant',
         text: chunk.data?.response
@@ -571,7 +568,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
         sources: chunk.data?.sources || [],
         suggestions: chunk.data?.suggestions || [],
       },
-    ];
+    ]);
 
     setActiveThread(chunk.data?.session_id);
     sessionStorage.setItem('thread-id', chunk.data?.session_id);
@@ -579,7 +576,14 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
 
     refetchHistoryData();
     scrollToBottom();
-    setLatestBotMessage(messages.current[messages.current.length - 1]);
+    setLatestBotMessage({
+      from: 'assistant',
+      text: chunk.data?.response ? base64ToUnicode(chunk.data?.response) : null,
+      tag: chunk.event !== 'complete' ? 'face-with-monocle' : 'nerd-face',
+      images: chunk.data?.images || [],
+      sources: chunk.data?.sources || [],
+      suggestions: chunk.data?.suggestions || [],
+    });
 
     return;
   };
@@ -588,17 +592,19 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
     if (threadId && threadId !== '' && threadData && threadData.data) {
       setActiveThread(threadId);
       chatSessionId.current = threadId;
-      messages.current = threadData?.data?.chat_messages?.map((item) => ({
-        from: item.role,
-        text: item.content,
-        tag: item.role === 'user' ? 'user' : 'assistant',
-        images: item.metadata?.images || [],
-        sources: item.metadata?.sources || [],
-        suggestions:
-          item.metadata?.suggestions ||
-          item.metadata?.follow_up_questions ||
-          [],
-      }));
+      setMessages(
+        threadData?.data?.chat_messages?.map((item) => ({
+          from: item.role,
+          text: item.content,
+          tag: item.role === 'user' ? 'user' : 'assistant',
+          images: item.metadata?.images || [],
+          sources: item.metadata?.sources || [],
+          suggestions:
+            item.metadata?.suggestions ||
+            item.metadata?.follow_up_questions ||
+            [],
+        })),
+      );
       scrollToBottom();
     }
   }, [threadId, threadData]);
@@ -609,7 +615,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
       latestBotMessage?.text !== '' &&
       latestBotMessage?.text !== null &&
       charIndex < latestBotMessage?.text?.length &&
-      messages.current[messages.current.length - 1]?.from === 'assistant'
+      messages[messages.length - 1]?.from === 'assistant'
     ) {
       const text = latestBotMessage?.text;
       console.log('Displaying text: ', text);
@@ -637,15 +643,15 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
     setIsInputActive(false);
     setDisplayedText('');
     setCharIndex(0);
-    messages.current = [
-      ...messages.current,
+    setMessages([
+      ...messages,
       {
         from: 'user',
         text: text,
         tag: '',
         images: images.map((image) => image.image || ''),
       },
-    ];
+    ]);
     try {
       await buddyStreamMutation({
         body: {
@@ -676,7 +682,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
     }
   };
 
-  const hasMessages = messages.current.length > 0;
+  // const hasMessages = messages.length > 0;
 
   return (
     <div className="relative h-full w-full overflow-hidden">
@@ -702,7 +708,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
         <div className="flex pt-18 md:pt-2 grow flex-col min-w-0">
           <BackgroundLayer
             isHome={isHome}
-            hasMessages={hasMessages}
+            hasMessages={messages.length > 0}
             isInputActive={isInputActive}
           />
           <div className="flex grow h-[100dvh] flex-col overflow-hidden mx-auto w-[90%] md:w-[70%]">
@@ -714,7 +720,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                 experienceData={experienceData}
                 isThreadFetching={isThreadFetching}
                 isThreadLoading={isThreadLoading}
-                messages={messages.current}
+                messages={messages}
                 isLoading={isLoading}
                 displayText={displayedText}
                 floatingTexts={floatingTexts}
@@ -729,15 +735,9 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
             <div
               className={cn(
                 'w-full shrink min-w-0 mb-40',
-                messages.current.length > 0 && !isMobile && 'mb-10',
-                messages.current.length > 0 &&
-                  isMobile &&
-                  !isIOS &&
-                  'mb-[25vh]',
-                messages.current.length > 0 &&
-                  isMobile &&
-                  isIOS &&
-                  'mb-[22dvh]',
+                messages.length > 0 && !isMobile && 'mb-10',
+                messages.length > 0 && isMobile && !isIOS && 'mb-[25vh]',
+                messages.length > 0 && isMobile && isIOS && 'mb-[22dvh]',
               )}
             >
               <Chatbox
@@ -745,7 +745,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                 isMobile={isMobile}
                 onSend={handleSend}
                 initialSuggestions={initialSuggestions}
-                hasMessages={messages.current.length > 0}
+                hasMessages={messages.length > 0}
               />
             </div>
           </div>
