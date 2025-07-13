@@ -556,8 +556,8 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
       return;
     }
     setIsLoading(false);
-    setMessages([
-      ...messages,
+    setMessages((prevMessages) => [
+      ...prevMessages,
       {
         from: 'assistant',
         text: chunk.data?.response
@@ -570,12 +570,6 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
       },
     ]);
 
-    setActiveThread(chunk.data?.session_id);
-    sessionStorage.setItem('thread-id', chunk.data?.session_id);
-    chatSessionId.current = chunk.data?.session_id;
-
-    refetchHistoryData();
-    scrollToBottom();
     setLatestBotMessage({
       from: 'assistant',
       text: chunk.data?.response ? base64ToUnicode(chunk.data?.response) : null,
@@ -584,6 +578,13 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
       sources: chunk.data?.sources || [],
       suggestions: chunk.data?.suggestions || [],
     });
+
+    setActiveThread(chunk.data?.session_id);
+    sessionStorage.setItem('thread-id', chunk.data?.session_id);
+    chatSessionId.current = chunk.data?.session_id;
+
+    refetchHistoryData();
+    scrollToBottom();
 
     return;
   };
@@ -614,19 +615,20 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
       latestBotMessage?.from === 'assistant' &&
       latestBotMessage?.text !== '' &&
       latestBotMessage?.text !== null &&
+      latestBotMessage?.text?.length > 0 &&
       charIndex < latestBotMessage?.text?.length &&
       messages[messages.length - 1]?.from === 'assistant'
     ) {
       const text = latestBotMessage?.text;
-      console.log('Displaying text: ', text);
+      // console.log('Displaying text: ', text);
       const timer = setTimeout(() => {
         setDisplayedText((prevText) => prevText + text[charIndex]);
         setCharIndex((prevIndex) => prevIndex + 1);
-      }, 10);
+      }, 5);
 
       return () => clearTimeout(timer);
     }
-  }, [charIndex, displayedText, latestBotMessage]);
+  }, [charIndex, displayedText, messages]);
 
   const handleSend = async (
     text: string,
