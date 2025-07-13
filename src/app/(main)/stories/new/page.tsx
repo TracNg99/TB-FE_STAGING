@@ -200,11 +200,9 @@ const NewStoryPage = () => {
 
     localStorage.setItem('userInputFields', JSON.stringify(userInputObj));
 
-    setIsConfirmClicked(false);
-
     form.reset();
-
     router.push(`/stories/preview`);
+    setIsConfirmClicked(false);
   };
 
   const form = useForm<StorySchema>({

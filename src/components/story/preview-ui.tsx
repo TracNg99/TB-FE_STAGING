@@ -128,7 +128,7 @@ const StoryDetailUI: React.FC<StoryDetailProps> = ({
         name: 'travel_buddy',
         icon: (
           <Image
-            src="/assets/travelbuddy_logo_icon.svg"
+            src="/assets/logo_icon.svg"
             alt="Travel Buddy"
             width={size}
             height={size}
@@ -283,7 +283,7 @@ const StoryDetailUI: React.FC<StoryDetailProps> = ({
   ];
 
   return (
-    <Section className="flex flex-col pt-12 sm:max-w-5xl items-center">
+    <Section className="flex flex-col pt-12 sm:max-w-5xl items-center mb-20">
       <a
         href="/stories/new"
         className={`

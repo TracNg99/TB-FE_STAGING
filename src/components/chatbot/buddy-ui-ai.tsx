@@ -107,7 +107,7 @@ const SidebarLayer: React.FC<{
       onMouseLeave={onSidebarLeave}
       className={cn(
         'relative left-0 top-0 h-full flex-col border-r border-gray-200 bg-white p-4 z-20 transition-all duration-300 ease-in-out flex overflow-hidden justify-items-between',
-        isSidebarOpen ? 'w-[40dvw]' : 'w-0 p-0 border-none',
+        isSidebarOpen ? 'w-[20%]' : 'w-0 p-0 border-none',
       )}
     >
       <div className="mt-4 flex items-center justify-between px-4 pt-2">
@@ -250,10 +250,8 @@ const ContentLayer: React.FC<{
         )}
 
         {/* Chat Messages */}
-        {isThreadFetching ||
-        isThreadLoading ||
-        messages.length === 0 ||
-        !isSessionActive ? (
+        {(isThreadFetching || isThreadLoading) &&
+        (messages.length === 0 || !isSessionActive) ? (
           <div className="w-full bg-[#FCFCF9]">
             <ThreadLoading />
           </div>
