@@ -1,5 +1,6 @@
 'use client';
 
+import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import {
   IconChevronRight,
@@ -10,7 +11,7 @@ import {
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-import BuddyAI from '@/components/chatbot/buddy-ui-ai';
+import StickyChatbox from '@/components/chatbot/sticky-chatbox';
 import IconFeatureCamera from '@/components/icons/icon-feature-camera';
 import IconicPhotoModal from '@/components/modals/IconicPhotoModal';
 import ActivityModal from '@/components/modals/activity';
@@ -29,6 +30,7 @@ const SECTION_TITLE_CLASS =
 const ExperienceDetailPage = () => {
   const { experienceId } = useParams();
   const router = useRouter();
+  const isMobile = useMediaQuery('(max-width: 768px)');
   const {
     data: experience,
     isLoading,
@@ -49,31 +51,18 @@ const ExperienceDetailPage = () => {
   const { data: iconicPhotos = [], isLoading: isLoadingIconicPhotos } =
     useGetIconicPhotosPublicQuery({ id: experienceId as string });
 
-  // Dummy follow-up questions (replace with real data/component if available)
-  // let followUpQuestions = [
-  //   {
-  //     label: 'Can I ride the Vespa myself on the Saigon After Dark Tour?',
-  //     content:
-  //       'Yes, you can ride the Vespa yourself if you have a valid license and meet safety requirements.',
-  //   },
-  //   {
-  //     label:
-  //       'What safety measures are in place if I want to drive the Vespa solo?',
-  //     content:
-  //       'We provide helmets, safety briefings, and a guide will accompany you at all times.',
-  //   },
-  // ];
-
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(
     null,
   );
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(
     null,
   );
+  const [_chatSuggestions, setChatSuggestions] = useState<string[]>([]);
 
   useEffect(() => {
     if (experience && experience.default_questions) {
       setFollowUpQuestions(experience.default_questions);
+      setChatSuggestions(experience.default_questions);
     }
   }, [experience]);
 
@@ -95,15 +84,24 @@ const ExperienceDetailPage = () => {
     });
   };
 
-  // Follow-up question click handler (if needed)
+  // Follow-up question click handler
   const handleFollowUpClick = (question: string) => {
     localStorage.setItem('chat-input', question);
     router.push(`/?experienceId=${experienceId}`);
   };
 
+  // Chat handler - navigate to homepage with experience context
+  const handleChatSend = (
+    text: string,
+    _images: Array<{ image: string | null; name: string | null }> = [],
+  ) => {
+    localStorage.setItem('chat-input', text);
+    router.push(`/?experienceId=${experienceId}`);
+  };
+
   return (
-    <div className="w-full px-2 md:px-4 py-3 bg-gray-50 min-h-screen relative">
-      <div className="flex flex-col gap-6">
+    <div className="w-full px-2 md:px-4 pt-3 bg-gray-50 min-h-screen relative">
+      <div className="flex flex-col gap-6 mb-[25dvh]">
         {/* Title and QR icon */}
         <div className="mb-2">
           <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-3">
@@ -275,10 +273,14 @@ const ExperienceDetailPage = () => {
             ))}
           </div>
         </section>
-        {/* Chatbot (optional, can be moved to sticky bar if needed) */}
-        <div>
-          <BuddyAI context={{ experience_id: experienceId as string }} />
-        </div>
+        {/* Chatbot */}
+        <StickyChatbox
+          isHome={false}
+          isMobile={isMobile}
+          hasMessages={false}
+          initialSuggestions={[]}
+          onSend={handleChatSend}
+        />
       </div>
     </div>
   );

@@ -3,6 +3,8 @@
 import { Avatar, Button, Popover, UnstyledButton } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import Image from 'next/image';
+// import { CgHomeAlt as HomeIcon } from "react-icons/cg";
+// import { IoSearch as DiscoverIcon } from "react-icons/io5";
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -12,18 +14,24 @@ import { useChat } from '@/contexts/chat-provider';
 import { useSidebar } from '@/contexts/sidebar-provider';
 import { cn } from '@/utils/class';
 
+import IconDiscover from '../../../public/assets/discover.svg';
+import IconHome from '../../../public/assets/home.svg';
+import IconStory from '../../../public/assets/story.svg';
 import AiButton from '../ai-button';
+import IconHandler from '../icons/icon-handler';
 
 const navbarLinks = [
   {
     title: 'Home',
     href: '/',
-    icon: '/assets/home.svg',
+    // icon: '/assets/home.svg',
+    icon: IconHome,
   },
   {
     title: 'Discover',
     href: 'discoveries',
-    icon: '/assets/discover.svg',
+    // icon: '/assets/discover.svg',
+    icon: IconDiscover,
   },
   // {
   //   title: 'Experiences',
@@ -33,7 +41,7 @@ const navbarLinks = [
   {
     title: 'Stories',
     href: 'stories',
-    icon: '/assets/sparkle_pen.svg',
+    icon: IconStory,
   },
 ];
 
@@ -98,14 +106,14 @@ const Navbar = () => {
     <aside
       onMouseEnter={() => setIsSidebarOpen(true)}
       // onMouseLeave={() => setIsSidebarOpen(false)}
-      className="flex w-24 flex-shrink-0 flex-col items-center border-r border-gray-200 bg-white py-4 z-10"
+      className="fixed left-0 top-0 h-screen w-24 flex flex-col items-center border-r border-gray-200 bg-white py-4 z-10"
     >
       <Link href="/" onClick={triggerReset}>
         <Image
           src="/assets/travelbuddy_logo_icon.svg"
           alt="Logo"
-          width={40}
-          height={40}
+          width={56}
+          height={56}
         />
       </Link>
       <nav className="mt-10 flex flex-grow flex-col items-center gap-4">
@@ -118,29 +126,44 @@ const Navbar = () => {
             }
             className={cn(
               'flex flex-col items-center gap-1 rounded-lg p-2',
-              activeTab === link.href && 'bg-gray-300/50',
+              activeTab === link.href && 'bg-[#FFF2E5]',
               activeTab !== link.href && 'bg-transparent text-gray-500',
             )}
             key={index}
           >
             {link.title !== 'Stories' && (
-              <Image
-                className="grayscale"
-                src={link.icon}
-                alt="Home"
-                width={28}
-                height={28}
+              // <Image
+              //   src={link.icon}
+              //   alt={link.title}
+              //   width={32}
+              //   height={32}
+              //   className={cn(
+              //     activeTab === link.href && 'text-black',
+              //     activeTab !== link.href && 'text-red-500',
+              //     'size-[32px]',
+              //   )}
+              // />
+              <IconHandler
+                IconComponent={link.icon}
+                className={cn('size-[30px]')}
               />
             )}
             {link.title === 'Stories' && (
               <div
                 className={cn(
-                  activeTab === '/stories/new' &&
-                    'p-2 bg-gray-300/50 rounded-lg',
+                  activeTab === '/stories/new' && 'bg-[#FFF2E5]',
                   'grayscale',
                 )}
               >
-                <AiButton className="flex cursor-pointer" />
+                <AiButton
+                  className="flex cursor-pointer"
+                  altIcon={
+                    <IconHandler
+                      IconComponent={link.icon}
+                      className={cn('text-[48px]')}
+                    />
+                  }
+                />
               </div>
             )}
             <span className="text-xs font-medium">{link.title}</span>

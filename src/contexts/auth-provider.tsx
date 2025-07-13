@@ -1,19 +1,16 @@
 'use client';
 
 import { notifications } from '@mantine/notifications';
-import {
-  useParams,
-  usePathname,
-  useRouter,
-  // useSearchParams
-} from 'next/navigation';
+import { useParams, usePathname, useRouter } from 'next/navigation';
 import { createContext, use, useEffect, useRef, useState } from 'react';
 
 import { BusinessProfile } from '@/store/redux/slices/business/profile';
 // import { jwtDecode } from "jwt-decode";
 import { useLogOutMutation } from '@/store/redux/slices/user/auth';
-import { Profile } from '@/store/redux/slices/user/profile';
-import { useGetProfileAltQuery } from '@/store/redux/slices/user/profile';
+import {
+  Profile,
+  useGetProfileAltQuery,
+} from '@/store/redux/slices/user/profile';
 import isAuthenticated from '@/utils/supabase/authorization';
 
 export const PUBLIC_ROUTES = [

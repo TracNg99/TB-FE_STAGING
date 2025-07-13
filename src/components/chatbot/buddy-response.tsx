@@ -2,10 +2,10 @@
 
 import { ScrollArea, Skeleton } from '@mantine/core';
 import { IconArrowUpRight } from '@tabler/icons-react';
-import { IconHelpCircle } from '@tabler/icons-react';
 import Image from 'next/image';
 import React, { useState } from 'react';
 import { BsCheckLg } from 'react-icons/bs';
+import { IoHelpCircle as IconHelpCircle } from 'react-icons/io5';
 import { PiShareFat } from 'react-icons/pi';
 import ReactMarkdown from 'react-markdown';
 
@@ -114,7 +114,7 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
     <ScrollArea
       className={cn(
         'w-full h-full overflow-y-auto justify-self-center items-start overscroll-none ',
-        { 'mt-10 mb-10': isMobile },
+        { 'mt-5 mb-10': isMobile },
       )}
       viewportRef={ref}
     >
@@ -122,11 +122,9 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
         (msg, i) =>
           msg.text && (
             <div key={i} className={`flex flex-col w-full`} ref={ref}>
-              <div
-                className={`sm:p-6 bg-[#FCFCF9] ${isMobile ? 'w-full' : 'w-full'}`}
-              >
+              <div className={`sm:p-6 bg-[#FCFCF9] w-full`}>
                 {msg.from === 'user' && (
-                  <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
+                  <h1 className="text-2xl sm:text-3xl font-semibold text-gray-800">
                     {msg.text}
                   </h1>
                 )}
@@ -243,7 +241,7 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                             <div className="mt-8">
                               <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-800 mb-3">
                                 <IconHelpCircle
-                                  size={24}
+                                  size={32}
                                   className="text-orange-500"
                                 />
                                 Follow-up Questions

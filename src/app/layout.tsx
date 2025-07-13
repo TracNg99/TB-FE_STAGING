@@ -71,6 +71,10 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head className="fixed">
         <ColorSchemeScript defaultColorScheme="light" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+        />
       </head>
       <body
         className={clsx(poppins.className, poppins.variable, oswald.variable)}

@@ -155,3 +155,23 @@
   --shadow-carousel:
     0 14px 32px hsla(0, 0%, 0%, 0.09), 0 231px 92px hsla(0, 0%, 0%, 0.01);
 }
+
+/* Prevent zoom on mobile inputs */
+@media screen and (max-width: 768px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+    transform: scale(1) !important;
+    transform-origin: top left !important;
+  }
+
+  /* Force prevent zoom on focus */
+  input:focus,
+  textarea:focus,
+  select:focus {
+    font-size: 16px !important;
+    transform: scale(1) !important;
+    transform-origin: top left !important;
+  }
+}

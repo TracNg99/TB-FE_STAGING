@@ -41,13 +41,7 @@ const navbarLinks = [
   },
 ];
 
-const Navbar = ({
-  isMobile,
-  isKeyboardVisible,
-}: {
-  isMobile?: boolean;
-  isKeyboardVisible?: boolean;
-}) => {
+const Navbar = ({ isMobile }: { isMobile?: boolean }) => {
   const { user, logout } = useAuth();
   const { triggerReset } = useChat();
   const router = useRouter();
@@ -111,7 +105,7 @@ const Navbar = ({
 
   return (
     <>
-      {pathname === '/' && isMobile && !isKeyboardVisible && (
+      {pathname === '/' && isMobile && (
         <div className={cn('fixed top-[2dvh] left-[2dvh] flex flex-row z-10')}>
           {user ? (
             <Popover position="top-end" withArrow>
@@ -162,11 +156,11 @@ const Navbar = ({
           ) : (
             <div
               // href="/auth/login"
-              className="flex flex-col items-center gap-1 rounded-full p-2 bg-white/50"
+              className="flex flex-col items-center gap-1 rounded-full p-4 bg-white/50"
               onClick={logout}
             >
-              <BsPersonCircle color="#FB5607" size={24} />
-              <span className="text-xs font-medium text-orange-500">Login</span>
+              <BsPersonCircle color="#FB5607" size={32} />
+              {/* <span className="text-xs font-medium text-orange-500">Login</span> */}
             </div>
           )}
           <Link
@@ -177,13 +171,13 @@ const Navbar = ({
             <Image
               src="/assets/travelbuddy_logo_icon.svg"
               alt="Logo"
-              width={40}
-              height={40}
+              width={56}
+              height={56}
             />
           </Link>
         </div>
       )}
-      {isMobile && !isKeyboardVisible && (
+      {isMobile && (
         <footer
           className={`
         fixed bottom-0 left-0 right-0 
@@ -202,7 +196,7 @@ const Navbar = ({
               className={cn(
                 'flex flex-col items-center justify-center gap-1 rounded-lg p-2 size-[50px]',
                 {
-                  'flex bg-gray-300/50':
+                  'flex bg-[#FFF2E5]':
                     activeTab === link.href && !isOAuthCallback,
                 },
               )}
@@ -216,7 +210,7 @@ const Navbar = ({
                 width={28}
                 height={28}
               />
-              <span className="text-[10px] font-medium">{link.title}</span>
+              {/* <span className="text-[10px] font-medium">{link.title}</span> */}
             </UnstyledButton>
           ))}
         </footer>

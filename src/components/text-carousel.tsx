@@ -103,23 +103,27 @@ export default function TextCarousel<T>({
   };
 
   return (
-    <div className={cn('flex items-center gap-x-2', className)}>
-      {showControls && !isLoading && items && items.length > 0 && (
-        <button
-          className={cn(
-            'shrink-0 rounded-full size-10 flex items-center justify-center transition-all cursor-pointer',
-            classNames?.controls,
-            !canScrollPrev && 'invisible',
-          )}
-          onClick={() => emblaApi?.scrollPrev()}
-        >
-          <IconChevronLeft className="size-6 text-base-black" />
-        </button>
-      )}
+    <div className={cn('flex items-center gap-x-1', className)}>
+      {canScrollPrev &&
+        showControls &&
+        !isLoading &&
+        items &&
+        items.length > 0 && (
+          <button
+            className={cn(
+              'rounded-full size-10 flex items-center justify-center transition-all cursor-pointer',
+              classNames?.controls,
+              !canScrollPrev && 'invisible',
+            )}
+            onClick={() => emblaApi?.scrollPrev()}
+          >
+            <IconChevronLeft className="size-6 text-base-black" />
+          </button>
+        )}
 
       <div
         style={variables}
-        className="overflow-hidden flex-grow"
+        className="overflow-hidden flex-grow py-2"
         ref={emblaRef}
       >
         <div className="flex touch-pan-y touch-pinch-zoom ml-[calc(var(--slide-spacing)*-1)]">
@@ -139,7 +143,7 @@ export default function TextCarousel<T>({
       {showControls && !isLoading && items && items.length > 0 && (
         <button
           className={cn(
-            'shrink-0 rounded-full size-10 flex items-center justify-center bg-transparent transition-all cursor-pointer',
+            'rounded-full size-10 flex items-center justify-center bg-transparent transition-all cursor-pointer',
             classNames?.controls,
             !canScrollNext && 'invisible',
           )}

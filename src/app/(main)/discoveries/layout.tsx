@@ -42,7 +42,7 @@ export default function DiscoveriesLayout({
   };
 
   return (
-    <div className="flex h-full bg-gray-50">
+    <div className="relative flex flex-row md:h-screen w-full bg-gray-50">
       {/* Collapsible Sub-sidebar for Discoveries */}
       <aside
         onMouseLeave={() => {
@@ -51,10 +51,11 @@ export default function DiscoveriesLayout({
           }
         }}
         className={cn(
-          'h-full flex-col bg-white z-10 transition-all duration-300 ease-in-out flex overflow-hidden',
+          ' h-full flex-col bg-white z-50 transition-all duration-300 ease-in-out flex overflow-hidden',
           isSidebarOpen || isPinned
             ? 'w-64 border-r border-gray-200'
             : 'w-0 p-0 border-none',
+          !isPinned && 'absolute left-0 top-0',
         )}
       >
         <div className="p-4 flex justify-between items-center">

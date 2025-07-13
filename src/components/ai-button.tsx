@@ -37,7 +37,7 @@ const AiButton = ({
   return (
     <button
       className={cn(
-        `rounded-full p-2 gap-2
+        `rounded-full gap-2
         flex items-center justify-center
         ${additionalClassName}
         text-sm font-medium transition-colors`,
@@ -46,7 +46,7 @@ const AiButton = ({
       {...props}
     >
       {altIcon || (
-        <Image src="/assets/story.svg" alt="Story" width={32} height={32} />
+        <Image src="/assets/story.svg" alt="Story" width={40} height={40} />
       )}
       {displayText}
     </button>
