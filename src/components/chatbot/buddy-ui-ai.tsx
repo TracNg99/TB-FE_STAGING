@@ -2,7 +2,6 @@
 
 import { Container, Skeleton, UnstyledButton } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import { notifications } from '@mantine/notifications';
 import { IconPin, IconPinFilled, IconPlus } from '@tabler/icons-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -186,6 +185,7 @@ const ContentLayer: React.FC<{
   isLoading: boolean;
   displayText: string;
   floatingTexts: string;
+  isSessionActive: boolean;
   onSend: (
     input: string,
     images: Array<{ image: string | null; name: string | null }>,
@@ -203,6 +203,7 @@ const ContentLayer: React.FC<{
   floatingTexts,
   onSend,
   messagesEndRef,
+  isSessionActive,
 }) => {
   return (
     <div
@@ -249,7 +250,10 @@ const ContentLayer: React.FC<{
         )}
 
         {/* Chat Messages */}
-        {isThreadFetching || (isThreadLoading && messages.length === 0) ? (
+        {isThreadFetching ||
+        isThreadLoading ||
+        messages.length === 0 ||
+        !isSessionActive ? (
           <div className="w-full bg-[#FCFCF9]">
             <ThreadLoading />
           </div>
@@ -268,18 +272,21 @@ const ContentLayer: React.FC<{
           </div>
         )}
       </div>
-      {messages.length === 0 && !isThreadFetching && !isThreadLoading && (
-        <div className="flex flex-col h-full place-self-center justify-center">
-          <h2
-            className={cn('text-[#FE6F1C]', {
-              'text-[24px]': isMobile,
-              'text-[40px] mt-40': !isMobile,
-            })}
-          >
-            Welcome to Travel Buddy!
-          </h2>
-        </div>
-      )}
+      {messages.length === 0 &&
+        !isThreadFetching &&
+        !isThreadLoading &&
+        !isSessionActive && (
+          <div className="flex flex-col h-full place-self-center justify-center">
+            <h2
+              className={cn('text-[#FE6F1C]', {
+                'text-[24px]': isMobile,
+                'text-[40px] mt-40': !isMobile,
+              })}
+            >
+              Welcome to Travel Buddy!
+            </h2>
+          </div>
+        )}
     </div>
   );
 };
@@ -350,6 +357,12 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
     useState<string[]>(suggestionChips);
 
   const isMobile = useMediaQuery('(max-width: 768px)');
+  const [isIOS, setIsIOS] = useState(false);
+
+  useEffect(() => {
+    const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+    setIsIOS(isIOS);
+  }, []);
 
   const { data: resetData } = useResetChatMemoryQuery(
     {
@@ -483,12 +496,6 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
 
   useEffect(() => {
     if (resetData) {
-      notifications.show({
-        title: 'Chat Reset',
-        message: 'Your chat has been reset.',
-        color: 'green',
-        position: 'top-right',
-      });
       setResetState(false);
     }
   }, [resetData]);
@@ -711,6 +718,9 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                 floatingTexts={floatingTexts}
                 onSend={handleSend}
                 messagesEndRef={messagesEndRef}
+                isSessionActive={
+                  !!activeThread && activeThread !== null && activeThread !== ''
+                }
               />
             </div>
             {/* Chatbox always visible at the bottom */}
@@ -718,7 +728,14 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
               className={cn(
                 'w-full shrink min-w-0 mb-40',
                 messages.current.length > 0 && !isMobile && 'mb-10',
-                messages.current.length > 0 && isMobile && 'mb-[20dvh]',
+                messages.current.length > 0 &&
+                  isMobile &&
+                  !isIOS &&
+                  'mb-[25vh]',
+                messages.current.length > 0 &&
+                  isMobile &&
+                  isIOS &&
+                  'mb-[22dvh]',
               )}
             >
               <Chatbox

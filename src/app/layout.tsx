@@ -4,7 +4,7 @@ import { Notifications } from '@mantine/notifications';
 import clsx from 'clsx';
 import type { Metadata } from 'next';
 import type { Viewport } from 'next';
-import { Oswald, Poppins } from 'next/font/google';
+import { Oswald, Roboto } from 'next/font/google';
 
 import AuthProvider from '@/contexts/auth-provider';
 import { ChatProvider } from '@/contexts/chat-provider';
@@ -12,19 +12,25 @@ import ReduxProvider from '@/contexts/redux-provider';
 
 import './globals.css';
 
-const poppins = Poppins({
-  subsets: ['latin'],
-  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
-  variable: '--font-poppins',
-});
+// const poppins = Poppins({
+//   subsets: ['latin'],
+//   weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
+//   variable: '--font-poppins',
+// });
 
 const oswald = Oswald({
   variable: '--font-oswald',
   subsets: ['latin'],
 });
 
+const roboto = Roboto({
+  subsets: ['latin'],
+  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
+  variable: '--font-roboto',
+});
+
 const theme = createTheme({
-  fontFamily: 'var(--font-poppins)',
+  fontFamily: 'var(--font-roboto)',
   colors: {
     orange: [
       'var(--color-orange-50)',
@@ -77,7 +83,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={clsx(poppins.className, poppins.variable, oswald.variable)}
+        className={clsx(roboto.className, roboto.variable, oswald.variable)}
       >
         <ReduxProvider>
           <AuthProvider>

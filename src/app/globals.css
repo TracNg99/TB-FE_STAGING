@@ -68,6 +68,7 @@
 @theme {
   --font-oswald: var(--font-oswald);
   --font-poppins: var(--font-poppins);
+  --font-roboto: var(--font-roboto);
 
   --color-base-black: var(--color-base-black);
   --color-base-white: var(--color-base-white);
