@@ -67,8 +67,8 @@ const ExperienceDetailHeader = ({
   const params = useParams<{ experienceId: string }>();
   const experienceId = params!.experienceId;
 
-  const { search } = window.location;
-  const isFromQRScan = new URLSearchParams(search).get('fromQR') === 'true';
+  const searchParams = useSearchParams();
+  const isFromQRScan = searchParams.get('fromQR') === 'true';
 
   const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(isFromQRScan);
 
@@ -88,7 +88,11 @@ const ExperienceDetailHeader = ({
       </div>
       <Section className="flex flex-col lg:flex-row relative -mt-24 px-0 lg:px-4">
         {/* Welcome Modal */}
-        <WelcomeModal isOpen={isWelcomeModalOpen} onContinue={handleContinue} />
+        <WelcomeModal
+          isOpen={isWelcomeModalOpen}
+          onContinue={handleContinue}
+          experienceId={experienceId}
+        />
         <div className="px-4 py-8 lg:py-14 lg:px-0 bg-white rounded-tr-xl lg:flex-2/3 relative">
           <div className="absolute bg-white top-0 right-full w-lvw h-full" />
           <div className="flex items-center gap-4">
@@ -716,6 +720,7 @@ const ExperienceDetailPage = () => {
               onClose={handleCloseModal}
               activity={selectedActivity}
               experience_name={experience?.name || ''}
+              language="en-US"
             />
           )}
           {experience ? (

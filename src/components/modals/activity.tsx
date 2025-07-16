@@ -3,10 +3,13 @@
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 
+import TTSButton from '../audio-handler/tts-button';
+
 type ActivityModalProps = {
   isOpen: boolean;
   onClose: () => void;
   activity: {
+    id: string;
     title: string;
     description: string;
     description_thumbnail: string;
@@ -17,6 +20,7 @@ type ActivityModalProps = {
     photos: string[];
   };
   experience_name: string;
+  language: string;
 };
 
 const ActivityModal = ({
@@ -24,6 +28,7 @@ const ActivityModal = ({
   onClose,
   activity,
   experience_name,
+  language,
 }: ActivityModalProps) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isFavorited, setIsFavorited] = useState(false);
@@ -48,6 +53,7 @@ const ActivityModal = ({
 
   // Close modal on Escape key
   useEffect(() => {
+    console.log('Language', language);
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         onClose();
@@ -154,7 +160,10 @@ const ActivityModal = ({
           <div className="p-6">
             {/* About Section */}
             <div className="mb-8">
-              <h2 className="text-xl font-bold mb-4 text-gray-800">About</h2>
+              <div className="flex items-center justify-start gap-4 mb-4">
+                <h2 className="text-xl font-bold text-gray-800">About</h2>
+                <TTSButton contentId={activity.id} language={language} />
+              </div>
               <div
                 ref={descriptionRef}
                 className={descriptionClasses}

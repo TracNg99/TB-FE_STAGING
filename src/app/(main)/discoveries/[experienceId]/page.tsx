@@ -8,13 +8,14 @@ import {
   IconInfoCircle,
   IconQrcode,
 } from '@tabler/icons-react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import TTSButton from '@/components/audio-handler/tts-button';
 import StickyChatbox from '@/components/chatbot/sticky-chatbox';
 import IconFeatureCamera from '@/components/icons/icon-feature-camera';
 import IconicPhotoModal from '@/components/modals/IconicPhotoModal';
+import WelcomeModal from '@/components/modals/WelcomeModal';
 import ActivityModal from '@/components/modals/activity';
 import NewCarousel from '@/components/new-carousel';
 import QRModal from '@/components/qr-code/qr-modal';
@@ -41,6 +42,33 @@ const ExperienceDetailPage = () => {
   // QR Modal state
   const [qrOpen, setQrOpen] = useState(false);
   const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
+  const [language, setLanguage] = useState('');
+
+  const searchParams = useSearchParams();
+  const isFromQRScan = searchParams.get('fromQR') === 'true';
+
+  const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(false);
+
+  useEffect(() => {
+    const jwt = localStorage.getItem('jwt');
+    if (isFromQRScan && (!jwt || jwt === '' || jwt === null)) {
+      setIsWelcomeModalOpen(true);
+    }
+  }, [isFromQRScan]);
+
+  const handleContinue = ({
+    email,
+    language,
+  }: {
+    email: string;
+    language: string;
+  }) => {
+    console.log(email, language);
+    sessionStorage.setItem('email', email);
+    sessionStorage.setItem('language', language);
+    setLanguage(language);
+    setIsWelcomeModalOpen(false);
+  };
 
   // Fetch activities for this experience
   const { data: activities = [], isLoading: isLoadingActivities } =
@@ -103,6 +131,12 @@ const ExperienceDetailPage = () => {
   return (
     <div className="w-full px-2 md:px-4 pt-3 bg-gray-50 min-h-screen relative">
       <div className="flex flex-col gap-6 mb-[25dvh]">
+        {/* Welcome Modal */}
+        <WelcomeModal
+          isOpen={isWelcomeModalOpen}
+          onContinue={handleContinue}
+          experienceId={experienceId as string}
+        />
         {/* Title and QR icon */}
         <div className="mb-2">
           <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-3">
@@ -125,7 +159,10 @@ const ExperienceDetailPage = () => {
               >
                 <IconCopy className="w-8 h-8 " />
               </button>
-              <TTSButton contentId={experienceId as string} />
+              <TTSButton
+                contentId={experienceId as string}
+                language={language}
+              />
             </div>
           </div>
           <QRModal
@@ -206,6 +243,7 @@ const ExperienceDetailPage = () => {
                 isOpen={!!selectedActivity}
                 onClose={() => setSelectedActivity(null)}
                 activity={{
+                  id: selectedActivity.id,
                   photos: selectedActivity.photos,
                   title: selectedActivity.title,
                   description: selectedActivity.description,
@@ -216,6 +254,7 @@ const ExperienceDetailPage = () => {
                   hours: selectedActivity.hours || '',
                 }}
                 experience_name={experience.name}
+                language={language}
               />
             )}
           </div>

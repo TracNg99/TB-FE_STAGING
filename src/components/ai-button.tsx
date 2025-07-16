@@ -33,24 +33,27 @@ const AiButton = ({
         </button>
       </div>
     );
-  }
-  return (
-    <button
-      className={cn(
-        `rounded-full gap-2
+  } else {
+    return (
+      <div>
+        <button
+          className={cn(
+            `rounded-full gap-2
         flex items-center justify-center
         ${additionalClassName}
         text-sm font-medium transition-colors`,
-        className,
-      )}
-      {...props}
-    >
-      {altIcon || (
-        <Image src="/assets/story.svg" alt="Story" width={40} height={40} />
-      )}
-      {displayText}
-    </button>
-  );
+            className,
+          )}
+          {...props}
+        >
+          {altIcon || (
+            <Image src="/assets/story.svg" alt="Story" width={40} height={40} />
+          )}
+          {displayText}
+        </button>
+      </div>
+    );
+  }
 };
 
 export default AiButton;

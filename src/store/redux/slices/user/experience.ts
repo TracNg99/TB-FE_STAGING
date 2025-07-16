@@ -226,6 +226,7 @@ const ExperienceApi = createApi({
       }),
       transformResponse: (res: IconicPhotosResponseList) => res.data,
     }),
+
     getExperienceByBusiness: builder.query<Experience, { id: string }>({
       query: ({ id }) => ({
         url: `/experiences/business`,
@@ -233,6 +234,7 @@ const ExperienceApi = createApi({
       }),
       transformResponse: (res: ExperienceResponse) => res.data,
     }),
+
     getExperienceVisitsByUserId: builder.query<
       { is_visited: boolean },
       { id: string }
@@ -243,6 +245,7 @@ const ExperienceApi = createApi({
       }),
       transformResponse: (res: { data: { is_visited: boolean } }) => res.data,
     }),
+
     createExperienceVisitsByUserId: builder.mutation<
       { created_at: string },
       { id: string }
@@ -254,6 +257,7 @@ const ExperienceApi = createApi({
       }),
       transformResponse: (res: { data: { created_at: string } }) => res.data,
     }),
+
     getAddressExperienceMap: builder.query<Record<string, Experience[]>, void>({
       query: () => ({
         url: '/experiences/public/address',
@@ -269,6 +273,21 @@ const ExperienceApi = createApi({
           {} as Record<string, Experience[]>,
         );
       },
+    }),
+
+    uploadOnboardingInfo: builder.mutation<
+      void,
+      { email: string; language: string; experienceId: string }
+    >({
+      query: ({ email, language, experienceId }) => ({
+        url: '/experiences/public/traveler-info',
+        method: 'POST',
+        body: {
+          email,
+          language,
+          experience_id: experienceId,
+        },
+      }),
     }),
   }),
 });
@@ -290,5 +309,6 @@ export const {
   useGetExperienceVisitsByUserIdQuery,
   useCreateExperienceVisitsByUserIdMutation,
   useGetAddressExperienceMapQuery,
+  useUploadOnboardingInfoMutation,
 } = ExperienceApi;
 export { ExperienceApi };

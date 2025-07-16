@@ -1,12 +1,13 @@
 'use client';
 
 import { Loader, Popover } from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
 import { useCallback, useRef, useState } from 'react';
 import { FaPlay } from 'react-icons/fa';
 import { FaPause } from 'react-icons/fa6';
+import { IoPlayBack, IoPlayForward } from 'react-icons/io5';
 import { PiDotsThreeVerticalBold } from 'react-icons/pi';
 import { PiWaveformBold } from 'react-icons/pi';
-// import { IoPlayBack, IoPlayForward } from "react-icons/io5";
 import { RiArrowGoBackLine, RiArrowGoForwardLine } from 'react-icons/ri';
 
 import {
@@ -14,27 +15,16 @@ import {
   useUpdateSessionMutation,
   // useLazyGetSessionQuery
 } from '@/store/redux/slices/agents/text-to-speech';
+import { cn } from '@/utils/class';
 
 export const languages = [
-  { value: 'en-US', label: 'English (US)' },
-  { value: 'es-ES', label: 'Spanish' },
-  { value: 'fr-FR', label: 'French' },
-  { value: 'de-DE', label: 'German' },
-  { value: 'ja-JP', label: 'Japanese' },
-  { value: 'zh-CN', label: 'Chinese (Simplified)' },
-  { value: 'ko-KR', label: 'Korean' },
-  { value: 'ru-RU', label: 'Russian' },
-  { value: 'pt-BR', label: 'Portuguese (Brazil)' },
-  { value: 'it-IT', label: 'Italian' },
-  { value: 'ar-SA', label: 'Arabic' },
-  { value: 'hi-IN', label: 'Hindi' },
-  { value: 'bn-BD', label: 'Bengali' },
-  { value: 'ur-PK', label: 'Urdu' },
-  { value: 'fa-IR', label: 'Persian' },
-  { value: 'th-TH', label: 'Thai' },
-  { value: 'vi-VN', label: 'Vietnamese' },
-  { value: 'pl-PL', label: 'Polish' },
-  { value: 'cs-CZ', label: 'Czech' },
+  { value: 'en-US', label: 'English', flag: '🇬🇧' },
+  { value: 'ko-KR', label: '한국어', flag: '🇰🇷' },
+  { value: 'ja-JP', label: '日本語', flag: '🇯🇵' },
+  { value: 'fr-FR', label: 'Français', flag: '🇫🇷' },
+  { value: 'zh-CN', label: '中文', flag: '🇨🇳' },
+  { value: 'vi-VN', label: 'Tiếng Việt', flag: '🇻🇳' },
+  { value: 'ru-RU', label: 'Русский', flag: '🇷🇺' },
 ];
 
 // Throttle function for position updates
@@ -65,12 +55,13 @@ interface TTSPlayerProps {
   buttonClassName?: string;
   modalClassName?: string;
   contentId: string;
+  language: string;
 }
 
 interface AudioPlayerProps {
+  isMobile: boolean;
   modalClassName?: string;
   language: string;
-  setLanguage: (language: string) => void;
   position: number;
   setPosition: (position: number) => void;
   duration: number;
@@ -86,12 +77,13 @@ interface AudioPlayerProps {
   onPause: () => void;
   onEnded: () => void;
   onClose: () => void;
+  onLanguageChange: (language: string) => void;
 }
 
 const AudioPlayer = ({
+  isMobile,
   modalClassName,
   language,
-  setLanguage,
   position,
   duration,
   isPlaying,
@@ -105,20 +97,21 @@ const AudioPlayer = ({
   onPause,
   onEnded,
   onClose,
+  onLanguageChange,
 }: AudioPlayerProps) => {
   return (
     <div
       className={`
-                w-full h-auto
-                flex flex-row items-center justify-center 
-                self-center z-50
-                rounded-xl border
-                ${modalClassName}`}
+       w-full h-auto
+        flex flex-row items-center justify-center 
+        self-center z-50
+        rounded-xl border
+        ${modalClassName}`}
     >
       <Popover>
         <Popover.Target>
           <button
-            className={`rounded-lg p-4 bg-transparent ${!isAudioReady ? 'opacity-50 hover:cursor-wait' : 'cursor-pointer'}`}
+            className={`rounded-lg p-1 bg-transparent ${!isAudioReady ? 'opacity-50 hover:cursor-wait' : 'cursor-pointer'}`}
             disabled={!isAudioReady}
           >
             <PiDotsThreeVerticalBold className="text-2xl text-black" />
@@ -129,7 +122,7 @@ const AudioPlayer = ({
             <label className="block text-sm font-medium mb-1">Language</label>
             <select
               value={language}
-              onChange={(e) => setLanguage(e.target.value)}
+              onChange={(e) => onLanguageChange(e.target.value)}
               className={`w-full p-2 border rounded ${!isAudioReady ? 'opacity-50 hover:cursor-wait' : 'cursor-pointer'}`}
               disabled={!isAudioReady}
             >
@@ -152,23 +145,53 @@ const AudioPlayer = ({
         onEnded={onEnded}
       />
 
-      <div className="flex flex-row items-center gap-2">
-        {/* <button
-                    className={`p-2 rounded-full cursor-pointer ${!isAudioReady ? 'opacity-50 hover:cursor-wait' : 'cursor-pointer hover:text-gray-600'}`}
-                    disabled={!isAudioReady}
-                >
-                    <IoPlayBack size={16} />
-                </button> */}
+      <div
+        className={`flex flex-row items-center ${isMobile ? 'gap-0' : 'gap-2 flex-row'}`}
+      >
+        <button
+          className={cn(
+            'rounded-full cursor-pointer',
+            !isAudioReady
+              ? 'opacity-50 hover:cursor-wait'
+              : 'cursor-pointer hover:text-gray-600',
+            {
+              'p-1 text-[12px]': isMobile,
+              'p-2 text-[16px]': !isMobile,
+            },
+          )}
+          onClick={() => onSeekChange(0)}
+          disabled={!isAudioReady}
+        >
+          <IoPlayBack size={16} />
+        </button>
 
         <button
-          className={`p-2 rounded-full cursor-pointer ${!isAudioReady ? 'opacity-50 hover:cursor-wait' : 'cursor-pointer hover:text-gray-600'}`}
+          className={cn(
+            'rounded-full cursor-pointer',
+            !isAudioReady
+              ? 'opacity-50 hover:cursor-wait'
+              : 'cursor-pointer hover:text-gray-600',
+            {
+              'p-1 text-[11px]': isMobile,
+              'p-2 text-[16px]': !isMobile,
+            },
+          )}
           onClick={() => onSeekChange(position === 0 ? 0 : position - 5)}
         >
           <RiArrowGoBackLine size={16} />
         </button>
 
         <button
-          className={`p-2 rounded-full cursor-pointer ${!isAudioReady ? 'opacity-50 hover:cursor-wait' : 'cursor-pointer hover:text-gray-600 '}`}
+          className={cn(
+            'rounded-full cursor-pointer',
+            !isAudioReady
+              ? 'opacity-50 hover:cursor-wait'
+              : 'cursor-pointer hover:text-gray-600',
+            {
+              'p-1 text-[11px]': isMobile,
+              'p-2 text-[16px]': !isMobile,
+            },
+          )}
           onClick={togglePlayback}
           disabled={!isAudioReady}
         >
@@ -182,28 +205,58 @@ const AudioPlayer = ({
         </button>
 
         <button
-          className={`p-2 rounded-full cursor-pointer ${!isAudioReady ? 'opacity-50 hover:cursor-wait' : 'cursor-pointer hover:text-gray-600'}`}
+          className={cn(
+            'rounded-full cursor-pointer',
+            !isAudioReady
+              ? 'opacity-50 hover:cursor-wait'
+              : 'cursor-pointer hover:text-gray-600',
+            {
+              'p-1 text-[11px]': isMobile,
+              'p-2 text-[16px]': !isMobile,
+            },
+          )}
           onClick={() => onSeekChange(position + 5)}
           disabled={!isAudioReady}
         >
           <RiArrowGoForwardLine size={16} />
         </button>
 
-        {/* <button
-                    className={`p-2 rounded-full cursor-pointer ${!isAudioReady ? 'opacity-50 hover:cursor-wait' : 'cursor-pointer hover:text-gray-600'}`}
-                    // onClick={togglePlayback}
-                    disabled={!isAudioReady}
-                >
-                    <IoPlayForward size={16} />
-                </button> */}
+        <button
+          className={cn(
+            'rounded-full cursor-pointer',
+            !isAudioReady
+              ? 'opacity-50 hover:cursor-wait'
+              : 'cursor-pointer hover:text-gray-600',
+            {
+              'p-1 text-[11px]': isMobile,
+              'p-2 text-[16px]': !isMobile,
+            },
+          )}
+          onClick={() => onSeekChange(duration - 5)}
+          disabled={!isAudioReady}
+        >
+          <IoPlayForward size={16} />
+        </button>
 
-        <div className="text-sm text-gray-600">
+        <div
+          className={cn('text-gray-600', {
+            'text-[12px]': isMobile,
+            'text-[16px]': !isMobile,
+          })}
+        >
           {position.toFixed(1)}s /{' '}
           {duration ? duration.toFixed(1) + 's' : 'Loading...'}
         </div>
       </div>
       <button
-        className={`p-2 hover:text-gray-600 rounded-full cursor-pointer ${!isAudioReady ? 'opacity-50 hover:cursor-wait' : 'cursor-pointer'}`}
+        className={cn(
+          'hover:text-gray-600 rounded-full cursor-pointer',
+          !isAudioReady ? 'opacity-50 hover:cursor-wait' : 'cursor-pointer',
+          {
+            'p-1 text-[12px]': isMobile,
+            'p-2 text-[16px]': !isMobile,
+          },
+        )}
         onClick={onClose}
       >
         Close
@@ -217,15 +270,17 @@ const TTSPlayer: React.FC<TTSPlayerProps> = ({
   buttonClassName,
   modalClassName,
   contentId,
+  language,
 }: TTSPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [position, setPosition] = useState(0);
   const [duration, setDuration] = useState(0);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const [language, setLanguage] = useState('en-US');
   const [isSessionStart, setIsSessionStart] = useState(false);
   const [isAudioReady, setIsAudioReady] = useState(false);
+
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   // RTK Query hooks
   const [startSession] = useStartSessionMutation();
@@ -246,7 +301,7 @@ const TTSPlayer: React.FC<TTSPlayerProps> = ({
       try {
         const session = await startSession({
           content_id: contentId,
-          language: languageUpdate ?? language,
+          language: (languageUpdate ?? language !== '') ? language : 'en-US',
         }).unwrap();
 
         setSessionId(session.session_id);
@@ -265,25 +320,6 @@ const TTSPlayer: React.FC<TTSPlayerProps> = ({
       }
     },
     [contentId, language, startSession],
-  );
-
-  const handleLanguageChange = useCallback(
-    (value: string) => {
-      setLanguage(value);
-      setSessionId(null); // Reset session for new language
-      setPosition(0);
-      setIsPlaying(false);
-      setIsAudioReady(false);
-
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.src = '';
-        audioRef.current.currentTime = 0;
-      }
-
-      initializeSession(value);
-    },
-    [audioRef, initializeSession],
   );
 
   // Update session state
@@ -348,6 +384,15 @@ const TTSPlayer: React.FC<TTSPlayerProps> = ({
     [audioRef, isPlaying, updateSessionState],
   );
 
+  const handleLanguageChange = (chosenLanguage: string) => {
+    if (sessionId) {
+      updateSession({ sessionId, language: chosenLanguage });
+    }
+    setPosition(0);
+    setIsAudioReady(false);
+    initializeSession(chosenLanguage);
+  };
+
   // Handle audio pop over
   const handleAudioPopOver = useCallback(() => {
     setIsSessionStart(true);
@@ -379,9 +424,10 @@ const TTSPlayer: React.FC<TTSPlayerProps> = ({
         </button>
       ) : (
         <AudioPlayer
+          isMobile={isMobile || false}
           modalClassName={modalClassName}
           language={language}
-          setLanguage={handleLanguageChange}
+          onLanguageChange={handleLanguageChange}
           position={position}
           setPosition={setPosition}
           duration={duration}
