@@ -25,7 +25,7 @@ const QRModal: React.FC<QRModalComponentProps> = ({
   const [qr, setQr] = useState<string | null>(null);
   const theme = useMantineTheme();
 
-  const url = path ?? `${baseUrl}/experiences/${contentId}`;
+  const url = path ?? `${baseUrl}/experiences/${contentId}?fromQR=true`;
 
   useEffect(() => {
     if (open) {

@@ -22,6 +22,7 @@ import IconFeatureCamera from '@/components/icons/icon-feature-camera';
 import IconFeatureLocation from '@/components/icons/icon-feature-location';
 import IconInfo from '@/components/icons/icon-info';
 import Section from '@/components/layouts/section';
+import WelcomeModal from '@/components/modals/WelcomeModal';
 import ActivityModal from '@/components/modals/activity';
 import { LoginModal } from '@/components/modals/login';
 import QRModal from '@/components/qr-code/qr-modal';
@@ -66,6 +67,15 @@ const ExperienceDetailHeader = ({
   const params = useParams<{ experienceId: string }>();
   const experienceId = params!.experienceId;
 
+  const { search } = window.location;
+  const isFromQRScan = new URLSearchParams(search).get('fromQR') === 'true';
+
+  const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(isFromQRScan);
+
+  const handleContinue = () => {
+    setIsWelcomeModalOpen(false);
+  };
+
   return (
     <>
       <div className="relative w-full aspect-[4/3] lg:aspect-video max-h-[800px]">
@@ -77,6 +87,8 @@ const ExperienceDetailHeader = ({
         />
       </div>
       <Section className="flex flex-col lg:flex-row relative -mt-24 px-0 lg:px-4">
+        {/* Welcome Modal */}
+        <WelcomeModal isOpen={isWelcomeModalOpen} onContinue={handleContinue} />
         <div className="px-4 py-8 lg:py-14 lg:px-0 bg-white rounded-tr-xl lg:flex-2/3 relative">
           <div className="absolute bg-white top-0 right-full w-lvw h-full" />
           <div className="flex items-center gap-4">
