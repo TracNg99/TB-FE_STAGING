@@ -23,6 +23,9 @@ export const baseQueryMultipart = fetchBaseQuery({
 
 export const baseQueryAgent = fetchBaseQuery({
   baseUrl:
+    // process.env.NODE_ENV === 'development'
+    //   ? 'http://localhost:8080/api/v1'
+    //   :
     'https://travelbuddy-agents-server-797173526974.us-central1.run.app/api/v1', // Base URL for all API routes
   prepareHeaders: (headers) => {
     // Add custom headers if needed, like Authorization
@@ -41,4 +44,7 @@ export const baseUrl =
     : process.env.NEXT_PUBLIC_BASE_URL;
 
 export const agentServerUrl =
-  'https://travelbuddy-agents-server-797173526974.us-central1.run.app';
+  // process.env.NODE_ENV === 'development'
+  //   ? 'http://localhost:8080/api/v1'
+  //   :
+  'https://travelbuddy-agents-server-797173526974.us-central1.run.app/api/v1';

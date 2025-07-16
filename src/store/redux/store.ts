@@ -3,6 +3,7 @@ import { configureStore } from '@reduxjs/toolkit';
 
 import { BuddyAgentApi, streamBuddyApi } from './slices/agents/buddy';
 import { SearchAgentApi } from './slices/agents/search';
+import { ttsApi } from './slices/agents/text-to-speech';
 import { ActivityBusinessApi } from './slices/business/activity';
 import { BusinessAnalyticsApi } from './slices/business/analytics';
 import { AttractionBusinessApi } from './slices/business/attraction';
@@ -54,6 +55,7 @@ export const store = configureStore({
     [streamBuddyApi.reducerPath]: streamBuddyApi.reducer,
     [StorageCloudRunApi.reducerPath]: StorageCloudRunApi.reducer,
     [streamStoryApi.reducerPath]: streamStoryApi.reducer,
+    [ttsApi.reducerPath]: ttsApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -82,5 +84,6 @@ export const store = configureStore({
       .concat(BuddyAgentApi.middleware)
       .concat(streamBuddyApi.middleware)
       .concat(StorageCloudRunApi.middleware)
-      .concat(streamStoryApi.middleware),
+      .concat(streamStoryApi.middleware)
+      .concat(ttsApi.middleware),
 });

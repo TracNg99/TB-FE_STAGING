@@ -11,6 +11,7 @@ import {
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+import TTSButton from '@/components/audio-handler/tts-button';
 import StickyChatbox from '@/components/chatbot/sticky-chatbox';
 import IconFeatureCamera from '@/components/icons/icon-feature-camera';
 import IconicPhotoModal from '@/components/modals/IconicPhotoModal';
@@ -124,6 +125,7 @@ const ExperienceDetailPage = () => {
               >
                 <IconCopy className="w-8 h-8 " />
               </button>
+              <TTSButton contentId={experienceId as string} />
             </div>
           </div>
           <QRModal
