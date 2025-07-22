@@ -11,7 +11,7 @@ import {
   useRouter,
   useSearchParams,
 } from 'next/navigation';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import Chatbox from '@/components/chatbot/chatbox';
 import { base64ToUnicode } from '@/components/chatbot/streaming-hook';
@@ -47,21 +47,6 @@ const BackgroundLayer: React.FC<{
 }> = ({ isHome, hasMessages, isInputActive }) => {
   return (
     <div className="absolute inset-0 z-0 bg-[#FCFCF9]">
-      {/* Background Image */}
-      {/* {isHome && !hasMessages && !isInputActive && (
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          // style={{
-          //   backgroundImage: 'url(/assets/backdrop_full.png)',
-          // }}
-        />
-      )}*/}
-
-      {/* Gradient Overlay */}
-      {/* {isHome && !hasMessages && !isInputActive && (
-        <div className="absolute inset-0 bg-gradient-to-b from-gray-600/20 from-10% to-white to-50%" />
-      )} */}
-
       {/* Default Background */}
       {(!isHome || hasMessages || isInputActive) && (
         <div className="absolute inset-0 bg-[#FCFCF9]" />
@@ -138,7 +123,7 @@ const SidebarLayer: React.FC<{
       </div>
 
       {user ? (
-        <nav className="mt-4 flex-grow">
+        <nav className="mt-4 flex-grow overflow-y-auto">
           {threadsList.length > 0 && !isHistoryLoading && !isHistoryFetching ? (
             <ul>
               {threadsList.map((thread) => (
@@ -187,7 +172,7 @@ const ContentLayer: React.FC<{
   isThreadLoading: boolean;
   messages: MessagesProps[];
   isLoading: boolean;
-  displayText: string;
+  unfoldingTexts: string;
   floatingTexts: string;
   isSessionActive: boolean;
   onSend: (
@@ -203,7 +188,7 @@ const ContentLayer: React.FC<{
   isThreadLoading,
   messages,
   isLoading,
-  displayText,
+  unfoldingTexts,
   floatingTexts,
   onSend,
   messagesEndRef,
@@ -264,7 +249,7 @@ const ContentLayer: React.FC<{
             <BuddyResponse
               threadId=""
               isLoading={isLoading}
-              displayText={displayText}
+              displayText={unfoldingTexts}
               messages={messages}
               reasoning={floatingTexts}
               setInput={(text: string) => onSend(text, [])}
@@ -328,8 +313,19 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
   const [resetState, setResetState] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [floatingTexts, setFloatingTexts] = useState<string>('');
-  const [displayedText, setDisplayedText] = useState<string>('');
+  const [unfoldingTexts, setUnfoldingTexts] = useState<string>('');
   const [charIndex, setCharIndex] = useState<number>(0);
+  const [messages, setMessages] = useState<MessagesProps[]>([]);
+  const chatSessionId = useRef<string | null>(threadId ?? null);
+  const [activeThread, setActiveThread] = useState<string | null>(
+    threadId ?? chatSessionId.current ?? null,
+  );
+  const [isInputActive, setIsInputActive] = useState(false);
+  const [initialSuggestions, setInitialSuggestions] =
+    useState<string[]>(suggestionChips);
+
+  const concatenateStreamingMessage = useRef<string>('');
+
   const [threadsList, setThreadsList] = useState<
     {
       id: string;
@@ -346,17 +342,6 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
       skip: !experienceId,
     },
   );
-
-  const [messages, setMessages] = useState<MessagesProps[]>([]);
-  const [latestBotMessage, setLatestBotMessage] =
-    useState<MessagesProps | null>(null);
-  const chatSessionId = useRef<string | null>(threadId ?? null);
-  const [activeThread, setActiveThread] = useState<string | null>(
-    threadId ?? chatSessionId.current ?? null,
-  );
-  const [isInputActive, setIsInputActive] = useState(false);
-  const [initialSuggestions, setInitialSuggestions] =
-    useState<string[]>(suggestionChips);
 
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [isIOS, setIsIOS] = useState(false);
@@ -409,12 +394,21 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollTo({
-      behavior: 'smooth',
-      top: messagesEndRef.current?.scrollHeight,
-    });
-  };
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({
+        block: 'end',
+        behavior: 'smooth',
+      });
+    }
+  }, [messages, unfoldingTexts]);
+
+  // const scrollToBottom = useCallback(() => {
+  //   messagesEndRef.current?.scrollTo({
+  //     behavior: 'smooth',
+  //     top: messagesEndRef.current?.scrollHeight,
+  //   });
+  // }, []);
 
   useEffect(() => {
     if (threadId && threadId !== '') {
@@ -432,19 +426,20 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
     }
   }, [params.experienceId, searchParams.get('experienceId')]);
 
-  useEffect(() => {
-    const handleFollowUpTitle = () => {
-      if (experienceId && typeof window !== 'undefined') {
-        const storedInput = localStorage.getItem('chat-input');
-        if (storedInput && storedInput !== '' && messages.length === 0) {
-          console.log('storedInput', storedInput);
-          handleSend(storedInput);
-          localStorage.removeItem('chat-input'); // Clear after using
-        }
+  const handleFollowUpTitle = useCallback(() => {
+    if (experienceId && typeof window !== 'undefined') {
+      const storedInput = localStorage.getItem('chat-input');
+      if (storedInput && storedInput !== '' && messages.length === 0) {
+        console.log('storedInput', storedInput);
+        handleSend(storedInput);
+        localStorage.removeItem('chat-input'); // Clear after using
       }
-    };
+    }
+  }, [experienceId, messages.length]);
+
+  useEffect(() => {
     handleFollowUpTitle();
-  }, [experienceId]);
+  }, [experienceId, handleFollowUpTitle]);
 
   useEffect(() => {
     if (
@@ -481,15 +476,13 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
           })) || [],
       }));
 
-      // console.log('mappedChatHistory:', mappedChatHistory);
-
       setThreadsList(mappedChatHistory);
     }
   }, [historyData, threadsList]);
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [displayedText, latestBotMessage]);
+  // useEffect(() => {
+  //   scrollToBottom();
+  // }, [unfoldingTexts, messages, scrollToBottom]);
 
   useEffect(() => {
     if (resetData) {
@@ -510,7 +503,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
     }
   };
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     if (
       user &&
       threadsList.find((thread) => thread.id === activeThread) === undefined
@@ -524,70 +517,172 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
     setActiveThread(null);
     chatSessionId.current = null;
     setMessages([]);
-    // State is now managed by Chatbox component
-    setDisplayedText('');
+    setUnfoldingTexts('');
+    concatenateStreamingMessage.current = '';
     setCharIndex(0);
     setFloatingTexts('');
     setIsLoading(false);
-  };
+  }, [activeThread, refetchHistoryData, threadsList, user]);
 
-  const handleThreadSelect = (selectedThreadId: string) => {
-    // console.log('selectedThreadId:', selectedThreadId);
-    sessionStorage.setItem('thread-id', selectedThreadId);
-    setActiveThread(selectedThreadId);
-    chatSessionId.current = selectedThreadId;
-    setMessages(
-      threadsList.find((thread) => thread.id === selectedThreadId)?.messages ||
-        [],
-    );
-    scrollToBottom();
-  };
-
-  const handleOnChunkAvailable = (chunk: any) => {
-    setFloatingTexts('');
-    setDisplayedText('');
-    setCharIndex(0);
-    if (chunk.event !== 'complete') {
-      setFloatingTexts((prevText) =>
-        chunk.data?.response
-          ? prevText + '\n' + base64ToUnicode(chunk.data?.response)
-          : prevText,
+  const handleThreadSelect = useCallback(
+    (selectedThreadId: string) => {
+      // console.log('selectedThreadId:', selectedThreadId);
+      sessionStorage.setItem('thread-id', selectedThreadId);
+      setActiveThread(selectedThreadId);
+      chatSessionId.current = selectedThreadId;
+      setMessages(
+        threadsList.find((thread) => thread.id === selectedThreadId)
+          ?.messages || [],
       );
-      return;
+      // scrollToBottom();
+    },
+    [threadsList],
+  );
+
+  const handleSend = useCallback(
+    async (
+      text: string,
+      images: Array<{ image: string | null; name: string | null }> = [],
+    ) => {
+      if (!isHome) {
+        handleReset();
+        localStorage.setItem('chat-input', text);
+        router.push(`/?experienceId=${experienceId}`);
+      }
+      setIsLoading(true);
+      setIsInputActive(false);
+      concatenateStreamingMessage.current = '';
+      setUnfoldingTexts('');
+      setCharIndex(0);
+      setMessages([
+        ...messages,
+        {
+          from: 'user',
+          text: text,
+          tag: '',
+          images: images.map((image) => image.image || ''),
+        },
+      ]);
+      try {
+        await buddyStreamMutation({
+          body: {
+            query: text,
+            images: images.map((image) => image.image || '') || [],
+            filters: {
+              ...context,
+              experience_id: (experienceId as string) || undefined,
+              company_id: companyId || undefined,
+            },
+            session_id: chatSessionId.current,
+          },
+          onChunk: handleOnChunkAvailable,
+        }).unwrap();
+      } catch (error) {
+        console.error('Error streaming:', error);
+      }
+    },
+    [
+      buddyStreamMutation,
+      companyId,
+      context,
+      experienceId,
+      handleReset,
+      isHome,
+      messages,
+      router,
+    ],
+  );
+
+  const handleOnChunkAvailable = useCallback(
+    (chunk: any) => {
+      setFloatingTexts('');
+      if (chunk.event === 'reasoning' || chunk.event === 'retrieving') {
+        // console.log('Reasoning: ', base64ToUnicode(chunk.data?.response));
+        setFloatingTexts((prevText) =>
+          chunk.data?.response
+            ? prevText + '\n' + base64ToUnicode(chunk.data?.response)
+            : prevText,
+        );
+        return;
+      }
+      if (chunk.event === 'answering') {
+        concatenateStreamingMessage.current += base64ToUnicode(
+          chunk.data?.response,
+        );
+        //   console.log("Latest message role: ", messages[messages.length - 1]?.from)
+        //   if(messages[messages.length - 1]?.from === 'user') {
+        //     setMessages((prevMessages) => [
+        //       ...prevMessages,
+        //       {
+        //         from: 'assistant',
+        //         text: concatenateStreamingMessage.current,
+        //         tag: chunk.event,
+        //         images: [],
+        //         sources: [],
+        //         suggestions: [],
+        //       },
+        //     ]);
+        //   }
+        //   setLatestBotMessage({
+        //     from: 'assistant',
+        //     text: concatenateStreamingMessage.current,
+        //     tag: '',
+        //     images: [],
+        //     sources: [],
+        //     suggestions: [],
+        //   });
+        //   setActiveThread(chunk.data?.session_id);
+        //   sessionStorage.setItem('thread-id', chunk.data?.session_id);
+        //   chatSessionId.current = chunk.data?.session_id;
+      }
+
+      if (chunk.event === 'complete') {
+        setIsLoading(false);
+        setActiveThread(chunk.data?.session_id);
+        sessionStorage.setItem('thread-id', chunk.data?.session_id);
+        chatSessionId.current = chunk.data?.session_id;
+        // setMessages((prevMessages) => {
+        //   const truncateLastMessage = prevMessages.slice(0, prevMessages.length - 1);
+        //   // const lastMessage = prevMessages[prevMessages.length - 1];
+        //   return [
+        //   ...truncateLastMessage,
+        //   {
+        //     // ...lastMessage,
+        //     from: 'assistant',
+        //     tag: chunk.event,
+        //     text: concatenateStreamingMessage.current,
+        //     images: chunk.data?.images || [],
+        //     sources: chunk.data?.sources || [],
+        //     suggestions: chunk.data?.suggestions || [],
+        //   },
+        // ]});
+        // setUnfoldingTexts('');
+        // setCharIndex(0);
+
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          {
+            from: 'assistant',
+            tag: chunk.event,
+            text: base64ToUnicode(chunk.data?.response),
+            images: chunk.data?.images || [],
+            sources: chunk.data?.sources || [],
+            suggestions: chunk.data?.suggestions || [],
+          },
+        ]);
+        refetchHistoryData();
+        // scrollToBottom();
+      }
+      // return;
+    },
+    [refetchHistoryData],
+  );
+
+  const handleSidebarLeave = useCallback(() => {
+    if (!isPinned) {
+      setIsSidebarOpen(false);
     }
-    setIsLoading(false);
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      {
-        from: 'assistant',
-        text: chunk.data?.response
-          ? base64ToUnicode(chunk.data?.response)
-          : null,
-        tag: chunk.event !== 'complete' ? 'face-with-monocle' : 'nerd-face',
-        images: chunk.data?.images || [],
-        sources: chunk.data?.sources || [],
-        suggestions: chunk.data?.suggestions || [],
-      },
-    ]);
-
-    setLatestBotMessage({
-      from: 'assistant',
-      text: chunk.data?.response ? base64ToUnicode(chunk.data?.response) : null,
-      tag: chunk.event !== 'complete' ? 'face-with-monocle' : 'nerd-face',
-      images: chunk.data?.images || [],
-      sources: chunk.data?.sources || [],
-      suggestions: chunk.data?.suggestions || [],
-    });
-
-    setActiveThread(chunk.data?.session_id);
-    sessionStorage.setItem('thread-id', chunk.data?.session_id);
-    chatSessionId.current = chunk.data?.session_id;
-
-    refetchHistoryData();
-    scrollToBottom();
-
-    return;
-  };
+  }, [isPinned, setIsSidebarOpen]);
 
   useEffect(() => {
     if (threadId && threadId !== '' && threadData && threadData.data) {
@@ -606,85 +701,30 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
             [],
         })),
       );
-      scrollToBottom();
+      // scrollToBottom();
     }
   }, [threadId, threadData]);
 
   useEffect(() => {
     if (
-      latestBotMessage?.from === 'assistant' &&
-      latestBotMessage?.text !== '' &&
-      latestBotMessage?.text !== null &&
-      latestBotMessage?.text?.length > 0 &&
-      charIndex < latestBotMessage?.text?.length &&
+      concatenateStreamingMessage.current !== '' &&
+      concatenateStreamingMessage.current !== null &&
+      concatenateStreamingMessage.current?.length > 0 &&
+      charIndex < concatenateStreamingMessage.current?.length &&
+      messages.length > 0 &&
       messages[messages.length - 1]?.from === 'assistant'
+      // &&
+      // messages[messages.length - 1]?.tag !== 'complete'
     ) {
-      const text = latestBotMessage?.text;
-      // console.log('Displaying text: ', text);
+      const text = concatenateStreamingMessage.current;
       const timer = setTimeout(() => {
-        setDisplayedText((prevText) => prevText + text[charIndex]);
+        setUnfoldingTexts((prevText) => prevText + text[charIndex]);
         setCharIndex((prevIndex) => prevIndex + 1);
-      }, 5);
+      }, 1);
 
       return () => clearTimeout(timer);
     }
-  }, [charIndex, displayedText, messages]);
-
-  const handleSend = async (
-    text: string,
-    images: Array<{ image: string | null; name: string | null }> = [],
-  ) => {
-    // setActiveThread('1');
-    // sessionStorage.setItem('thread-id', '1');
-    if (!isHome) {
-      handleReset();
-      localStorage.setItem('chat-input', text);
-      router.push(`/?experienceId=${experienceId}`);
-    }
-    setIsLoading(true);
-    setIsInputActive(false);
-    setDisplayedText('');
-    setCharIndex(0);
-    setMessages([
-      ...messages,
-      {
-        from: 'user',
-        text: text,
-        tag: '',
-        images: images.map((image) => image.image || ''),
-      },
-    ]);
-    try {
-      await buddyStreamMutation({
-        body: {
-          query: text,
-          images: images.map((image) => image.image || '') || [],
-          filters: {
-            ...context,
-            experience_id: (experienceId as string) || undefined,
-            company_id: companyId || undefined,
-          },
-          session_id: chatSessionId.current,
-        },
-        onChunk: handleOnChunkAvailable,
-      }).unwrap();
-    } catch (error) {
-      console.error('Error streaming:', error);
-      // notifications.show({
-      //   title: 'Error: Chat failure',
-      //   message: 'Failure during buddy response! Please try again!',
-      //   color: 'red',
-      // });
-    }
-  };
-
-  const handleSidebarLeave = () => {
-    if (!isPinned) {
-      setIsSidebarOpen(false);
-    }
-  };
-
-  // const hasMessages = messages.length > 0;
+  }, [charIndex, unfoldingTexts, messages, concatenateStreamingMessage]);
 
   return (
     <div className="relative h-full w-full overflow-hidden">
@@ -724,7 +764,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                 isThreadLoading={isThreadLoading}
                 messages={messages}
                 isLoading={isLoading}
-                displayText={displayedText}
+                unfoldingTexts={unfoldingTexts}
                 floatingTexts={floatingTexts}
                 onSend={handleSend}
                 messagesEndRef={messagesEndRef}

@@ -185,7 +185,6 @@ const streamBuddyApi = createApi({
                 error:
                   errorText || `Request failed with status ${response.status}`,
               },
-              channel_type: 'error_channel',
             });
             throw new Error(
               errorText || `Request failed with status ${response.status}`,
@@ -196,7 +195,6 @@ const streamBuddyApi = createApi({
             onChunk({
               event: 'error',
               data: { error: 'No response body received for streaming.' },
-              channel_type: 'error_channel',
             });
             throw new Error('No response body received for streaming.');
           }
@@ -210,20 +208,19 @@ const streamBuddyApi = createApi({
             const sseDecoder = new SSEEventDecoder();
             let accumulatedData = '';
             let eventCount = 0;
-            let lastValidStoryStreamRes: StreamMessage | null = null;
+            let lastValidAnswerStreamRes: StreamMessage | null = null;
 
             const processStream = async () => {
               try {
                 const { done, value } = await reader.read();
 
                 if (done) {
-                  if (lastValidStoryStreamRes) {
+                  if (lastValidAnswerStreamRes) {
                     onChunk({
                       event: 'done',
-                      data: lastValidStoryStreamRes.data,
-                      channel_type: lastValidStoryStreamRes.channel_type,
+                      data: lastValidAnswerStreamRes.data,
                     });
-                    resolve(lastValidStoryStreamRes);
+                    resolve(lastValidAnswerStreamRes);
                   } else if (accumulatedData.trim()) {
                     const finalRawEvent = sseDecoder.parseEvent(
                       accumulatedData.trim(),
@@ -233,18 +230,15 @@ const streamBuddyApi = createApi({
                       typeof finalRawEvent.event === 'string' &&
                       finalRawEvent.data
                     ) {
-                      const channelTypeFromEvent = finalRawEvent.channel_type;
-                      const finalStoryStreamRes: StreamMessage = {
+                      const finalAnswerStreamRes: StreamMessage = {
                         event: finalRawEvent.event,
                         data: finalRawEvent.data as StreamMessageProps,
-                        channel_type: channelTypeFromEvent!,
                       };
                       onChunk({
                         event: 'done',
-                        data: finalStoryStreamRes.data,
-                        channel_type: channelTypeFromEvent!,
+                        data: finalAnswerStreamRes.data,
                       });
-                      resolve(finalStoryStreamRes);
+                      resolve(finalAnswerStreamRes);
                     } else {
                       console.warn(
                         '[STREAM DEBUG buddy.ts] processStream: Stream ended. Accumulated data did not parse into a conclusive event. Rejecting.',
@@ -255,7 +249,6 @@ const streamBuddyApi = createApi({
                           error:
                             'Stream ended without a conclusive SSE event from accumulated data.',
                         },
-                        channel_type: 'error_channel',
                       });
                       reject(
                         new Error(
@@ -272,7 +265,6 @@ const streamBuddyApi = createApi({
                       data: {
                         error: 'Stream ended without any valid SSE event.',
                       },
-                      channel_type: '',
                     });
                     reject(
                       new Error('Stream ended without any valid SSE event.'),
@@ -308,17 +300,11 @@ const streamBuddyApi = createApi({
                       typeof parsedRawEvent.event === 'string' &&
                       parsedRawEvent.data
                     ) {
-                      // console.log(
-                      //   '[STREAM DEBUG story.ts] processStream: Channel: ',
-                      //   parsedRawEvent.channel_type,
-                      // );
-                      const channelTypeFromEvent = parsedRawEvent.channel_type;
                       const currentChunkRes: StreamMessage = {
                         event: parsedRawEvent.event,
                         data: parsedRawEvent.data as StreamMessageProps,
-                        channel_type: channelTypeFromEvent || '',
                       };
-                      lastValidStoryStreamRes = currentChunkRes;
+                      lastValidAnswerStreamRes = currentChunkRes;
                       onChunk(currentChunkRes);
                     } else {
                       console.log(

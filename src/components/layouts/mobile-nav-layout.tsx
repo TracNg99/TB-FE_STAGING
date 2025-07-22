@@ -118,7 +118,7 @@ const Navbar = ({ isMobile }: { isMobile?: boolean }) => {
                     'bg-white/50 rounded-full',
                   )}
                 >
-                  <div className="bg-orange-500 text-white rounded-full p-2">
+                  <div className="bg-orange-400 text-white rounded-full p-1">
                     <Avatar
                       className="bg-white"
                       src={user.media_assets?.url ?? null}
