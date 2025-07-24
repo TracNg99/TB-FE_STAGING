@@ -70,7 +70,7 @@ export interface StoryProps {
     email: string;
     firstname: string;
     lastname: string;
-    media_assets?: {
+    media_assets: {
       url: string;
     };
   };
