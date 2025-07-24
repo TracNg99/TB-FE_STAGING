@@ -179,23 +179,23 @@ const streamBuddyApi = createApi({
             const errorText = await response
               .text()
               .catch(() => `Request failed with status ${response.status}`);
-            onChunk({
-              event: 'error',
-              data: {
-                error:
-                  errorText || `Request failed with status ${response.status}`,
-              },
-            });
+            // onChunk({
+            //   event: 'error',
+            //   data: {
+            //     error:
+            //       errorText || `Request failed with status ${response.status}`,
+            //   },
+            // });
             throw new Error(
               errorText || `Request failed with status ${response.status}`,
             );
           }
           if (!response.body) {
             console.error('[STREAM DEBUG story.ts] No response body.');
-            onChunk({
-              event: 'error',
-              data: { error: 'No response body received for streaming.' },
-            });
+            // onChunk({
+            //   event: 'error',
+            //   data: { error: 'No response body received for streaming.' },
+            // });
             throw new Error('No response body received for streaming.');
           }
           // console.log(
@@ -243,13 +243,13 @@ const streamBuddyApi = createApi({
                       console.warn(
                         '[STREAM DEBUG buddy.ts] processStream: Stream ended. Accumulated data did not parse into a conclusive event. Rejecting.',
                       );
-                      onChunk({
-                        event: 'error',
-                        data: {
-                          error:
-                            'Stream ended without a conclusive SSE event from accumulated data.',
-                        },
-                      });
+                      // onChunk({
+                      //   event: 'error',
+                      //   data: {
+                      //     error:
+                      //       'Stream ended without a conclusive SSE event from accumulated data.',
+                      //   },
+                      // });
                       reject(
                         new Error(
                           'Stream ended without a conclusive SSE event from accumulated data.',
@@ -320,15 +320,14 @@ const streamBuddyApi = createApi({
                   '[STREAM DEBUG buddy.ts] processStream: ERROR during stream processing:',
                   error,
                 );
-                const errorMessage =
-                  error instanceof Error
-                    ? error.message
-                    : 'Unknown streaming error';
-                onChunk({
-                  event: 'error',
-                  data: { error: errorMessage },
-                  channel_type: 'error_channel',
-                });
+                // const errorMessage =
+                //   error instanceof Error
+                //     ? error.message
+                //     : 'Unknown streaming error';
+                // onChunk({
+                //   event: 'error',
+                //   data: { error: errorMessage },
+                // });
                 reject(
                   error instanceof Error
                     ? error

@@ -30,28 +30,6 @@ interface BuddyResponseProps {
   ref?: React.RefObject<HTMLDivElement | null>;
 }
 
-// Mock data for sources as the structure is not in MessagesProps
-// const mockSources: Source[] = [
-//   {
-//     id: 1,
-//     url: 'vespaadventures.com/tags',
-//     snippet:
-//       'What an incredible experience! This is a must for anyone visiting Saigon and was the highlight of our visit to Saigon. Thanks to our guide, Quy, for giving us such a brilliant tour. Driving in Saigon is extremely chaotic, but our Vespa dri...',
-//   },
-//   {
-//     id: 2,
-//     url: 'vespaadventures.com/tags',
-//     snippet:
-//       'What an incredible experience! This is a must for anyone visiting Saigon and was the highlight of our visit to Saigon. Thanks to our guide, Quy, for giving us such a brilliant tour. Driving in Saigon is extremely chaotic, but our Vespa dri...',
-//   },
-//   {
-//     id: 3,
-//     url: 'vespaadventures.com/tags',
-//     snippet:
-//       'What an incredible experience! This is a must for anyone visiting Saigon and was the highlight of our visit to Saigon. Thanks to our guide, Quy, for giving us such a brilliant tour. Driving in Saigon is extremely chaotic, but our Vespa dri...',
-//   },
-// ];
-
 const mockImages: string[] = [];
 //   'https://kkhkvzjpcnivhhutxled.supabase.co/storage/v1/object/sign/story/1f763404-81be-4163-89d5-3f6e0dad45cc/df573be5-1fe9-4e11-b477-fb98cc7bc65a.octet-stream?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9jOWIwY2JhZC1hOTc4LTRkNDgtODQyYi0yOWE1OWViY2ViYTYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJzdG9yeS8xZjc2MzQwNC04MWJlLTQxNjMtODlkNS0zZjZlMGRhZDQ1Y2MvZGY1NzNiZTUtMWZlOS00ZTExLWI0NzctZmI5OGNjN2JjNjVhLm9jdGV0LXN0cmVhbSIsImlhdCI6MTc1MDkzNTg2NSwiZXhwIjoyMDY2Mjk1ODY1fQ.gqLGY5-wE65Do8S8UhORnEonL-RdsfX3YOv6pdLDa3Y',
 //   'https://kkhkvzjpcnivhhutxled.supabase.co/storage/v1/object/sign/story/1f763404-81be-4163-89d5-3f6e0dad45cc/df573be5-1fe9-4e11-b477-fb98cc7bc65a.octet-stream?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9jOWIwY2JhZC1hOTc4LTRkNDgtODQyYi0yOWE1OWViY2ViYTYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJzdG9yeS8xZjc2MzQwNC04MWJlLTQxNjMtODlkNS0zZjZlMGRhZDQ1Y2MvZGY1NzNiZTUtMWZlOS00ZTExLWI0NzctZmI5OGNjN2JjNjVhLm9jdGV0LXN0cmVhbSIsImlhdCI6MTc1MDkzNTg2NSwiZXhwIjoyMDY2Mjk1ODY1fQ.gqLGY5-wE65Do8S8UhORnEonL-RdsfX3YOv6pdLDa3Y',
@@ -146,24 +124,10 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                     {msg.text}
                   </h1>
                 )}
-
-                {isLoading && i === messages.length - 1 && (
-                  // <div className="flex flex-col mt-4">
-                  //   {reasoning ? (
-                  //     // <TextUnfolder
-                  //     //   text={reasoning}
-                  //     //   className="text-gray-600"
-                  //     // />
-                  //     <></>
-                  //   ) : (
-                  //     <LoadingSkeletion />
-                  //   )}
-                  // </div>
-                  <LoadingSkeletion />
-                )}
+                {isLoading && i === messages.length - 1 && <LoadingSkeletion />}
                 {msg.from === 'assistant' && (
                   <div className={`text-wrap w-full`}>
-                    <div className={`flex border-b mb-4`}>
+                    <div className={`flex border-b border-gray-300 mb-4`}>
                       <button
                         onClick={() => handleTabSelect(i, 'answer')}
                         className={cn(
@@ -228,7 +192,7 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                               />
                             </div>
                           ))}
-                        <div className="max-w-[95%] text-gray-700 text-pretty whitespace-pre-line">
+                        <div className="text-gray-700 text-pretty whitespace-normal">
                           <ReactMarkdown
                             remarkPlugins={[remarkGfm]}
                             components={{
@@ -272,13 +236,15 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                                   {children}
                                 </h3>
                               ),
-                              a: ({ children, ...props }) => (
+                              a: ({ node: _, ...props }) => (
                                 <a
-                                  className="text-blue-500 hover:text-blue-600"
+                                  style={{
+                                    color: '#0066cc',
+                                    textDecoration: 'underline',
+                                    textUnderlineOffset: '2px',
+                                  }}
                                   {...props}
-                                >
-                                  {children}
-                                </a>
+                                />
                               ),
                             }}
                           >
@@ -290,7 +256,9 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                               : msg.text}
                           </ReactMarkdown>
                         </div>
-                        <div className="flex items-center gap-4">
+                        <div
+                          className={`flex items-center gap-4 ${i !== messages.length - 1 ? 'border-b border-gray-300' : ''}`}
+                        >
                           <div className="mt-6 mb-10">
                             <button
                               onClick={handleShare}

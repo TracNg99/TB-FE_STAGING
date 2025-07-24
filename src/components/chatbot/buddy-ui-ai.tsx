@@ -304,7 +304,8 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
   const searchParams = useSearchParams();
   const threadId =
     searchParams.get('threadId') || sessionStorage.getItem('thread-id');
-  const companyId = searchParams.get('companyId');
+  const companyId =
+    searchParams.get('companyId') || sessionStorage.getItem('company_id');
   const isHome = pathname === '/';
   const [experienceId, setExperienceId] = useState<string | null>(null);
   const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
@@ -403,13 +404,6 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
     }
   }, [messages, unfoldingTexts]);
 
-  // const scrollToBottom = useCallback(() => {
-  //   messagesEndRef.current?.scrollTo({
-  //     behavior: 'smooth',
-  //     top: messagesEndRef.current?.scrollHeight,
-  //   });
-  // }, []);
-
   useEffect(() => {
     if (threadId && threadId !== '') {
       setActiveThread(threadId);
@@ -480,10 +474,6 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
     }
   }, [historyData, threadsList]);
 
-  // useEffect(() => {
-  //   scrollToBottom();
-  // }, [unfoldingTexts, messages, scrollToBottom]);
-
   useEffect(() => {
     if (resetData) {
       setResetState(false);
@@ -516,9 +506,9 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
     setResetState(true);
     setActiveThread(null);
     chatSessionId.current = null;
+    concatenateStreamingMessage.current = '';
     setMessages([]);
     setUnfoldingTexts('');
-    concatenateStreamingMessage.current = '';
     setCharIndex(0);
     setFloatingTexts('');
     setIsLoading(false);
@@ -526,18 +516,77 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
 
   const handleThreadSelect = useCallback(
     (selectedThreadId: string) => {
-      // console.log('selectedThreadId:', selectedThreadId);
+      setMessages([]);
       sessionStorage.setItem('thread-id', selectedThreadId);
       setActiveThread(selectedThreadId);
       chatSessionId.current = selectedThreadId;
-      setMessages(
-        threadsList.find((thread) => thread.id === selectedThreadId)
-          ?.messages || [],
-      );
-      // scrollToBottom();
     },
-    [threadsList],
+    [messages],
   );
+
+  const handleOnChunkAvailable = useCallback((chunk: any) => {
+    setFloatingTexts('');
+    if (chunk.event === 'reasoning' || chunk.event === 'retrieving') {
+      console.log('Reasoning: ', base64ToUnicode(chunk.data?.response));
+      console.log('Reasoning sources: ', chunk.data?.sources);
+      chatSessionId.current = chunk.data?.session_id;
+      sessionStorage.setItem('thread-id', chunk.data?.session_id);
+      setFloatingTexts((prevText) =>
+        chunk.data?.response
+          ? prevText + '\n' + base64ToUnicode(chunk.data?.response)
+          : prevText,
+      );
+      return;
+    }
+    if (chunk.event === 'answering') {
+      setIsLoading(false);
+      concatenateStreamingMessage.current += chunk.data?.response
+        ? base64ToUnicode(chunk.data?.response)
+        : '';
+
+      setMessages((prevMessages) => {
+        const truncateLastMessage = prevMessages.slice(
+          0,
+          prevMessages.length - 1,
+        );
+        const lastMessage = prevMessages[prevMessages.length - 1];
+        return [
+          ...(lastMessage.from === 'assistant'
+            ? truncateLastMessage
+            : prevMessages),
+          {
+            ...(lastMessage.from === 'assistant' ? lastMessage : {}),
+            from: 'assistant',
+            tag: chunk.event,
+            text: concatenateStreamingMessage.current,
+            images: chunk.data?.images || [],
+            sources: chunk.data?.sources || [],
+            suggestions: chunk.data?.suggestions || [],
+          },
+        ];
+      });
+    }
+
+    if (chunk.event === 'complete') {
+      setMessages((prevMessages) => {
+        const truncateLastMessage = prevMessages.slice(
+          0,
+          prevMessages.length - 1,
+        );
+        const lastMessage = prevMessages[prevMessages.length - 1];
+        return [
+          ...truncateLastMessage,
+          {
+            ...lastMessage,
+            from: 'assistant',
+            images: chunk.data?.images || [],
+            sources: chunk.data?.sources || [],
+            suggestions: chunk.data?.suggestions || [],
+          },
+        ];
+      });
+    }
+  }, []);
 
   const handleSend = useCallback(
     async (
@@ -590,92 +639,8 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
       isHome,
       messages,
       router,
+      handleOnChunkAvailable,
     ],
-  );
-
-  const handleOnChunkAvailable = useCallback(
-    (chunk: any) => {
-      setFloatingTexts('');
-      if (chunk.event === 'reasoning' || chunk.event === 'retrieving') {
-        // console.log('Reasoning: ', base64ToUnicode(chunk.data?.response));
-        setFloatingTexts((prevText) =>
-          chunk.data?.response
-            ? prevText + '\n' + base64ToUnicode(chunk.data?.response)
-            : prevText,
-        );
-        return;
-      }
-      if (chunk.event === 'answering') {
-        concatenateStreamingMessage.current += base64ToUnicode(
-          chunk.data?.response,
-        );
-        //   console.log("Latest message role: ", messages[messages.length - 1]?.from)
-        //   if(messages[messages.length - 1]?.from === 'user') {
-        //     setMessages((prevMessages) => [
-        //       ...prevMessages,
-        //       {
-        //         from: 'assistant',
-        //         text: concatenateStreamingMessage.current,
-        //         tag: chunk.event,
-        //         images: [],
-        //         sources: [],
-        //         suggestions: [],
-        //       },
-        //     ]);
-        //   }
-        //   setLatestBotMessage({
-        //     from: 'assistant',
-        //     text: concatenateStreamingMessage.current,
-        //     tag: '',
-        //     images: [],
-        //     sources: [],
-        //     suggestions: [],
-        //   });
-        //   setActiveThread(chunk.data?.session_id);
-        //   sessionStorage.setItem('thread-id', chunk.data?.session_id);
-        //   chatSessionId.current = chunk.data?.session_id;
-      }
-
-      if (chunk.event === 'complete') {
-        setIsLoading(false);
-        setActiveThread(chunk.data?.session_id);
-        sessionStorage.setItem('thread-id', chunk.data?.session_id);
-        chatSessionId.current = chunk.data?.session_id;
-        // setMessages((prevMessages) => {
-        //   const truncateLastMessage = prevMessages.slice(0, prevMessages.length - 1);
-        //   // const lastMessage = prevMessages[prevMessages.length - 1];
-        //   return [
-        //   ...truncateLastMessage,
-        //   {
-        //     // ...lastMessage,
-        //     from: 'assistant',
-        //     tag: chunk.event,
-        //     text: concatenateStreamingMessage.current,
-        //     images: chunk.data?.images || [],
-        //     sources: chunk.data?.sources || [],
-        //     suggestions: chunk.data?.suggestions || [],
-        //   },
-        // ]});
-        // setUnfoldingTexts('');
-        // setCharIndex(0);
-
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          {
-            from: 'assistant',
-            tag: chunk.event,
-            text: base64ToUnicode(chunk.data?.response),
-            images: chunk.data?.images || [],
-            sources: chunk.data?.sources || [],
-            suggestions: chunk.data?.suggestions || [],
-          },
-        ]);
-        refetchHistoryData();
-        // scrollToBottom();
-      }
-      // return;
-    },
-    [refetchHistoryData],
   );
 
   const handleSidebarLeave = useCallback(() => {
@@ -686,6 +651,8 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
 
   useEffect(() => {
     if (threadId && threadId !== '' && threadData && threadData.data) {
+      setUnfoldingTexts('');
+      setCharIndex(0);
       setActiveThread(threadId);
       chatSessionId.current = threadId;
       setMessages(
@@ -707,24 +674,26 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
 
   useEffect(() => {
     if (
-      concatenateStreamingMessage.current !== '' &&
+      messages[messages.length - 1]?.from === 'assistant' &&
       concatenateStreamingMessage.current !== null &&
-      concatenateStreamingMessage.current?.length > 0 &&
-      charIndex < concatenateStreamingMessage.current?.length &&
-      messages.length > 0 &&
-      messages[messages.length - 1]?.from === 'assistant'
-      // &&
-      // messages[messages.length - 1]?.tag !== 'complete'
+      concatenateStreamingMessage.current !== '' &&
+      concatenateStreamingMessage.current.length > charIndex
     ) {
       const text = concatenateStreamingMessage.current;
       const timer = setTimeout(() => {
         setUnfoldingTexts((prevText) => prevText + text[charIndex]);
         setCharIndex((prevIndex) => prevIndex + 1);
+        // console.log('unfoldingTexts', unfoldingTexts);
       }, 1);
 
       return () => clearTimeout(timer);
     }
-  }, [charIndex, unfoldingTexts, messages, concatenateStreamingMessage]);
+  }, [
+    charIndex,
+    unfoldingTexts,
+    messages,
+    concatenateStreamingMessage.current,
+  ]); // messages
 
   return (
     <div className="relative h-full w-full overflow-hidden">

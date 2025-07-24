@@ -23,6 +23,18 @@ export interface StoryReqProps {
   seo_slug?: string;
   long_tail_keyword?: string;
   hashtags?: string[];
+  user_profile?: {
+    email: string;
+    firstname: string;
+    lastname: string;
+    username: string;
+    media_assets: {
+      url: string;
+    };
+  };
+  created_at?: string;
+  updated_at?: string;
+  follow_up_questions?: string[];
 }
 
 export interface StoryReq {

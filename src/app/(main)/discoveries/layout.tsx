@@ -2,9 +2,10 @@
 
 import { IconPin, IconPinFilled } from '@tabler/icons-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { useSidebar } from '@/contexts/sidebar-provider';
+import { useGetAddressExperienceMapByCompanyIdQuery } from '@/store/redux/slices/user/experience';
 import { cn } from '@/utils/class';
 
 const ADDRESS_LIST = [
@@ -24,9 +25,25 @@ export default function DiscoveriesLayout({
   const router = useRouter();
   const searchParams = useSearchParams();
   const selectedAddress = searchParams.get('address') || ADDRESS_LIST[0];
+  const companies = sessionStorage.getItem('companies')
+    ? JSON.parse(sessionStorage.getItem('companies') || '')
+    : null;
+  const companyId = sessionStorage.getItem('company_id') || '';
 
   const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
   const [isPinned, setIsPinned] = useState(false);
+
+  const { data: addressMap } = useGetAddressExperienceMapByCompanyIdQuery({
+    companies: companies || [companyId],
+  });
+
+  const actualAddresses = useMemo(() => {
+    const addresses = Object.keys(addressMap || {});
+    const numAddresses = addresses.length;
+    return numAddresses === ADDRESS_LIST.length - 1
+      ? ADDRESS_LIST
+      : ['For you', ...addresses];
+  }, [addressMap]);
 
   const handleSelect = (address: string) => {
     const params = new URLSearchParams(Array.from(searchParams.entries()));
@@ -74,7 +91,7 @@ export default function DiscoveriesLayout({
         </div>
 
         <ul className="flex-1 overflow-y-auto space-y-2 px-4 pb-4">
-          {ADDRESS_LIST.map((address) => (
+          {actualAddresses.map((address) => (
             <li key={address}>
               <button
                 className={`w-full text-left px-4 py-2 rounded-lg font-medium transition-colors ${selectedAddress === address ? 'bg-orange-100 text-orange-700' : 'hover:bg-gray-100'}`}

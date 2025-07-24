@@ -3,11 +3,11 @@
 import { IconQrcode } from '@tabler/icons-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useRouter, useSearchParams } from 'next/navigation';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import QRModal from '@/components/qr-code/qr-modal';
 import { Experience } from '@/store/redux/slices/business/experience';
-import { useGetAddressExperienceMapQuery } from '@/store/redux/slices/user/experience';
+import { useGetAddressExperienceMapByCompanyIdQuery } from '@/store/redux/slices/user/experience';
 
 const ADDRESS_LIST = [
   'For you',
@@ -21,24 +21,39 @@ const ADDRESS_LIST = [
 const DiscoveriesMain: React.FC = () => {
   const searchParams = useSearchParams();
   const selectedAddress = searchParams.get('address') || 'For you';
+  const companies = sessionStorage.getItem('companies')
+    ? JSON.parse(sessionStorage.getItem('companies') || '')
+    : [];
   const router = useRouter();
   const {
     data: addressMap,
     isLoading,
     error,
-  } = useGetAddressExperienceMapQuery();
+  } = useGetAddressExperienceMapByCompanyIdQuery({ companies });
+
   const [qrModal, setQrModal] = useState<{
     open: boolean;
     id: string;
     name: string;
   } | null>(null);
 
-  let experiences: Experience[] = [];
-  if (selectedAddress === 'For you') {
-    experiences = Object.values(addressMap || {}).flat();
-  } else {
-    experiences = addressMap?.[selectedAddress] || [];
-  }
+  const experiences = useMemo(() => {
+    let experiences: Experience[] = [];
+    if (selectedAddress === 'For you') {
+      experiences = Object.values(addressMap || {}).flat();
+    } else {
+      experiences = addressMap?.[selectedAddress] || [];
+    }
+    return experiences;
+  }, [addressMap, selectedAddress]);
+
+  const actualAddresses = useMemo(() => {
+    const addresses = Object.keys(addressMap || {});
+    const numAddresses = addresses.length;
+    return numAddresses === ADDRESS_LIST.length - 1
+      ? ADDRESS_LIST
+      : ['For you', ...addresses];
+  }, [addressMap]);
 
   return (
     <div className="h-full flex flex-col mb-20">
@@ -51,7 +66,7 @@ const DiscoveriesMain: React.FC = () => {
           Hop on these cool adventures!
         </h1>
         <div className="flex px-1 gap-3 flex-nowrap overflow-x-auto scrollbar-hide">
-          {ADDRESS_LIST.map((address) => (
+          {actualAddresses.map((address) => (
             <button
               key={address}
               className={`px-4 py-2 rounded-full text-md font-medium transition-all border-2 cursor-pointer hover:shadow-sm whitespace-nowrap flex-shrink-0 ${

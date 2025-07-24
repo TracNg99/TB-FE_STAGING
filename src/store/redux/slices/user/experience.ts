@@ -275,6 +275,27 @@ const ExperienceApi = createApi({
       },
     }),
 
+    getAddressExperienceMapByCompanyId: builder.query<
+      Record<string, Experience[]>,
+      { companies: string[] }
+    >({
+      query: ({ companies }) => ({
+        url: '/experiences/public/address',
+        params: { companies },
+      }),
+      transformResponse: (res: {
+        data: { address: string; experience_data: Experience[] }[];
+      }) => {
+        return res.data.reduce(
+          (acc, curr) => {
+            acc[curr.address] = curr.experience_data;
+            return acc;
+          },
+          {} as Record<string, Experience[]>,
+        );
+      },
+    }),
+
     uploadOnboardingInfo: builder.mutation<
       void,
       { email: string; language: string; experienceId: string }
@@ -309,6 +330,7 @@ export const {
   useGetExperienceVisitsByUserIdQuery,
   useCreateExperienceVisitsByUserIdMutation,
   useGetAddressExperienceMapQuery,
+  useGetAddressExperienceMapByCompanyIdQuery,
   useUploadOnboardingInfoMutation,
 } = ExperienceApi;
 export { ExperienceApi };

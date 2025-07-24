@@ -1,7 +1,10 @@
 import { fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export const baseQuery = fetchBaseQuery({
-  baseUrl: `https://fork-travel-buddy.vercel.app/api/v1`, // Base URL for all API routes
+  baseUrl:
+    // process.env.NODE_ENV === 'development'
+    //   ? 'http://localhost:3001/api/v1':
+    'https://fork-travel-buddy.vercel.app/api/v1', // Base URL for all API routes
   prepareHeaders: (headers) => {
     // Add custom headers if needed, like Authorization
     const token = localStorage?.getItem('jwt') || '';
@@ -12,7 +15,10 @@ export const baseQuery = fetchBaseQuery({
 });
 
 export const baseQueryMultipart = fetchBaseQuery({
-  baseUrl: `https://fork-travel-buddy.vercel.app/api/v1`, // Base URL for all API routes
+  baseUrl:
+    // process.env.NODE_ENV === 'development'
+    //   ? 'http://localhost:3001/api/v1':
+    'https://fork-travel-buddy.vercel.app/api/v1', // Base URL for all API routes
   prepareHeaders: (headers) => {
     // Add custom headers if needed, like Authorization
     const token = localStorage?.getItem('jwt') || '';

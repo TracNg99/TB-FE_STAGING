@@ -37,7 +37,9 @@ const ExperienceDetailPage = () => {
     data: experience,
     isLoading,
     error,
-  } = useGetExperiencePublicQuery({ id: experienceId as string });
+  } = useGetExperiencePublicQuery({
+    id: experienceId as string,
+  });
 
   // QR Modal state
   const [qrOpen, setQrOpen] = useState(false);
@@ -55,6 +57,13 @@ const ExperienceDetailPage = () => {
       setIsWelcomeModalOpen(true);
     }
   }, [isFromQRScan]);
+
+  useEffect(() => {
+    if (experience && experienceId) {
+      sessionStorage.setItem('experience_id', (experienceId as string) || '');
+      sessionStorage.setItem('company_id', experience.owned_by || '');
+    }
+  }, [experience, experienceId]);
 
   const handleContinue = ({
     email,
