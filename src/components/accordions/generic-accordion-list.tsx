@@ -4,6 +4,7 @@ import { Accordion } from '@mantine/core';
 import React from 'react';
 
 type AccordionListProps = {
+  className?: string;
   list: {
     icon?: React.ReactNode;
     label: string;
@@ -11,17 +12,25 @@ type AccordionListProps = {
   }[];
 };
 
-const AccordionLists = ({ list = [] }: AccordionListProps) => {
+const AccordionLists = ({ className, list = [] }: AccordionListProps) => {
+  const items = list.map((item, index) => (
+    <Accordion.Item key={index} value={item.label}>
+      <Accordion.Control icon={item?.icon ?? undefined}>
+        {item.label.toUpperCase()}
+      </Accordion.Control>
+      <Accordion.Panel>{item.content}</Accordion.Panel>
+    </Accordion.Item>
+  ));
+
   return (
-    <Accordion multiple value={list.map((e) => e.label)} variant="contained">
-      {list.map((item, index) => (
-        <Accordion.Item key={index} value={item.label}>
-          <Accordion.Control icon={item?.icon ?? undefined}>
-            {item.label.toUpperCase()}
-          </Accordion.Control>
-          <Accordion.Panel>{item.content}</Accordion.Panel>
-        </Accordion.Item>
-      ))}
+    <Accordion
+      className={className ?? 'w-full'}
+      multiple
+      value={list.map((e) => e.label)}
+      variant="contained"
+      chevronPosition="right"
+    >
+      {items}
     </Accordion>
   );
 };

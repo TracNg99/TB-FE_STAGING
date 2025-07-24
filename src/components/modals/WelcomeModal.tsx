@@ -36,7 +36,7 @@ interface FormData {
   language: string;
 }
 
-const languageOptions = [
+export const languageOptions = [
   { value: 'en-US', label: 'English', flag: '🇬🇧' },
   { value: 'ko-KR', label: '한국어', flag: '🇰🇷' },
   { value: 'ja-JP', label: '日本語', flag: '🇯🇵' },
@@ -46,7 +46,7 @@ const languageOptions = [
   { value: 'ru-RU', label: 'Русский', flag: '🇷🇺' },
 ] as const;
 
-type LanguageCode = (typeof languageOptions)[number]['value'];
+export type LanguageCode = (typeof languageOptions)[number]['value'];
 
 const WelcomeModal: React.FC<WelcomeModalProps> = ({
   isOpen,
@@ -136,6 +136,15 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
         'vi-VN': '',
         'ru-RU': '',
       },
+      button_text: {
+        'en-US': 'Get Started',
+        'ko-KR': '시작하기',
+        'ja-JP': '始める',
+        'fr-FR': 'Commencer',
+        'zh-CN': '开始',
+        'vi-VN': 'Bắt đầu',
+        'ru-RU': 'Начать',
+      },
     },
     welcome: {
       title: {
@@ -160,6 +169,15 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
           'Nhấn vào biểu tượng âm thanh và tôi sẽ hướng dẫn bạn qua từng điểm bạn đang khám phá.',
         'ru-RU':
           'Нажмите на иконку звука и я помогу вам посетить каждый уголок.',
+      },
+      button_text: {
+        'en-US': 'Continue',
+        'ko-KR': '계속하기',
+        'ja-JP': '続ける',
+        'fr-FR': 'Continuer',
+        'zh-CN': '继续',
+        'vi-VN': 'Tiếp tục',
+        'ru-RU': 'Продолжить',
       },
     },
     got_questions: {
@@ -188,6 +206,15 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
         'ru-RU':
           'Задавайте мне любые вопросы о месте, что делать или где есть еда. В любой языке, в любое время, я здесь, чтобы помочь!',
       },
+      button_text: {
+        'en-US': 'Continue',
+        'ko-KR': '계속하기',
+        'ja-JP': '続ける',
+        'fr-FR': 'Continuer',
+        'zh-CN': '继续',
+        'vi-VN': 'Tiếp tục',
+        'ru-RU': 'Продолжить',
+      },
     },
     story_to_tell: {
       title: {
@@ -214,6 +241,15 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
           'Một khi bạn đã ghi lại khoảnh khắc và kết thúc trải nghiệm, tôi có thể giúp biến nó thành một câu chuyện. Đến tab Câu chuyện và hãy cùng nhau tạo ra thứ gì đó đáng nhớ.',
         'ru-RU':
           'Однажды вы захватили момент и завершили свой опыт, я могу помочь превратить его в рассказ. Перейдите на вкладку Стoria и создадим что-то запоминающееся вместе.',
+      },
+      button_text: {
+        'en-US': 'Let&apos;s Discover!',
+        'ko-KR': '탐험해 보자!',
+        'ja-JP': '発見してみましょう！',
+        'fr-FR': 'Découvrons !',
+        'zh-CN': '让我们发现吧!',
+        'vi-VN': 'Cùng khám phá nào!',
+        'ru-RU': 'Давайте откроем!',
       },
     },
   };
@@ -332,11 +368,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
               : 'bg-orange-500 hover:bg-orange-600'
           } text-white font-bold py-3 px-4 rounded-lg transition-colors`}
         >
-          {currentScreen === 'get_info'
-            ? 'Get Started'
-            : currentScreen === 'welcome' || currentScreen === 'got_questions'
-              ? 'Continue'
-              : "Let's Discover!"}
+          {screens[currentScreen].button_text[currentLanguage]}
         </button>
       </div>
     </div>

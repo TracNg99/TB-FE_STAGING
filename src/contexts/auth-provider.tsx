@@ -204,6 +204,11 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     if (profile && profile?.data) {
       setUser(profile?.data);
+      sessionStorage.setItem(
+        'companies',
+        JSON.stringify(profile?.data.company_ids),
+      );
+      sessionStorage.setItem('language', profile?.data.language);
     }
   }, [profile, pathname, logout, profileErr, user, channelChecker.current]);
 

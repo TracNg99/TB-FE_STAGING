@@ -17,6 +17,12 @@ interface ProfileReq {
   references?: string;
   description?: string;
   avatarUrl?: string;
+  language?: string;
+  chat_preferences?: {
+    language?: string;
+    travel_style?: string;
+    response_length?: string;
+  };
 }
 
 export interface Profile {
@@ -34,6 +40,13 @@ export interface Profile {
   avatar_id: string;
   media_assets: {
     url: string;
+  };
+  company_ids: string[];
+  language: string;
+  chat_preferences: {
+    language: string;
+    travel_style: string;
+    response_length: string;
   };
 }
 

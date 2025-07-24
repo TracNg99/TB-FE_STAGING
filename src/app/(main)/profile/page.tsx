@@ -3,101 +3,33 @@
 import {
   Box,
   Button,
-  Card,
   Container,
-  Modal,
   Skeleton,
   Text,
   TextInput,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import {
-  IconBrandInstagram,
-  IconBrandSafari,
-  IconEdit,
-  IconPlus,
-  IconSparkles,
-  IconUserCircle,
-} from '@tabler/icons-react';
+import { IconEdit, IconLanguage, IconUserCircle } from '@tabler/icons-react';
 import React, { useEffect, useRef, useState } from 'react';
 
 import AccordionLists from '@/components/accordions/generic-accordion-list';
-import { RowProps } from '@/components/cards/card-with-button';
 import { SingleTextFieldProps } from '@/components/forms/generic-text-form';
 import TextForm from '@/components/forms/generic-text-form';
 import AvatarUploader from '@/components/image-uploader/avatar-picker';
-import CardsList from '@/components/lists/card-listing';
+import { languageOptions } from '@/components/modals/WelcomeModal';
+import Selector from '@/components/selector';
 import { useUploadImageMutation } from '@/store/redux/slices/storage/upload';
-import {
-  useCreateChannelMutation,
-  useGetAllChannelsQuery,
-  useUpdateChannelMutation,
-} from '@/store/redux/slices/user/channel';
 import {
   useGetProfileQuery,
   useUpdateAvatarMutation,
   useUpdateProfileMutation,
 } from '@/store/redux/slices/user/profile';
 
-const channelFieldsHeaderMap = [
-  {
-    name: 'name',
-    label: 'Channel Title',
-    placeholder: 'A joyful traveller',
-    contents: '',
-    rows: 1,
-    required: true,
-  },
-  {
-    name: 'url',
-    label: 'Channel URL',
-    placeholder: '',
-    contents: '',
-    rows: 1,
-    required: true,
-  },
-  {
-    name: 'brand_voice',
-    label: 'Your Channel Prompt',
-    placeholder: 'You are a traveler...',
-    contents: '',
-    rows: 7,
-    required: true,
-  },
-];
-
-const channelTypes = [
-  {
-    name: 'Travel Buddy',
-    icon: (
-      <IconBrandSafari
-        className="text-orange-300 size-10"
-        stroke={2}
-        style={{
-          transform: 'rotate(135deg)',
-          fontSize: '100px',
-        }}
-      />
-    ),
-  },
-  {
-    name: 'Instagram',
-    icon: (
-      <IconBrandInstagram
-        className="text-orange-300 size-10"
-        stroke={2}
-        style={{
-          fontSize: '100px',
-        }}
-      />
-    ),
-  },
-];
-
 const defaultValues = {
   username: '',
   avatarUrl: '',
   createdAt: '',
+  language: 'en-US',
 };
 
 const userInfo = {
@@ -107,31 +39,128 @@ const userInfo = {
   phone: 'Phone',
 };
 
+const InfoSkeleton = () => (
+  <Box className="flex flex-col gap-4">
+    <Skeleton height={20} radius="xl" width="40%" />
+    <Skeleton height={20} radius="xl" width="100%" />
+    <Skeleton height={20} radius="xl" width="40%" />
+    <Skeleton height={20} radius="xl" width="100%" />
+  </Box>
+);
+
 const ProfilePage = () => {
   const [uploadImage] = useUploadImageMutation();
   const [updateProfile] = useUpdateProfileMutation();
   const [uploadAvatar] = useUpdateAvatarMutation();
-  const [createChannel] = useCreateChannelMutation();
-  const [updateChannel] = useUpdateChannelMutation();
 
   const [isEditingName, setIsEdtingName] = useState<boolean>(false);
-  const [channels, setChannels] = useState<RowProps[]>([]);
   const [isClicked, setIsClicked] = useState<boolean>(false);
-  const [openModal, setOpenModal] = useState<boolean>(false);
-  // const theme = useMantineTheme();
-  // const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
 
   const [profileValues, setProfileValues] = useState<{
     username: string;
     avatarUrl: string;
     createdAt: string;
+    language: string;
   }>(defaultValues);
 
   const profileValuesRef = useRef<{
     username: string;
     avatarUrl: string;
     createdAt: string;
+    language: string;
   }>(defaultValues);
+
+  const localizedLanguageChangeMessage = [
+    {
+      lang: 'en-US',
+      success: {
+        title: 'Success: Profile updated!',
+        message:
+          'Language updated successfully! \nThis changes only affect the narrator audio playback on each Experience page in the Discover feature.',
+      },
+      error: {
+        title: 'Error: Profile update unsuccesful!',
+        message:
+          'Failed to update language! \nFallback to English! \nPlease try again!',
+      },
+    },
+    {
+      lang: 'vi-VN',
+      success: {
+        title: 'Thành công: Cập nhật thông tin!',
+        message:
+          'Ngôn ngữ đã được cập nhật thành công! \nNhững thay đổi này chỉ ảnh hưởng đến giọng đọc trong mỗi trang Experience trong tính năng Discover.',
+      },
+      error: {
+        title: 'Lỗi: Cập nhật thông tin thất bại!',
+        message:
+          'Thất bại khi cập nhật ngôn ngữ! \nTrở về ngôn ngữ mặc định! \nVui lòng thử lại!',
+      },
+    },
+    {
+      lang: 'fr-FR',
+      success: {
+        title: 'Succès: Mise à jour du profil!',
+        message:
+          'Cette modification affecte uniquement la lecture audio du narrateur sur chaque page d&apos;expérience dans la fonctionnalité Découvrir.',
+      },
+      error: {
+        title: 'Erreur: Mise à jour du profil echouée!',
+        message:
+          'Échec de la mise à jour de la langue! Retour à l&apos;anglais! Veuillez réessayer!',
+      },
+    },
+    {
+      lang: 'ja-JP',
+      success: {
+        title: '成功: プロフィールを更新しました!',
+        message:
+          '言語が正常に更新されました! \nこの変更は、Discover 機能の各エクスペリエンス ページでのナレーターのオーディオ再生にのみ影響します。',
+      },
+      error: {
+        title: '失敗: プロフィールの更新に失敗しました!',
+        message:
+          '言語の更新に失敗しました! \n英語に戻ります! \nお試しください!',
+      },
+    },
+    {
+      lang: 'ko-KR',
+      success: {
+        title: '성공: 프로필을 업데이트했습니다!',
+        message:
+          '언어가 정상적으로 업데이트되었습니다! 이 변경 사항은 Discover 기능의 각 Experience 페이지에서 내레이터 오디오 재생에만 영향을 미칩니다.',
+      },
+      error: {
+        title: '오류: 프로필 업데이트 실패!',
+        message: '언어 업데이트 실패! 영어로 돌아갑니다! 다시 시도해주세요!',
+      },
+    },
+    {
+      lang: 'zh-CN',
+      success: {
+        title: '成功: 更新个人资料!',
+        message:
+          '语言已成功更新! \n此更改仅影响“发现”功能中每个体验页面上的叙述者音频播放。',
+      },
+      error: {
+        title: '失败: 更新个人资料失败!',
+        message: '语言更新失败! 语言将回退到英语! 请再试一次!',
+      },
+    },
+    {
+      lang: 'ru-RU',
+      success: {
+        title: 'Успех: Обновление профиля!',
+        message:
+          'Язык успешно обновлен! \nЭти изменения касаются только воспроизведения звука диктора на каждой странице «Впечатления» в функции «Обзор».',
+      },
+      error: {
+        title: 'Ошибка: Не удалось обновить профиль!',
+        message:
+          'Не удалось обновить язык! Язык будет возвращен к английскому! Попробуйте снова!',
+      },
+    },
+  ];
 
   const personalInfoRef = useRef<SingleTextFieldProps[]>([]);
 
@@ -139,19 +168,20 @@ const ProfilePage = () => {
 
   const { data: profile, isFetching: isFetchingProfile } = useGetProfileQuery();
 
-  const { data: channelsData, isFetching: isFetchingChannels } =
-    useGetAllChannelsQuery();
-
   useEffect(() => {
     if (profile && profile?.data) {
       const mapped = {
         username: profile.data.username,
         avatarUrl: profile.data.media_assets?.url,
         createdAt: profile.data.createdAt,
+        language: profile.data.language,
       };
 
       Object.entries(profile?.data).map(([key, value]) => {
-        if (key in userInfo) {
+        if (
+          key in userInfo &&
+          !personalInfoRef.current.find((item) => item.name === key)
+        ) {
           const displayName = (userInfo as any)[key];
           personalInfoRef.current = [
             ...personalInfoRef.current,
@@ -189,23 +219,6 @@ const ProfilePage = () => {
     }
   }, [profile]);
 
-  useEffect(() => {
-    if (channelsData?.data) {
-      setChannels(
-        channelsData?.data?.map((item, index) => ({
-          id: item.id || '',
-          name: `channel${index}`,
-          label: item.name || '',
-          type: item.channel_type || '',
-          url: item.url || '',
-          text: item.brand_voice || '',
-          icon: channelTypes.find((e) => e.name === item.channel_type)?.icon,
-          required: true,
-        })),
-      );
-    }
-  }, [channelsData]);
-
   const onUserNameEditClicked = async () => {
     setIsEdtingName(!isEditingName);
     if (isEditingName && profile?.data?.username !== profileValues.username) {
@@ -218,12 +231,14 @@ const ProfilePage = () => {
           title: 'Success: Profile updated!',
           message: 'Profile updated successfully!',
           color: 'green',
+          position: 'top-center',
         });
       } else {
         notifications.show({
           title: 'Error: Profile update unsuccesful!',
           message: 'Failed to update profile. Please try again.',
           color: 'red',
+          position: 'top-center',
         });
       }
     }
@@ -254,18 +269,66 @@ const ProfilePage = () => {
         title: 'Success: Avatar updated!',
         message: 'Avatar updated successfully!',
         color: 'green',
+        position: 'top-center',
       });
     } else {
       notifications.show({
         title: 'Error: Fail to update Avatar!',
         message: 'Failed to update avatar! Please try again!',
         color: 'red',
+        position: 'top-center',
       });
     }
   };
 
+  const handleLanguageChange = async (language: string) => {
+    setProfileValues({
+      ...profileValues,
+      language,
+    });
+
+    sessionStorage.setItem('language', language);
+    try {
+      const result = await updateProfile({
+        language,
+      }).unwrap();
+
+      const localizedNotification = localizedLanguageChangeMessage.find(
+        (item) => item.lang === language,
+      );
+
+      if (result.data) {
+        console.log('Language updated successfully!');
+        const successNoti = localizedNotification?.success || {
+          title: 'Success: Language updated!',
+          message: 'Language updated successfully!',
+        };
+        notifications.show({
+          ...successNoti,
+          color: 'green',
+          position: 'top-center',
+          className: 'whitespace-pre-line',
+        });
+      } else {
+        console.error('Failed to update language! Please try again!');
+        const errorNoti = localizedNotification?.error || {
+          title: 'Error: Language update unsuccesful!',
+          message: 'Failed to update language! Please try again!',
+        };
+        notifications.show({
+          ...errorNoti,
+          color: 'red',
+          position: 'top-center',
+          className: 'whitespace-pre-line',
+        });
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const handleInfoUpdate = async (data: { [x: string]: string }) => {
-    console.log(data);
+    setIsClicked(true);
     const result = await updateProfile(data).unwrap();
 
     if (result.data) {
@@ -273,67 +336,14 @@ const ProfilePage = () => {
         title: 'Success: Profile updated!',
         message: 'Profile updated successfully!',
         color: 'green',
+        position: 'top-center',
       });
     } else {
       notifications.show({
         title: 'Error: Profile update unsuccesful!',
         message: 'Failed to update profile! Please try again!',
         color: 'red',
-      });
-    }
-  };
-
-  const handleAddChannel = async (channelInfo: {
-    name?: string;
-    channel_type?: string;
-    brand_voice?: string;
-  }) => {
-    console.log(channelInfo);
-    setIsClicked(true);
-    const result = await createChannel({
-      payload: {
-        ...channelInfo,
-      },
-    });
-
-    if (result?.data) {
-      notifications.show({
-        title: 'Success: You have a new channel!',
-        message: 'A new channel was successfully created!',
-        color: 'green',
-      });
-      setIsClicked(false);
-    } else {
-      notifications.show({
-        title: 'Error: Fail to create a new channel!',
-        message: result?.error as string,
-        color: 'red',
-      });
-      setIsClicked(false);
-    }
-  };
-
-  const handleUpdateChannel = async (currentChannel: {
-    id: string;
-    text: string;
-  }) => {
-    setIsClicked(true);
-    const result = await updateChannel({
-      channelId: currentChannel.id,
-      payload: { brand_voice: currentChannel.text },
-    });
-
-    if (result?.data) {
-      notifications.show({
-        title: 'Successful Brand Voice update!',
-        message: 'Brand voice is updated!',
-        color: 'green',
-      });
-    } else {
-      notifications.show({
-        title: 'Error: fail to update Brand Voice!',
-        message: 'Brand voice was not updated! Please try again!',
-        color: 'red',
+        position: 'top-center',
       });
     }
     setIsClicked(false);
@@ -420,117 +430,43 @@ const ProfilePage = () => {
     );
   };
 
-  const ChannelSection = () => {
-    return (
-      <Card className="flex flex-col">
-        <Box className="flex flex-row justify-between">
-          <Text variant="h5" className="font-bold">
-            Your Brand Voice channels
-          </Text>
-          <Button
-            variant="outline"
-            size="compact-md"
-            leftSection={<IconPlus />}
-            color="green"
-            onClick={() => setOpenModal(true)}
-          >
-            Add Channel
-          </Button>
-        </Box>
-        <CardsList
-          tableData={channels}
-          onRowSubmit={handleUpdateChannel}
-          isButtonClicked={isClicked}
-          subject="channel"
-          modalTitle="Update your Brand voice"
-          isFetching={isFetchingChannels}
-          withButton
-        />
-        <Modal
-          opened={openModal}
-          onClose={() => setOpenModal(false)}
-          size="xl"
-          className="max-w-screen-xl"
-          centered
-        >
-          <TextForm
-            mainTitle="Create a new channel"
-            storageVarName="channelData"
-            collection={channelFieldsHeaderMap}
-            selections={channelTypes}
-            onSubmit={handleAddChannel}
-            onCancel={() => setOpenModal(false)}
-            isLoading={isClicked}
-            buttonColor={'orange'}
-          />
-        </Modal>
-      </Card>
-    );
-  };
-
   const sectionsList = [
+    {
+      label: 'Language',
+      icon: <IconLanguage />,
+      content: isFetchingProfile ? (
+        <InfoSkeleton />
+      ) : (
+        <Selector
+          options={languageOptions.map((option) => ({
+            value: option.value,
+            label: option.label,
+            icon: option.flag,
+          }))}
+          value={profileValues.language}
+          onChange={handleLanguageChange}
+        />
+      ),
+    },
     {
       label: 'Personal Information',
       icon: <IconUserCircle />,
       content: isFetchingProfile ? (
-        <Box className="flex flex-col gap-4">
-          <Skeleton
-            height={10}
-            radius="xl"
-            width="20%"
-            visible={isFetchingProfile}
-          />
-          <Skeleton
-            height={10}
-            radius="xl"
-            width="40%"
-            visible={isFetchingProfile}
-          />
-          <Skeleton
-            height={10}
-            radius="xl"
-            width="20%"
-            visible={isFetchingProfile}
-          />
-          <Skeleton
-            height={10}
-            radius="xl"
-            width="40%"
-            visible={isFetchingProfile}
-          />
-          <Skeleton
-            height={10}
-            radius="xl"
-            width="20%"
-            visible={isFetchingProfile}
-          />
-          <Skeleton
-            height={10}
-            radius="xl"
-            width="40%"
-            visible={isFetchingProfile}
-          />
-        </Box>
+        <InfoSkeleton />
       ) : (
         <TextForm
           collection={personalInfo}
           onSubmit={handleInfoUpdate}
-          onCancel={() => setOpenModal(false)}
           isLoading={isClicked}
           buttonText="Save"
           buttonColor={'orange'}
         />
       ),
     },
-    {
-      label: 'Channel Settings',
-      icon: <IconSparkles />,
-      content: <ChannelSection />,
-    },
   ];
 
   return (
-    <Container className="flex flex-col items-center w-full min-h-screen py-8 px-4 gap-3 sm:px-6 lg:px-8">
+    <Container className="flex flex-col items-center w-full min-h-screen py-8 px-4 mb-10 gap-3 sm:px-6 lg:px-8">
       <AvatarSection />
       <AccordionLists list={sectionsList} />
     </Container>

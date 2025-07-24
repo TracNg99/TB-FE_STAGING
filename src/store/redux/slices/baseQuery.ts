@@ -3,7 +3,7 @@ import { fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 export const baseQuery = fetchBaseQuery({
   baseUrl:
     // process.env.NODE_ENV === 'development'
-    //   ? 'http://localhost:3001/api/v1':
+    // ? 'http://localhost:3001/api/v1':
     'https://fork-travel-buddy.vercel.app/api/v1', // Base URL for all API routes
   prepareHeaders: (headers) => {
     // Add custom headers if needed, like Authorization

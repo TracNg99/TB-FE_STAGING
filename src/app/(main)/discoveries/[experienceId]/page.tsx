@@ -72,7 +72,6 @@ const ExperienceDetailPage = () => {
     email: string;
     language: string;
   }) => {
-    console.log(email, language);
     sessionStorage.setItem('email', email);
     sessionStorage.setItem('language', language);
     setLanguage(language);
