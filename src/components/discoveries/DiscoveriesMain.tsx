@@ -23,13 +23,16 @@ const DiscoveriesMain: React.FC = () => {
   const selectedAddress = searchParams.get('address') || 'For you';
   const companies = sessionStorage.getItem('companies')
     ? JSON.parse(sessionStorage.getItem('companies') || '')
-    : [];
+    : null;
+  const companyId = sessionStorage.getItem('company_id') || null;
   const router = useRouter();
   const {
     data: addressMap,
     isLoading,
     error,
-  } = useGetAddressExperienceMapByCompanyIdQuery({ companies });
+  } = useGetAddressExperienceMapByCompanyIdQuery({
+    companies: companies || [companyId],
+  });
 
   const [qrModal, setQrModal] = useState<{
     open: boolean;
