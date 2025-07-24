@@ -243,7 +243,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
           'Однажды вы захватили момент и завершили свой опыт, я могу помочь превратить его в рассказ. Перейдите на вкладку Стoria и создадим что-то запоминающееся вместе.',
       },
       button_text: {
-        'en-US': 'Let&apos;s Discover!',
+        'en-US': "Let's Discover!",
         'ko-KR': '탐험해 보자!',
         'ja-JP': '発見してみましょう！',
         'fr-FR': 'Découvrons !',
