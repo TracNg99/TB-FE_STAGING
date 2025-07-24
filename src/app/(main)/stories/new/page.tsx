@@ -1,7 +1,13 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { InputWrapper, Progress, Select, Textarea } from '@mantine/core';
+import {
+  Group,
+  InputWrapper,
+  Select,
+  type SelectProps,
+  Textarea,
+} from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconSparkles } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
@@ -10,55 +16,14 @@ import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { ImageUploadIcon } from '@/assets/image-upload-icon';
-import StoryLoadingIcon from '@/assets/story-loading-icon';
 import AiButton from '@/components/ai-button';
 import VoiceToTextButton from '@/components/audio-handler/voice-to-text';
 import ImageUploader from '@/components/image-uploader/image-picker';
 import Section from '@/components/layouts/section';
+import StoryCreationLoading from '@/components/loading/StoryCreationLoading';
 import { useUploadImageCloudRunMutation } from '@/store/redux/slices/storage/upload';
 import { useGetAllExperiencesQuery } from '@/store/redux/slices/user/experience';
-
-const RandomLoading = () => {
-  const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    let timeout: NodeJS.Timeout | null = null;
-
-    // Increase progress at random interval between 0.5s and 1.5s with a max at 95%
-    const increaseProgress = () => {
-      const randomInterval = Math.floor(Math.random() * 1000) + 500;
-      timeout = setTimeout(() => {
-        setProgress((prev) => {
-          if (prev >= 95) {
-            clearTimeout(timeout!);
-            timeout = null;
-            return 95;
-          }
-          return Math.min(95, prev + Math.floor(Math.random() * 10) + 5);
-        });
-        increaseProgress();
-      }, randomInterval);
-    };
-
-    increaseProgress();
-
-    return () => {
-      if (timeout) {
-        clearTimeout(timeout);
-      }
-    };
-  }, []);
-
-  return (
-    <Section className="flex flex-col items-center sm:max-w-5xl mx-auto px-4 pt-20">
-      <StoryLoadingIcon />
-      <p className="text-base-black font-semibold text-display-md mt-20">
-        Generating your beautiful travel story...
-      </p>
-      <Progress className="mt-12 h-4 w-full" value={progress} />
-    </Section>
-  );
-};
+import { useUploadStoryAgentMutation } from '@/store/redux/slices/user/storyAgent';
 
 const storySchema = z.object({
   experience: z.string().nonempty('Select an experience'),
@@ -75,25 +40,15 @@ const storySchema = z.object({
 
 type StorySchema = z.infer<typeof storySchema>;
 
-type MediaItem =
-  | string
-  | {
-      readonly size?: number;
-      readonly type?: string;
-      [key: string]: any;
-    }
-  | undefined;
-
 const NewStoryPage = () => {
   const router = useRouter();
   const [experiences, setExperiences] = useState<string[]>([]);
   const [isConfirmClicked, setIsConfirmClicked] = useState<boolean>(false);
-  const [texts, setTexts] = useState<string>('');
-  const [media, setMedia] = useState<MediaItem[]>([]);
   const [isMediaCleared, setIsMediaCleared] = useState<boolean>(false);
+  const [uploadStory, { isLoading: isUploading }] =
+    useUploadStoryAgentMutation();
 
   const [uploadImageCloudRun] = useUploadImageCloudRunMutation();
-
   const { data: experiencesData } = useGetAllExperiencesQuery();
 
   useEffect(() => {
@@ -128,8 +83,6 @@ const NewStoryPage = () => {
     setIsConfirmClicked(true);
 
     const matchExperienceId = localStorage.getItem('matchExperienceId') || '';
-    const reporterId = localStorage.getItem('reporterId') || '';
-
     const matchedExperience = experiencesData?.find(
       (item) => item.name === userInputs.experience,
     );
@@ -141,8 +94,7 @@ const NewStoryPage = () => {
     ) {
       notifications.show({
         title: 'Warning: Experience not matched',
-        message: `You are sharing story for a different Experience! 
-        Please select the Experience again!`,
+        message: `You are sharing story for a different Experience! \n        Please select the Experience again!`,
         color: 'yellow',
       });
       setIsConfirmClicked(false);
@@ -155,17 +107,16 @@ const NewStoryPage = () => {
           if (typeof item === 'string') {
             return item; // Already a URL
           }
-
           try {
             const payload = {
               media: {
                 mimeType: 'image/jpeg',
                 body: (item as { image: string; name: string }).image,
               },
-              bucket_name: 'story', // Replace with your bucket name
+              bucket_name: 'story',
             };
             const { url } = await uploadImageCloudRun(payload).unwrap();
-            return url; // Assuming the API returns the URL
+            return url;
           } catch (error) {
             console.error('Error uploading image:', error);
             notifications.show({
@@ -190,19 +141,34 @@ const NewStoryPage = () => {
       return;
     }
 
-    const userInputObj = {
-      experience: matchedExperience?.id || matchExperienceId,
-      reporter_id: reporterId,
-      notes: userInputs.notes || '',
-      // channel_type_list: 'instagram', // Example channel types
-      media: mediaUrls,
-    };
-
-    localStorage.setItem('userInputFields', JSON.stringify(userInputObj));
-
-    form.reset();
-    router.push(`/stories/preview`);
-    setIsConfirmClicked(false);
+    // Use RTK Query mutation to upload story
+    try {
+      const payload = {
+        experience_id: matchedExperience?.id || matchExperienceId,
+        // reporter_id: reporterId,
+        notes: userInputs.notes || '',
+        media: mediaUrls,
+        // channel_type_list: 'travel_buddy',
+      };
+      const result = await uploadStory({ payload }).unwrap();
+      if (result?.data?.id) {
+        router.push(`/stories/${result.data.id}?first=true`);
+      } else {
+        setIsConfirmClicked(false);
+        notifications.show({
+          title: 'Error: No story ID',
+          message: 'Could not get story ID from response.',
+          color: 'red',
+        });
+      }
+    } catch (error) {
+      setIsConfirmClicked(false);
+      notifications.show({
+        title: 'Error: Story creation failed',
+        message: error instanceof Error ? error.message : 'Unknown error',
+        color: 'red',
+      });
+    }
   };
 
   const form = useForm<StorySchema>({
@@ -215,50 +181,57 @@ const NewStoryPage = () => {
     mode: 'onTouched',
   });
 
-  useEffect(() => {
-    const subscription = form.watch((value) => {
-      setTexts(value?.notes ?? '');
-    });
-
-    return () => subscription.unsubscribe();
-  }, [texts, form.watch('notes')]);
-
-  useEffect(() => {
-    const subscription = form.watch((value) => {
-      if (value && value.media && value.media.length > 0) {
-        setMedia(value.media);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [form.watch('media')]);
-
   const handleTranscription = (transcript: string) => {
     form.setValue('notes', transcript);
   };
 
-  if (isConfirmClicked) {
-    return <RandomLoading />;
+  const watchedMedia = form.watch('media');
+  const watchedNotes = form.watch('notes');
+
+  if (isUploading || isConfirmClicked) {
+    return (
+      <StoryCreationLoading message="Your AI-assisted story is on the way..." />
+    );
   }
 
-  return (
-    <form
-      className="pt-15 lg:pt-32"
-      onSubmit={form.handleSubmit(handleInputsUpload)}
+  const renderSelectOption: SelectProps['renderOption'] = ({
+    option,
+    checked,
+  }) => (
+    <Group
+      className={`flex items-center px-3 py-2 cursor-pointer w-full truncate ${checked ? 'bg-orange-500 text-white' : 'bg-white text-black'} hover:bg-orange-100`}
+      style={{ minHeight: 40 }}
     >
-      <Section className="flex flex-col gap-x-8 gap-y-4 lg:gap-y-16 max-w-5xl mx-auto px-4">
+      {option.label}
+    </Group>
+  );
+
+  return (
+    <form className="pt-8" onSubmit={form.handleSubmit(handleInputsUpload)}>
+      <Section className="flex flex-col gap-x-8 gap-y-4 lg:gap-y-8 max-w-5xl mx-auto px-4 mb-8">
+        <p className="text-base-black font-semibold text-display-sm">
+          Share your travel story
+        </p>
         <Controller
           control={form.control}
           name="experience"
           render={({ field: { onChange, value } }) => (
             <Select
               allowDeselect={false}
-              className="mb-4 lg:mb-0"
+              className="mb-4 lg:mb-0 pointer-events-auto"
+              comboboxProps={{
+                transitionProps: { transition: 'pop', duration: 200 },
+              }}
               id="experience"
               placeholder="Select an Experience you have tried"
               classNames={{
-                input: 'h-14',
+                input: 'h-10 cursor-pointer',
+                options: 'p-0',
+                option: 'w-full p-0',
+                dropdown:
+                  'p-0 rounded-tl-none rounded-tr-none overflow-hidden border-1 -translate-y-2',
               }}
+              renderOption={renderSelectOption}
               error={form.formState.errors.experience?.message}
               data={experiences}
               onChange={onChange}
@@ -267,32 +240,36 @@ const NewStoryPage = () => {
             />
           )}
         />
-        <label htmlFor="media">Pick your photos ({media.length} / 10)</label>
-        <Controller
-          control={form.control}
-          name="media"
-          render={({ field }) => (
-            <InputWrapper error={form.formState.errors.media?.message}>
-              <ImageUploader
-                onImageUpload={(files) => {
-                  field.onChange(files.map((item) => item));
-                }}
-                allowMultiple={true}
-                // withResize={true}
-                isStandalone={true}
-                // asBlob={true}
-                isCleared={isMediaCleared}
-                setIsCleared={setIsMediaCleared}
-              >
-                <ImageUploadIcon
-                  className="size-50 text-white color-orange-500"
-                  size={100}
-                />
-              </ImageUploader>
-            </InputWrapper>
-          )}
-        />
-        {media.length > 0 && (
+        <div>
+          <label htmlFor="media" className="font-medium">
+            Pick your photos ({watchedMedia.length} / 10)
+          </label>
+          <Controller
+            control={form.control}
+            name="media"
+            render={({ field }) => (
+              <InputWrapper error={form.formState.errors.media?.message}>
+                <ImageUploader
+                  onImageUpload={(files) => {
+                    field.onChange(files.map((item) => item));
+                  }}
+                  allowMultiple={true}
+                  // withResize={true}
+                  isStandalone={true}
+                  // asBlob={true}
+                  isCleared={isMediaCleared}
+                  setIsCleared={setIsMediaCleared}
+                >
+                  <ImageUploadIcon
+                    className="size-50 text-white color-orange-500"
+                    size={100}
+                  />
+                </ImageUploader>
+              </InputWrapper>
+            )}
+          />
+        </div>
+        {watchedMedia.length > 0 && (
           <>
             <div className="relative mb-4 lg:mb-0">
               <Textarea
@@ -307,7 +284,7 @@ const NewStoryPage = () => {
               />
               <VoiceToTextButton
                 language="en-US"
-                existingTexts={texts}
+                existingTexts={watchedNotes ?? ''}
                 onUnsupportDetected={() => {
                   notifications.show({
                     title: 'Error: Browser not supported',

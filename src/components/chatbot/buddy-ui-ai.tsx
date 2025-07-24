@@ -746,7 +746,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
             <div
               className={cn(
                 'w-full shrink min-w-0 mb-40',
-                messages.length > 0 && !isMobile && 'mb-10',
+                !isMobile && 'mb-10',
                 messages.length > 0 && isMobile && !isIOS && 'mb-[25vh]',
                 messages.length > 0 && isMobile && isIOS && 'mb-[22dvh]',
               )}

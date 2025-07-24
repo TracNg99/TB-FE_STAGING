@@ -22,6 +22,7 @@ export const PUBLIC_ROUTES = [
   '/auth/register/business',
   '/auth/login/business',
   '/discoveries',
+  '/stories/',
 ];
 
 export type AuthContextType = {

@@ -27,6 +27,7 @@ import { ExperienceApi } from './slices/user/experience';
 import { LocationUserApi } from './slices/user/location';
 import { UserProfileApi } from './slices/user/profile';
 import { StoryApi, streamStoryApi } from './slices/user/story';
+import StoryAgentApi from './slices/user/storyAgent';
 
 export const store = configureStore({
   reducer: {
@@ -39,6 +40,7 @@ export const store = configureStore({
     [StorageApi.reducerPath]: StorageApi.reducer,
     [MultipartApi.reducerPath]: MultipartApi.reducer,
     [StoryApi.reducerPath]: StoryApi.reducer,
+    [StoryAgentApi.reducerPath]: StoryAgentApi.reducer,
     [DestinationApi.reducerPath]: DestinationApi.reducer,
     [ChannelApi.reducerPath]: ChannelApi.reducer,
     [DestinationBusinessApi.reducerPath]: DestinationBusinessApi.reducer,
@@ -68,6 +70,7 @@ export const store = configureStore({
       .concat(ChallengeApi.middleware)
       .concat(StorageApi.middleware)
       .concat(StoryApi.middleware)
+      .concat(StoryAgentApi.middleware)
       .concat(DestinationApi.middleware)
       .concat(ChannelApi.middleware)
       .concat(DestinationBusinessApi.middleware)

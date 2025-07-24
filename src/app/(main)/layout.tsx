@@ -1,6 +1,8 @@
 'use client';
 
 import { useMediaQuery } from '@mantine/hooks';
+import { AnimatePresence, motion } from 'framer-motion';
+import { usePathname } from 'next/navigation';
 
 import MobileNavbar from '@/components/layouts/mobile-nav-layout';
 import Navbar from '@/components/layouts/side-navbar';
@@ -9,10 +11,11 @@ import { cn } from '@/utils/class';
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
+  const pathname = usePathname();
 
   return (
     <SidebarProvider>
-      <div className={cn('flex h-full overflow-hidden')}>
+      <div className={cn('flex h-full')}>
         {isMobile ? <MobileNavbar isMobile={isMobile} /> : <Navbar />}
         <main
           className={cn(
@@ -20,7 +23,23 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
             !isMobile && 'ml-24', // Add margin to account for fixed sidebar width
           )}
         >
-          {children}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={pathname}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{
+                type: 'spring',
+                stiffness: 300,
+                damping: 30,
+                duration: 0.3,
+              }}
+              className="h-full"
+            >
+              {children}
+            </motion.div>
+          </AnimatePresence>
         </main>
       </div>
     </SidebarProvider>

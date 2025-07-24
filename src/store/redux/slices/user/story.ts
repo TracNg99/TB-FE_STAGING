@@ -1,4 +1,5 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
+import { HYDRATE } from 'next-redux-wrapper';
 
 import { baseQuery, baseQueryAgent } from '../baseQuery';
 
@@ -45,31 +46,43 @@ export interface StoryReq {
 
 export interface StoryProps {
   id?: string;
-  status?: string;
-  title?: string;
-  created_at?: string;
   user_id?: string;
   experience_id?: string;
+  created_at?: string;
+  status?: string;
   notes?: string;
   story_content?: string;
-  media_assets?: { url: string }[];
   seo_title_tag?: string;
-  seo_meta_desc?: string;
   seo_excerpt?: string;
-  seo_slug?: string;
+  seo_meta_desc?: string;
   long_tail_keyword?: string;
   hashtags?: string[];
+  channel_id?: string;
+  seo_slug?: string;
+  destination_id?: string;
+  follow_up_questions?: string[];
+  // Related data from joins
   experiences?: {
     name?: string;
+    description?: string;
   };
   userprofiles?: {
     email: string;
     firstname: string;
     lastname: string;
-    media_assets: {
+    media_assets?: {
       url: string;
     };
   };
+  channels?: {
+    name?: string;
+    type?: string;
+  };
+  destinations?: {
+    name?: string;
+    description?: string;
+  };
+  media_assets?: { url: string }[];
 }
 
 export interface StoryRes {
@@ -154,6 +167,11 @@ const StoryApi = createApi({
       }),
     }),
   }),
+  extractRehydrationInfo(action, { reducerPath }) {
+    if (action.type === HYDRATE) {
+      return (action.payload as { [key: string]: any })[reducerPath];
+    }
+  },
 });
 
 // TargetFile: /Applications/E8/TBP/GitRepo/travel-buddy-fe/src/store/redux/slices/user/story.ts

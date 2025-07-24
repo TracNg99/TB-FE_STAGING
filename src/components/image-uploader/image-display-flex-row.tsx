@@ -4,10 +4,8 @@ import React from 'react';
 
 import { cn } from '@/utils/class';
 
-// import { handleImageUpload } from './image-picker';
-
-interface ImageDisplayProps {
-  allowMultiple?: boolean; // New prop for choosing and displaying multiple images
+interface ImageDisplayFlexRowProps {
+  allowMultiple?: boolean;
   allowAddNew?: boolean;
   selectedImages: Array<{ image: string | null; name: string | null }>;
   imageError?: boolean;
@@ -25,7 +23,7 @@ interface ImageDisplayProps {
   }>;
 }
 
-const BaseImageGridDisplay: React.FC<ImageDisplayProps> = ({
+const ImageDisplayFlexRow: React.FC<ImageDisplayFlexRowProps> = ({
   allowAddNew = true,
   allowMultiple = false,
   selectedImages,
@@ -36,14 +34,12 @@ const BaseImageGridDisplay: React.FC<ImageDisplayProps> = ({
   setImageError,
   handleRemoveImage,
   CustomChildren,
-  // onAdd
 }) => {
   return (
     <div
       className={cn(
         className ??
-          `align-center justify-left items-center pointer-events-auto flex flex-row gap-3 flex-wrap`,
-        // Remove grid/grid-cols-4, always use flex
+          'align-center justify-left items-center pointer-events-auto flex flex-row gap-3 flex-wrap',
       )}
     >
       {allowAddNew && allowMultiple && (
@@ -61,7 +57,6 @@ const BaseImageGridDisplay: React.FC<ImageDisplayProps> = ({
           <button
             type="button"
             className="w-full h-full flex items-center justify-center cursor-pointer"
-            // onClick={onAdd}
           >
             <IconPlus className="text-white" />
           </button>
@@ -85,7 +80,7 @@ const BaseImageGridDisplay: React.FC<ImageDisplayProps> = ({
         </Box>
       ))}
       {selectedImages.map((img, index) => (
-        <>
+        <React.Fragment key={index}>
           {CustomChildren ? (
             <CustomChildren
               index={index}
@@ -95,10 +90,9 @@ const BaseImageGridDisplay: React.FC<ImageDisplayProps> = ({
             />
           ) : (
             <Box
-              key={index}
               className={
                 singleImageClassName ??
-                `relative overflow-hidden rounded-md border border-gray-300 flex items-center justify-center`
+                'relative overflow-hidden rounded-md border border-gray-300 flex items-center justify-center'
               }
               style={{
                 maxHeight: '150px',
@@ -125,32 +119,34 @@ const BaseImageGridDisplay: React.FC<ImageDisplayProps> = ({
                   display: 'block',
                 }}
               />
-
-              {allowAddNew && (
-                <Tooltip label="Remove">
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleRemoveImage(index);
-                    }}
-                    className={`
-                  absolute top-[-5px] right-[-5px] 
-                  p-1 text-black bg-white/70 
-                  hover:bg-white/80 z-100 
-                  rounded-full cursor-pointer
-                `}
-                  >
-                    <IconX size="0.8rem" />
-                  </button>
-                </Tooltip>
-              )}
+              <Tooltip label="Remove">
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleRemoveImage(index);
+                  }}
+                  className="
+                    absolute top-2 right-2
+                    p-1 text-black bg-white/90
+                    shadow-lg
+                    hover:bg-white z-100
+                    rounded-full cursor-pointer
+                    transition
+                  "
+                  style={{
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.25)',
+                  }}
+                >
+                  <IconX size="1rem" />
+                </button>
+              </Tooltip>
             </Box>
           )}
-        </>
+        </React.Fragment>
       ))}
     </div>
   );
 };
 
-export default BaseImageGridDisplay;
+export default ImageDisplayFlexRow;

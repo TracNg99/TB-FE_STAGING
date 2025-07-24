@@ -82,9 +82,15 @@ importers:
       jwt-decode:
         specifier: ^4.0.0
         version: 4.0.0
+      motion:
+        specifier: ^12.23.6
+        version: 12.23.6(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       next:
         specifier: 15.3.2
         version: 15.3.2(@babel/core@7.28.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      next-redux-wrapper:
+        specifier: ^8.1.0
+        version: 8.1.0(next@15.3.2(@babel/core@7.28.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-redux@9.2.0(@types/react@19.0.10)(react@19.0.0)(redux@5.0.1))(react@19.0.0)
       qrcode:
         specifier: ^1.5.4
         version: 1.5.4
@@ -3316,6 +3322,23 @@ packages:
       react-dom:
         optional: true
 
+  framer-motion@12.23.6:
+    resolution:
+      {
+        integrity: sha512-dsJ389QImVE3lQvM8Mnk99/j8tiZDM/7706PCqvkQ8sSCnpmWxsgX+g0lj7r5OBVL0U36pIecCTBoIWcM2RuKw==,
+      }
+    peerDependencies:
+      '@emotion/is-prop-valid': '*'
+      react: ^18.0.0 || ^19.0.0
+      react-dom: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@emotion/is-prop-valid':
+        optional: true
+      react:
+        optional: true
+      react-dom:
+        optional: true
+
   function-bind@1.1.2:
     resolution:
       {
@@ -4372,11 +4395,40 @@ packages:
         integrity: sha512-ooH7+/BPw9gOsL9VtPhEJHE2m4ltnhMlcGMhEqA0YGNhKof7jdaszvsyThXI6LVIKshJUZ9/CP6HNqQhJfV7kw==,
       }
 
+  motion-dom@12.23.6:
+    resolution:
+      {
+        integrity: sha512-G2w6Nw7ZOVSzcQmsdLc0doMe64O/Sbuc2bVAbgMz6oP/6/pRStKRiVRV4bQfHp5AHYAKEGhEdVHTM+R3FDgi5w==,
+      }
+
   motion-utils@12.19.0:
     resolution:
       {
         integrity: sha512-BuFTHINYmV07pdWs6lj6aI63vr2N4dg0vR+td0rtrdpWOhBzIkEklZyLcvKBoEtwSqx8Jg06vUB5RS0xDiUybw==,
       }
+
+  motion-utils@12.23.6:
+    resolution:
+      {
+        integrity: sha512-eAWoPgr4eFEOFfg2WjIsMoqJTW6Z8MTUCgn/GZ3VRpClWBdnbjryiA3ZSNLyxCTmCQx4RmYX6jX1iWHbenUPNQ==,
+      }
+
+  motion@12.23.6:
+    resolution:
+      {
+        integrity: sha512-6U55IW5i6Vut2ryKEhrZKg55490k9d6qdGXZoNSf98oQgDj5D7bqTnVJotQ6UW3AS6QfbW6KSLa7/e1gy+a07g==,
+      }
+    peerDependencies:
+      '@emotion/is-prop-valid': '*'
+      react: ^18.0.0 || ^19.0.0
+      react-dom: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@emotion/is-prop-valid':
+        optional: true
+      react:
+        optional: true
+      react-dom:
+        optional: true
 
   ms@2.1.3:
     resolution:
@@ -4397,6 +4449,16 @@ packages:
       {
         integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==,
       }
+
+  next-redux-wrapper@8.1.0:
+    resolution:
+      {
+        integrity: sha512-2hIau0hcI6uQszOtrvAFqgc0NkZegKYhBB7ZAKiG3jk7zfuQb4E7OV9jfxViqqojh3SEHdnFfPkN9KErttUKuw==,
+      }
+    peerDependencies:
+      next: '>=9'
+      react: '*'
+      react-redux: '*'
 
   next@15.3.2:
     resolution:
@@ -7969,6 +8031,15 @@ snapshots:
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
 
+  framer-motion@12.23.6(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
+    dependencies:
+      motion-dom: 12.23.6
+      motion-utils: 12.23.6
+      tslib: 2.8.1
+    optionalDependencies:
+      react: 19.0.0
+      react-dom: 19.0.0(react@19.0.0)
+
   function-bind@1.1.2: {}
 
   function.prototype.name@1.1.8:
@@ -8734,13 +8805,33 @@ snapshots:
     dependencies:
       motion-utils: 12.19.0
 
+  motion-dom@12.23.6:
+    dependencies:
+      motion-utils: 12.23.6
+
   motion-utils@12.19.0: {}
+
+  motion-utils@12.23.6: {}
+
+  motion@12.23.6(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
+    dependencies:
+      framer-motion: 12.23.6(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      tslib: 2.8.1
+    optionalDependencies:
+      react: 19.0.0
+      react-dom: 19.0.0(react@19.0.0)
 
   ms@2.1.3: {}
 
   nanoid@3.3.9: {}
 
   natural-compare@1.4.0: {}
+
+  next-redux-wrapper@8.1.0(next@15.3.2(@babel/core@7.28.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-redux@9.2.0(@types/react@19.0.10)(react@19.0.0)(redux@5.0.1))(react@19.0.0):
+    dependencies:
+      next: 15.3.2(@babel/core@7.28.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      react: 19.0.0
+      react-redux: 9.2.0(@types/react@19.0.10)(react@19.0.0)(redux@5.0.1)
 
   next@15.3.2(@babel/core@7.28.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
     dependencies:

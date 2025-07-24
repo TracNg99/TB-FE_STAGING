@@ -90,9 +90,10 @@ const InputLayer: React.FC<{
 
   return (
     <div
-      className={'relative z-30 w-full min-h-[40px] flex flex-col justify-end'}
+      className={cn(
+        'relative z-30 w-full min-h-[80px] flex flex-col justify-end h-20',
+      )}
     >
-      {' '}
       {/* Dynamic height, grows with content */}
       <div
         className={cn('w-full mx-auto h-full flex flex-col justify-end px-3')}
@@ -107,12 +108,9 @@ const InputLayer: React.FC<{
 
         <div
           className={cn(
-            'w-full flex flex-row items-center bg-white m-1 h-full gap-2',
+            'w-full flex flex-row items-center bg-white mx-1 h-full gap-2',
           )}
         >
-          {' '}
-          {/* Flex row, full height */}
-          {/* Text input */}
           <textarea
             className="flex-grow h-full bg-transparent border-none outline-none text-lg placeholder-gray-400 px-2 py-1 resize-none focus:ring-0"
             placeholder="Ask anything..."
