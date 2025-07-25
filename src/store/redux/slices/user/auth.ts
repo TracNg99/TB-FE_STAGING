@@ -80,6 +80,33 @@ const UserAuthApi = createApi({
         method: 'POST',
       }),
     }),
+
+    forgotPassword: builder.mutation<AuthRes, { email: string }>({
+      query: ({ email }) => ({
+        url: '/auth/forgot-password',
+        method: 'POST',
+        body: {
+          email,
+          redirect_url: `${baseUrl}/auth/reset-password`,
+        },
+      }),
+    }),
+
+    verifyOTP: builder.mutation<AuthRes, { email: string; token: string }>({
+      query: (body) => ({
+        url: '/auth/otp-verification',
+        method: 'POST',
+        body,
+      }),
+    }),
+
+    resetPassword: builder.mutation<AuthRes, { password: string }>({
+      query: (body) => ({
+        url: '/auth/reset-password',
+        method: 'POST',
+        body,
+      }),
+    }),
   }),
 });
 
@@ -91,6 +118,9 @@ export const {
   useAuthWithFacebookMutation,
   useAuthWithGoogleMutation,
   useAuthWithXMutation,
+  useForgotPasswordMutation,
+  useVerifyOTPMutation,
+  useResetPasswordMutation,
 } = UserAuthApi;
 
 export { UserAuthApi };

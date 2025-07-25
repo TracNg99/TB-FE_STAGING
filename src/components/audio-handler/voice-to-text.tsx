@@ -170,6 +170,7 @@ const VoiceToTextButton: React.FC<VoiceButtonForm> = ({
       message: message,
       color: severity,
     });
+    return;
   };
 
   const startListening = async () => {

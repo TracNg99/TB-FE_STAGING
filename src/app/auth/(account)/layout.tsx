@@ -5,6 +5,7 @@ import { notifications } from '@mantine/notifications';
 import { Provider } from '@supabase/supabase-js';
 import { IconBrandGoogle, IconBrandX } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 import {
   useAuthWithGoogleMutation,
@@ -31,9 +32,10 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-
-  const [loginWithGgle] = useAuthWithGoogleMutation();
-  const [loginWithX] = useAuthWithXMutation();
+  const [isClicked, setIsClicked] = useState(false);
+  const [loginWithGgle, { isLoading: isLoadingGgle }] =
+    useAuthWithGoogleMutation();
+  const [loginWithX, { isLoading: isLoadingX }] = useAuthWithXMutation();
 
   const onOauthLogin = async (provider: Provider) => {
     try {
@@ -76,7 +78,11 @@ export default function AuthLayout({
             <Button
               variant="outline"
               key={index}
-              onClick={() => onOauthLogin(key)}
+              onClick={() => {
+                setIsClicked(true);
+                onOauthLogin(key);
+              }}
+              disabled={isLoadingGgle || isLoadingX || isClicked}
             >
               <Icon />
             </Button>

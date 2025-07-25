@@ -153,7 +153,7 @@ const SidebarLayer: React.FC<{
           <p>Login to see your previous conversations</p>
           <button
             onClick={() => router.push('/auth/login')}
-            className="rounded-full bg-orange-500 p-2 text-white font-semibold hover:bg-orange-700"
+            className="rounded-full bg-orange-500 p-2 text-white font-semibold hover:bg-orange-700 cursor-pointer"
           >
             Login
           </button>
@@ -702,7 +702,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
   ]); // messages
 
   return (
-    <div className="relative h-full w-full overflow-hidden">
+    <div className="absolute h-full w-full overflow-hidden">
       {/* Main flex-row container: [Sidebar][MainContentColumn] */}
       <div className="flex flex-row h-screen w-full z-10">
         {/* Sidebar Layer */}

@@ -2,7 +2,14 @@
 
 import { notifications } from '@mantine/notifications';
 import { useParams, usePathname, useRouter } from 'next/navigation';
-import { createContext, use, useEffect, useState } from 'react';
+import {
+  createContext,
+  use,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import { BusinessProfile } from '@/store/redux/slices/business/profile';
 // import { jwtDecode } from "jwt-decode";
@@ -18,6 +25,7 @@ export const PUBLIC_ROUTES = [
   '/auth/register',
   '/auth/callbackv1',
   '/auth/forgot-password',
+  '/auth/reset-password',
   '/experiences/',
   '/auth/register/business',
   '/auth/login/business',
@@ -62,6 +70,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<(Profile & BusinessProfile) | null>(null);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [roleTracker, setRoleTracker] = useState<string | null>();
+  const isSessionExpired = useRef(false);
   const [logOut] = useLogOutMutation();
 
   useEffect(() => {
@@ -70,15 +79,17 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, []);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     setRoleTracker(null);
     localStorage.clear();
     sessionStorage.clear();
     sessionStorage.setItem('currentPath', pathname);
     await logOut();
-    router.replace('/auth/login');
+    if (!isSessionExpired.current) {
+      router.replace('/auth/login');
+    }
     return;
-  };
+  }, [logOut, pathname, router]);
 
   useEffect(() => {
     const checkUserAuth = async () => {
@@ -90,6 +101,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // Redirect to role-based dashboard if on root path with valid JWT and role
         if (pathname === '/auth/login' && isValidJwt && role) {
           if (role === 'user') {
+            console.log('not public route');
             router.replace(`/`);
           } else {
             router.replace(`/business`);
@@ -128,7 +140,9 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           pathname !== '/auth/login' &&
           pathname !== '/auth/register' &&
           pathname !== '/auth/register/business' &&
-          pathname !== '/auth/login/business'
+          pathname !== '/auth/login/business' &&
+          pathname !== '/auth/reset-password' &&
+          pathname !== '/auth/forgot-password'
         ) {
           const currentPath = sessionStorage.getItem('currentPath') || '';
           if (currentPath) {
@@ -197,8 +211,24 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const jwt = localStorage.getItem('jwt') || '';
     const role = localStorage.getItem('role') || '';
     setRoleTracker(role);
+    const checkAuthValid = async () => {
+      const isValid = await isAuthenticated(jwt);
+      if (!isValid) {
+        isSessionExpired.current = true;
+        logout();
+        notifications.show({
+          title: 'Session Expired',
+          message: 'Your session has expired! Please log in again!',
+          color: 'yellow',
+          position: 'top-center',
+        });
+        router.push('/');
+        return;
+      }
+    };
 
     if (jwt) {
+      checkAuthValid();
       if (!profile && roleTracker) refetch();
     }
 
@@ -215,7 +245,16 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       );
       sessionStorage.setItem('language', profile?.data.language);
     }
-  }, [profile, pathname, logout, profileErr, user, refetch]);
+  }, [
+    profile,
+    pathname,
+    logout,
+    profileErr,
+    user,
+    refetch,
+    roleTracker,
+    router,
+  ]);
 
   // Show a loading state while checking authentication
   if (isCheckingAuth) {
