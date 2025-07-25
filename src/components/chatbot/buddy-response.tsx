@@ -8,7 +8,8 @@ import { BsCheckLg } from 'react-icons/bs';
 import { IoHelpCircle as IconHelpCircle } from 'react-icons/io5';
 import { PiShareFat } from 'react-icons/pi';
 import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+
+// import remarkGfm from 'remark-gfm';
 
 // import { useMediaQuery } from '@mantine/hooks';
 
@@ -194,7 +195,7 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                           ))}
                         <div className="text-gray-700 text-pretty whitespace-normal">
                           <ReactMarkdown
-                            remarkPlugins={[remarkGfm]}
+                            // remarkPlugins={[remarkGfm]}
                             components={{
                               ol: ({ children, ...props }) => (
                                 <ol

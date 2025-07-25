@@ -293,6 +293,7 @@ const NewStoryPage = () => {
                   });
                 }}
                 onTranscribe={(e) => handleTranscription(e)}
+                isInterrupted={isConfirmClicked || isUploading}
               />
             </div>
             <div className="lg:col-span-2 flex justify-center">

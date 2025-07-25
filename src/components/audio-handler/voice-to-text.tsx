@@ -4,7 +4,7 @@ import { ActionIcon } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconMicrophone } from '@tabler/icons-react';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 // import PulsingFab from "./pulsing-button";
 import { cn } from '@/utils/class';
@@ -53,6 +53,7 @@ interface VoiceButtonForm {
   existingTexts: string;
   onUnsupportDetected?: () => void;
   onAudioRecorded?: (audioBlob: Blob) => void;
+  isInterrupted?: boolean;
 }
 
 const punctuations = {
@@ -73,6 +74,7 @@ const VoiceToTextButton: React.FC<VoiceButtonForm> = ({
   className,
   asModal = false,
   customIcon,
+  isInterrupted,
   // onAudioRecorded,
 }) => {
   const [isListening, setIsListening] = useState(false);
@@ -89,6 +91,15 @@ const VoiceToTextButton: React.FC<VoiceButtonForm> = ({
   //   null,
   // );
   // const audioChunks = useRef<BlobPart[]>([]);
+  useEffect(() => {
+    console.log('isInterrupted', isInterrupted);
+    // console.log('isListening', isListening);
+    // console.log('recognitionInstance', recognitionInstance.current);
+    if (isInterrupted) {
+      console.log('Interrupted');
+      stopListening();
+    }
+  }, [isInterrupted]);
 
   const SpeechRecognition =
     (typeof window !== 'undefined' && (window as any).SpeechRecognition) ||
@@ -311,7 +322,7 @@ const VoiceToTextButton: React.FC<VoiceButtonForm> = ({
       {asModal && (
         <VoiceRecorderModal
           opened={openModal}
-          onClose={() => setOpenModal(false)}
+          onClose={handleDone}
           state={isListening ? 'recording' : 'paused'}
           transcript={existingTexts}
           // magnitude={magnitude}

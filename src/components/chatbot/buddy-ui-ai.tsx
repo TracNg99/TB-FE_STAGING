@@ -384,7 +384,11 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
       session_id: activeThread,
     },
     {
-      skip: activeThread === '' || !threadId || threadId === '',
+      skip:
+        activeThread === '' ||
+        !threadId ||
+        threadId === '' ||
+        messages.length > 0,
     },
   );
 
@@ -532,10 +536,6 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
   const handleOnChunkAvailable = useCallback((chunk: any) => {
     setFloatingTexts('');
     if (chunk.event === 'reasoning' || chunk.event === 'retrieving') {
-      console.log('Reasoning: ', base64ToUnicode(chunk.data?.response));
-      console.log('Reasoning sources: ', chunk.data?.sources);
-      chatSessionId.current = chunk.data?.session_id;
-      sessionStorage.setItem('thread-id', chunk.data?.session_id);
       setFloatingTexts((prevText) =>
         chunk.data?.response
           ? prevText + '\n' + base64ToUnicode(chunk.data?.response)
@@ -590,6 +590,8 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
           },
         ];
       });
+      chatSessionId.current = chunk.data?.session_id;
+      sessionStorage.setItem('thread-id', chunk.data?.session_id);
     }
   }, []);
 
