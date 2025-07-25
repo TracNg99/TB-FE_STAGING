@@ -22,6 +22,7 @@ import {
   useGetExperiencePublicQuery,
   useGetIconicPhotosPublicQuery,
 } from '@/store/redux/slices/user/experience';
+import { cn } from '@/utils/class';
 
 const SECTION_TITLE_CLASS =
   'text-[#222] text-[20px] font-semibold flex items-center gap-2 mb-4';
@@ -292,7 +293,9 @@ const ExperienceDetailPage = () => {
       <FollowUpQuestions
         questions={followUpQuestions}
         experienceId={experienceId as string}
-        className="mt-8"
+        className={cn(`mt-8`, {
+          'mb-30': isMobile,
+        })}
       />
       {/* Chatbot */}
       <StickyChatbox

@@ -167,6 +167,7 @@ const SidebarLayer: React.FC<{
 const ContentLayer: React.FC<{
   isHome: boolean;
   isMobile: boolean | undefined;
+  experienceId: string | undefined | null;
   experienceData: any;
   isThreadFetching: boolean;
   isThreadLoading: boolean;
@@ -183,6 +184,7 @@ const ContentLayer: React.FC<{
 }> = ({
   isHome,
   isMobile,
+  experienceId,
   experienceData,
   isThreadFetching,
   isThreadLoading,
@@ -207,36 +209,39 @@ const ContentLayer: React.FC<{
     >
       <div className="w-full mx-auto flex flex-col items-center px-4">
         {/* Experience Follow-up Card */}
-        {experienceData && messages.length !== 0 && (
-          <Link href={`/discoveries/${experienceData.id}`} className="w-full">
-            <Container
-              className={cn(
-                'flex flex-col mt-5 mb-3 p-3 gap-2.5 shadow-md bg-[#FFF0E5] rounded-md hover:bg-gray-100 cursor-pointer w-full justify-between',
-              )}
-            >
-              <span className="flex flex-row items-center text-[14px] color-purple-200 text-purple-500 gap-2 w-full">
-                <Image
-                  alt=""
-                  src="/assets/followup.svg"
-                  width={isMobile ? 12 : 16}
-                  height={isMobile ? 12 : 16}
-                  className="size-[24px]"
-                />
-                Follow up to
-              </span>
-              <div className="flex flex-row self-start items-center justify-between gap-2 w-full">
-                <h2
-                  className={cn({
-                    'text-[16px]': isMobile,
-                    'text-display-[16px]': !isMobile,
-                  })}
-                >
-                  {experienceData.name}
-                </h2>
-              </div>
-            </Container>
-          </Link>
-        )}
+        {experienceData &&
+          messages.length !== 0 &&
+          experienceId &&
+          experienceId !== '' && (
+            <Link href={`/discoveries/${experienceData.id}`} className="w-full">
+              <Container
+                className={cn(
+                  'flex flex-col mt-5 mb-3 p-3 gap-2.5 shadow-md bg-[#FFF0E5] rounded-md hover:bg-gray-100 cursor-pointer w-full justify-between',
+                )}
+              >
+                <span className="flex flex-row items-center text-[14px] color-purple-200 text-purple-500 gap-2 w-full">
+                  <Image
+                    alt=""
+                    src="/assets/followup.svg"
+                    width={isMobile ? 12 : 16}
+                    height={isMobile ? 12 : 16}
+                    className="size-[24px]"
+                  />
+                  Follow up to
+                </span>
+                <div className="flex flex-row self-start items-center justify-between gap-2 w-full">
+                  <h2
+                    className={cn({
+                      'text-[16px]': isMobile,
+                      'text-display-[16px]': !isMobile,
+                    })}
+                  >
+                    {experienceData.name}
+                  </h2>
+                </div>
+              </Container>
+            </Link>
+          )}
 
         {/* Chat Messages */}
         {(isThreadFetching || isThreadLoading) &&
@@ -551,11 +556,11 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
         );
         const lastMessage = prevMessages[prevMessages.length - 1];
         return [
-          ...(lastMessage.from === 'assistant'
+          ...(lastMessage?.from === 'assistant'
             ? truncateLastMessage
             : prevMessages),
           {
-            ...(lastMessage.from === 'assistant' ? lastMessage : {}),
+            ...(lastMessage?.from === 'assistant' ? lastMessage : {}),
             from: 'assistant',
             tag: chunk.event,
             text: concatenateStreamingMessage.current,
@@ -612,6 +617,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
           images: images.map((image) => image.image || ''),
         },
       ]);
+      // sessionStorage.removeItem('chat-input');
       try {
         await buddyStreamMutation({
           body: {
@@ -728,6 +734,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
               <ContentLayer
                 isHome={isHome}
                 isMobile={isMobile}
+                experienceId={experienceId}
                 experienceData={experienceData}
                 isThreadFetching={isThreadFetching}
                 isThreadLoading={isThreadLoading}

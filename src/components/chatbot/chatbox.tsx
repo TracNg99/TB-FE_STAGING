@@ -25,6 +25,7 @@ interface ChatboxProps {
 
 // Layer 6: Input Layer (Fixed, Bottom)
 const InputLayer: React.FC<{
+  isHome: boolean;
   isMobile: boolean | undefined;
   input: string;
   selectedImages: Array<{ image: string | null; name: string | null }>;
@@ -37,6 +38,7 @@ const InputLayer: React.FC<{
   onRemoveImage: (index: number) => void;
   onVoiceTranscribe: (text: string) => void;
 }> = ({
+  isHome,
   isMobile,
   input,
   selectedImages,
@@ -123,22 +125,24 @@ const InputLayer: React.FC<{
           />
           {/* Image upload */}
           <div className="flex flex-row items-center place-self-end">
-            <ImageUploader
-              onImageUpload={onImageUpload}
-              fetchImages={selectedImages}
-              className={cn(
-                'flex text-gray-200 rounded-full cursor-pointer align-items-end',
-                { 'size-8': isMobile, 'size-10': !isMobile },
-              )}
-              allowMultiple={true}
-            >
-              <Image
-                src="/assets/image_uploader_icon.svg"
-                alt="Upload"
-                width={isMobile ? 28 : 32}
-                height={isMobile ? 28 : 32}
-              />
-            </ImageUploader>
+            {isHome && (
+              <ImageUploader
+                onImageUpload={onImageUpload}
+                fetchImages={selectedImages}
+                className={cn(
+                  'flex text-gray-200 rounded-full cursor-pointer align-items-end',
+                  { 'size-8': isMobile, 'size-10': !isMobile },
+                )}
+                allowMultiple={true}
+              >
+                <Image
+                  src="/assets/image_uploader_icon.svg"
+                  alt="Upload"
+                  width={isMobile ? 28 : 32}
+                  height={isMobile ? 28 : 32}
+                />
+              </ImageUploader>
+            )}
             {/* Voice button */}
             <VoiceButtonForm
               language="en-US"
@@ -153,7 +157,12 @@ const InputLayer: React.FC<{
             />
             {/* Send button */}
             <button
-              className={`flex shrink-0 ml-1 rounded-md bg-orange-500 hover:bg-orange-600 text-white cursor-pointer p-[6px] size-[28px]`}
+              className={cn(
+                `flex shrink-0 ml-1 rounded-md bg-orange-500 hover:bg-orange-600 text-white cursor-pointer p-[6px] size-[28px]`,
+                {
+                  'mb-1': isMobile,
+                },
+              )}
               onClick={() => onSend(input)}
               disabled={input === ''}
             >
@@ -245,6 +254,7 @@ const Chatbox: React.FC<ChatboxProps> = ({
         )}
       >
         <InputLayer
+          isHome={isHome}
           isMobile={isMobile}
           input={input}
           selectedImages={selectedImages}
