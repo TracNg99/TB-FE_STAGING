@@ -2,7 +2,7 @@
 
 import { notifications } from '@mantine/notifications';
 import { useParams, usePathname, useRouter } from 'next/navigation';
-import { createContext, use, useEffect, useRef, useState } from 'react';
+import { createContext, use, useEffect, useState } from 'react';
 
 import { BusinessProfile } from '@/store/redux/slices/business/profile';
 // import { jwtDecode } from "jwt-decode";
@@ -62,7 +62,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<(Profile & BusinessProfile) | null>(null);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [roleTracker, setRoleTracker] = useState<string | null>();
-  const channelChecker = useRef(false);
   const [logOut] = useLogOutMutation();
 
   useEffect(() => {
@@ -191,7 +190,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     refetch,
   } = useGetProfileAltQuery(
     { role: roleTracker as string },
-    { skip: !roleTracker },
+    { skip: !roleTracker, refetchOnMountOrArgChange: true },
   );
 
   useEffect(() => {
@@ -204,6 +203,11 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     if (profile && profile?.data && roleTracker) {
+      const fetchedLanguage = profile?.data.language;
+      const storedLanguage = sessionStorage.getItem('language');
+      if (fetchedLanguage !== storedLanguage) {
+        refetch();
+      }
       setUser(profile?.data);
       sessionStorage.setItem(
         'companies',
@@ -211,7 +215,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       );
       sessionStorage.setItem('language', profile?.data.language);
     }
-  }, [profile, pathname, logout, profileErr, user, channelChecker.current]);
+  }, [profile, pathname, logout, profileErr, user, refetch]);
 
   // Show a loading state while checking authentication
   if (isCheckingAuth) {

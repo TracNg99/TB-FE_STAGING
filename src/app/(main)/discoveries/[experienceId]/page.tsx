@@ -50,6 +50,13 @@ const ExperienceDetailPage = () => {
   const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(false);
 
   useEffect(() => {
+    const languageState = sessionStorage.getItem('language');
+    if (languageState) {
+      setLanguage(languageState);
+    }
+  }, []);
+
+  useEffect(() => {
     const jwt = localStorage.getItem('jwt');
     if (isFromQRScan && (!jwt || jwt === '' || jwt === null)) {
       setIsWelcomeModalOpen(true);
