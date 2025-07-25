@@ -2,7 +2,14 @@
 
 import { notifications } from '@mantine/notifications';
 import { useParams, usePathname, useRouter } from 'next/navigation';
-import { createContext, use, useEffect, useRef, useState } from 'react';
+import {
+  createContext,
+  use,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import { BusinessProfile } from '@/store/redux/slices/business/profile';
 // import { jwtDecode } from "jwt-decode";
@@ -61,7 +68,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const [user, setUser] = useState<(Profile & BusinessProfile) | null>(null);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  const [roleTracker, setRoleTracker] = useState<string>();
+  const [roleTracker, setRoleTracker] = useState<string | null>();
   const channelChecker = useRef(false);
   const [logOut] = useLogOutMutation();
 
@@ -72,6 +79,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const logout = async () => {
+    setRoleTracker(null);
     localStorage.clear();
     sessionStorage.clear();
     sessionStorage.setItem('currentPath', pathname);
@@ -80,108 +88,107 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return;
   };
 
-  useEffect(() => {
-    const checkUserAuth = async () => {
-      const jwt = localStorage.getItem('jwt') || '';
-      const role = localStorage.getItem('role') || '';
-      try {
-        const isValidJwt = await isAuthenticated(jwt);
+  const checkUserAuth = useCallback(async () => {
+    const jwt = localStorage.getItem('jwt') || '';
+    const role = localStorage.getItem('role') || '';
+    try {
+      const isValidJwt = await isAuthenticated(jwt);
 
-        // Redirect to role-based dashboard if on root path with valid JWT and role
-        if (pathname === '/auth/login' && isValidJwt && role) {
-          if (role === 'user') {
-            router.replace(`/`);
-          } else {
-            router.replace(`/business`);
-          }
-          return;
+      // Redirect to role-based dashboard if on root path with valid JWT and role
+      if (pathname === '/auth/login' && isValidJwt && role) {
+        if (role === 'user') {
+          router.replace(`/`);
+        } else {
+          router.replace(`/business`);
         }
-
-        // Redirect to login if no JWT OR if JWT is invalid
-        if (!isValidJwt) {
-          localStorage.clear();
-          if (pathname === '/auth/register/business') {
-            return;
-          } else if (
-            pathname?.includes('business') &&
-            pathname !== '/auth/register/business'
-          ) {
-            router.replace('/auth/login/business');
-            return;
-          } else if (
-            !PUBLIC_ROUTES.find((route) => pathname.includes(route)) &&
-            !(pathname === '/')
-          ) {
-            notifications.show({
-              title: 'Feature for logged in users only',
-              message: 'Please log in to access this feature',
-              color: 'yellow',
-              position: 'top-center',
-            });
-            sessionStorage.setItem('currentPath', pathname);
-            router.replace('/auth/login');
-            return;
-          }
-        }
-
-        if (
-          pathname !== '/auth/login' &&
-          pathname !== '/auth/register' &&
-          pathname !== '/auth/register/business' &&
-          pathname !== '/auth/login/business'
-        ) {
-          const currentPath = sessionStorage.getItem('currentPath') || '';
-          if (currentPath) {
-            router.replace(currentPath);
-            sessionStorage.removeItem('currentPath');
-            return;
-          }
-        }
-
-        // Allow access to public routes
-        if (
-          (PUBLIC_ROUTES.find((route) => pathname?.includes(route)) &&
-            pathname !== '/') ||
-          pathname!.includes(experienceId as string)
-        ) {
-          setIsCheckingAuth(false);
-          return;
-        }
-
-        // If the role is 'user'
-        if (
-          role === 'user' &&
-          (pathname!.includes('business') ||
-            (pathname!.includes('experiences') && pathname!.includes('edit')) ||
-            (pathname!.includes('experiences') &&
-              pathname!.includes('create')) ||
-            (pathname!.includes('activities') && pathname!.includes('create')))
-        ) {
-          router.replace('/auth/login/business'); // Redirect to a login
-          return;
-        }
-
-        // Allow access to valid role-based or general routes
-        const isRoleBasedPath = pathname!.includes(role);
-        const isGeneralPath =
-          !pathname!.includes('/business') && !pathname!.includes('/user');
-
-        if (isRoleBasedPath || isGeneralPath) {
-          setIsCheckingAuth(false);
-          return;
-        }
-
-        // Redirect to role-based dashboard if accessing invalid role-specific path
-        if (!pathname!.includes(role)) {
-          router.replace(role === 'user' ? `/` : `/dashboard/business`);
-        }
-      } catch (error) {
-        console.error('Error during authentication check:', error);
-      } finally {
-        setIsCheckingAuth(false);
+        return;
       }
-    };
 
+      // Redirect to login if no JWT OR if JWT is invalid
+      if (!isValidJwt) {
+        if (pathname === '/auth/register/business') {
+          return;
+        } else if (
+          pathname?.includes('business') &&
+          pathname !== '/auth/register/business'
+        ) {
+          router.replace('/auth/login/business');
+          return;
+        } else if (
+          !PUBLIC_ROUTES.find((route) => pathname.includes(route)) &&
+          !(pathname === '/')
+        ) {
+          localStorage.clear();
+          notifications.show({
+            title: 'Feature for logged in users only',
+            message: 'Please log in to access this feature',
+            color: 'yellow',
+            position: 'top-center',
+          });
+          sessionStorage.setItem('currentPath', pathname);
+          router.replace('/auth/login');
+          return;
+        }
+      }
+
+      if (
+        pathname !== '/auth/login' &&
+        pathname !== '/auth/register' &&
+        pathname !== '/auth/register/business' &&
+        pathname !== '/auth/login/business'
+      ) {
+        const currentPath = sessionStorage.getItem('currentPath') || '';
+        if (currentPath) {
+          router.replace(currentPath);
+          sessionStorage.removeItem('currentPath');
+          return;
+        }
+      }
+
+      // Allow access to public routes
+      if (
+        (PUBLIC_ROUTES.find((route) => pathname?.includes(route)) &&
+          pathname !== '/') ||
+        pathname!.includes(experienceId as string)
+      ) {
+        setIsCheckingAuth(false);
+        return;
+      }
+
+      // If the role is 'user'
+      if (
+        role === 'user' &&
+        (pathname!.includes('business') ||
+          (pathname!.includes('experiences') && pathname!.includes('edit')) ||
+          (pathname!.includes('experiences') && pathname!.includes('create')) ||
+          (pathname!.includes('activities') && pathname!.includes('create')))
+      ) {
+        router.replace('/auth/login/business'); // Redirect to a login
+        return;
+      }
+
+      // Allow access to valid role-based or general routes
+      const isRoleBasedPath = pathname!.includes(role);
+      const isGeneralPath =
+        !pathname!.includes('/business') && !pathname!.includes('/user');
+
+      if (isRoleBasedPath || isGeneralPath) {
+        setIsCheckingAuth(false);
+        return;
+      }
+
+      // Redirect to role-based dashboard if accessing invalid role-specific path
+      if (!pathname!.includes(role)) {
+        router.replace(role === 'user' ? `/` : `/dashboard/business`);
+      }
+    } catch (error) {
+      console.error('Error during authentication check:', error);
+    } finally {
+      setIsCheckingAuth(false);
+    }
+  }, [pathname, router, experienceId]);
+
+  useEffect(() => {
     checkUserAuth();
   }, [pathname]);
 
@@ -203,7 +210,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (!profile && roleTracker) refetch();
     }
 
-    if (profile && profile?.data) {
+    if (profile && profile?.data && roleTracker) {
       setUser(profile?.data);
       sessionStorage.setItem(
         'companies',
