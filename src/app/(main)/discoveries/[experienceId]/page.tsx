@@ -56,11 +56,11 @@ const ExperienceDetailPage = () => {
   }, [isFromQRScan]);
 
   useEffect(() => {
-    if (experience && experienceId) {
+    if (experience && experienceId && isFromQRScan) {
       sessionStorage.setItem('experience_id', (experienceId as string) || '');
       sessionStorage.setItem('company_id', experience.owned_by || '');
     }
-  }, [experience, experienceId]);
+  }, [experience, experienceId, isFromQRScan]);
 
   const handleContinue = ({
     email,
@@ -123,7 +123,7 @@ const ExperienceDetailPage = () => {
     text: string,
     _images: Array<{ image: string | null; name: string | null }> = [],
   ) => {
-    localStorage.setItem('chat-input', text);
+    sessionStorage.setItem('chat-input', text);
     router.push(`/?experienceId=${experienceId}`);
   };
 

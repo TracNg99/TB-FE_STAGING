@@ -17,7 +17,7 @@ export default function FollowUpQuestions({
   const router = useRouter();
 
   const handleFollowUpClick = (question: string) => {
-    localStorage.setItem('chat-input', question);
+    sessionStorage.setItem('chat-input', question);
     if (experienceId) {
       router.push(`/?experienceId=${experienceId}`);
     } else {

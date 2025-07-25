@@ -422,11 +422,9 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
 
   const handleFollowUpTitle = useCallback(() => {
     if (experienceId && typeof window !== 'undefined') {
-      const storedInput = localStorage.getItem('chat-input');
+      const storedInput = sessionStorage.getItem('chat-input');
       if (storedInput && storedInput !== '' && messages.length === 0) {
-        console.log('storedInput', storedInput);
         handleSend(storedInput);
-        localStorage.removeItem('chat-input'); // Clear after using
       }
     }
   }, [experienceId, messages.length]);
@@ -501,7 +499,9 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
       refetchHistoryData();
     }
     sessionStorage.removeItem('thread-id');
-    localStorage.removeItem('chat-input');
+    sessionStorage.removeItem('chat-input');
+    sessionStorage.removeItem('experience_id');
+    sessionStorage.removeItem('company_id');
     setExperienceId(null);
     setResetState(true);
     setActiveThread(null);
