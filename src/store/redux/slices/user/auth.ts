@@ -77,7 +77,7 @@ const UserAuthApi = createApi({
     logOut: builder.mutation<AuthRes, void>({
       query: () => ({
         url: '/auth/logout',
-        method: 'POST',
+        method: 'GET',
       }),
     }),
 
