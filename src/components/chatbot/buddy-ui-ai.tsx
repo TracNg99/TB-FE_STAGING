@@ -707,7 +707,6 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
       const timer = setTimeout(() => {
         setUnfoldingTexts((prevText) => prevText + text[charIndex]);
         setCharIndex((prevIndex) => prevIndex + 1);
-        // console.log('unfoldingTexts', unfoldingTexts);
       }, 1);
 
       return () => clearTimeout(timer);
