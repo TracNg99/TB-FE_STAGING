@@ -117,7 +117,7 @@ export default function TextCarousel<T>({
             )}
             onClick={() => emblaApi?.scrollPrev()}
           >
-            <IconChevronLeft className="size-6 text-base-black" />
+            <IconChevronLeft className="size-6 text-base-white" />
           </button>
         )}
 
@@ -149,7 +149,7 @@ export default function TextCarousel<T>({
           )}
           onClick={() => emblaApi?.scrollNext()}
         >
-          <IconChevronRight className="size-6 text-base-black" />
+          <IconChevronRight className="size-6 text-base-white" />
         </button>
       )}
     </div>

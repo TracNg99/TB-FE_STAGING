@@ -774,7 +774,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                 isHome &&
                   messages.length === 0 &&
                   !isMobile &&
-                  'mb-0 grow h-[5dvh] bg-white/30',
+                  'mb-0 grow h-[5dvh]',
                 !isMobile && 'mb-10',
                 messages.length > 0 && isMobile && !isIOS && 'mb-[25vh]',
                 messages.length > 0 && isMobile && isIOS && 'mb-[22dvh]',

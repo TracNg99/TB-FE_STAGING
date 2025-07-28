@@ -123,7 +123,7 @@ const InputLayer: React.FC<{
           )}
         >
           <textarea
-            className="flex-grow h-full bg-transparent border-none outline-none text-lg placeholder-gray-400 px-2 py-1 resize-none focus:ring-0"
+            className="flex-grow h-full bg-transparent border-none outline-none text-lg placeholder-gray-400 px-2 py-1 resize-none focus:ring-0 placeholder-gray-600"
             placeholder="Ask anything..."
             value={input}
             onChange={(e) => onInputChange(e.target.value)}
@@ -253,7 +253,7 @@ const Chatbox: React.FC<ChatboxProps> = ({
               renderItem={(item) => (
                 <button
                   key={item}
-                  className="text-nowrap rounded-full bg-white/80 px-2 py-2 text-[11px] text-black hover:bg-gray-100 cursor-pointer"
+                  className="text-nowrap rounded-full bg-white/85 backdrop-blur-md px-2 py-2 text-[11px] text-black hover:bg-gray-100 cursor-pointer"
                   onClick={() => handleSend(item)}
                 >
                   {item}
@@ -269,7 +269,7 @@ const Chatbox: React.FC<ChatboxProps> = ({
       {/* Input Layer */}
       <div
         className={cn(
-          'w-full flex flex-col bg-white/80 items-center h-full shadow-none border-1 border-black/25 rounded-lg',
+          'w-full flex flex-col bg-white/85 backdrop-blur-md items-center h-full shadow-none border-1 border-black/25 rounded-lg',
         )}
       >
         <InputLayer
