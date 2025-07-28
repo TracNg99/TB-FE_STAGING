@@ -35,6 +35,8 @@ export const PUBLIC_ROUTES = [
 
 export type AuthContextType = {
   user: (Profile & BusinessProfile) | null;
+  isDefault: boolean;
+  setIsDefault: (value: boolean) => void;
   logout: () => void;
 };
 
@@ -72,6 +74,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [roleTracker, setRoleTracker] = useState<string | null>();
   const isSessionExpired = useRef(false);
   const [logOut] = useLogOutMutation();
+  const [isDefault, setIsDefault] = useState(true);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -265,6 +268,8 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     <AuthContext
       value={{
         user,
+        isDefault,
+        setIsDefault,
         logout,
       }}
     >

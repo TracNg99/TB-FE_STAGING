@@ -320,7 +320,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
   const router = useRouter();
   const pathname = usePathname();
   const params = useParams();
-  const { user } = useAuth();
+  const { user, setIsDefault } = useAuth();
   const { resetState: resetFromContext } = useChat();
   const searchParams = useSearchParams();
   const threadId =
@@ -431,6 +431,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
 
   useEffect(() => {
     if (threadId && threadId !== '') {
+      setIsDefault(false);
       setActiveThread(threadId);
       chatSessionId.current = threadId;
     }
@@ -449,6 +450,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
     if (experienceId && typeof window !== 'undefined') {
       const storedInput = sessionStorage.getItem('chat-input');
       if (storedInput && storedInput !== '' && messages.length === 0) {
+        setIsDefault(false);
         handleSend(storedInput);
       }
     }
@@ -616,6 +618,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
       text: string,
       images: Array<{ image: string | null; name: string | null }> = [],
     ) => {
+      setIsDefault(false);
       if (!isHome) {
         handleReset();
         localStorage.setItem('chat-input', text);

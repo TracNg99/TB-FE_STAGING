@@ -42,7 +42,7 @@ const navbarLinks = [
 ];
 
 const Navbar = ({ isMobile }: { isMobile?: boolean }) => {
-  const { user, logout } = useAuth();
+  const { user, logout, isDefault } = useAuth();
   const { triggerReset } = useChat();
   const router = useRouter();
   const pathname = usePathname();
@@ -159,7 +159,10 @@ const Navbar = ({ isMobile }: { isMobile?: boolean }) => {
               className="flex flex-col items-center gap-1 rounded-full p-4 bg-transparent"
               onClick={logout}
             >
-              <BsPersonCircle color="#FB5607" size={32} />
+              <BsPersonCircle
+                color={pathname === '/' && isDefault ? '#FFF' : '#FB5607'}
+                size={32}
+              />
               {/* <span className="text-xs font-medium text-orange-500">Login</span> */}
             </div>
           )}
