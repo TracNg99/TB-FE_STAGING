@@ -3,6 +3,7 @@
 import { useMediaQuery } from '@mantine/hooks';
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import useEmblaCarousel from 'embla-carousel-react';
+import { AnimatePresence } from 'framer-motion';
 import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -69,7 +70,15 @@ export default function FeatureCarousel<T>({
           <div className="flex" style={{ gap: `${slideGap}px` }}>
             {Array.from({ length: 3 }).map((_, index) => (
               <div key={index} className="flex-shrink-0">
-                <div className="min-w-[240px] max-w-[260px] h-80 bg-gray-200 rounded-lg animate-pulse" />
+                <div className="min-w-[240px] max-w-[260px] h-80 bg-gray-200 rounded-lg animate-pulse flex items-center justify-center">
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="w-16 h-16 bg-gray-300 rounded-full animate-pulse"></div>
+                    <div className="flex flex-col gap-2 items-center">
+                      <div className="h-3 bg-gray-300 rounded w-24 animate-pulse"></div>
+                      <div className="h-3 bg-gray-300 rounded w-20 animate-pulse"></div>
+                    </div>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
@@ -119,7 +128,9 @@ export default function FeatureCarousel<T>({
           >
             {items.map((item, index) => (
               <div key={index} className="flex-shrink-0">
-                {renderItem(item, index)}
+                <AnimatePresence mode="wait">
+                  {renderItem(item, index)}
+                </AnimatePresence>
               </div>
             ))}
           </div>

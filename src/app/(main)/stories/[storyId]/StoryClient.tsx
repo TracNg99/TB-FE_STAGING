@@ -2,8 +2,9 @@
 
 import { Avatar, Popover, UnstyledButton } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
+import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { HiExternalLink } from 'react-icons/hi';
 import { PiShareFat } from 'react-icons/pi';
 
@@ -161,11 +162,19 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(
     null,
   );
+  const [isSaving, setIsSaving] = useState(false);
   const [original, setOriginal] = useState({
     title: storyTitle,
     body: storyContent,
     images: initialEditImages,
   });
+
+  // Reset saving state when edit mode changes
+  useEffect(() => {
+    if (!editMode) {
+      setIsSaving(false);
+    }
+  }, [editMode]);
 
   // Use useMemo to check for first access (don't cleanup immediately)
   const isFirstAccess = useMemo(() => {
@@ -200,13 +209,22 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
   // Callbacks
   const renderCarouselItem = useCallback(
     (photo: string, index: number) => (
-      <div
+      <motion.div
         key={photo}
+        layout // This enables smooth layout transitions when items are added/removed
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{
+          duration: 0.3,
+          ease: 'easeInOut',
+          layout: { duration: 0.4, ease: 'easeInOut' }, // Smooth position swapping
+        }}
         className="h-full flex items-center justify-center rounded-md border border-gray-200 bg-white flex-shrink-0 cursor-pointer overflow-hidden relative"
         onClick={() => setSelectedPhotoIndex(index)}
       >
         {/* Loading skeleton - shown while image is loading */}
-        <div className="absolute w-80 inset-0 bg-gradient-to-br from-gray-100 to-gray-200 animate-pulse flex items-center justify-center">
+        <div className="absolute inset-0 w-[320px] bg-gradient-to-br from-gray-100 to-gray-200 animate-pulse flex items-center justify-center">
           <div className="flex flex-col items-center gap-4">
             <div className="w-16 h-16 bg-gray-300 rounded-full animate-pulse"></div>
             <div className="flex flex-col gap-2 items-center">
@@ -243,7 +261,7 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
             Image unavailable
           </div>
         </div>
-      </div>
+      </motion.div>
     ),
     [handleImageLoad, handleImageError],
   );
@@ -334,12 +352,16 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
 
   // Add save changes handler
   const handleSaveChanges = useCallback(async () => {
+    // Set saving state immediately
+    setIsSaving(true);
+
     if (!storyId) {
       notifications.show({
         title: 'Error',
         message: 'Story ID not found',
         color: 'red',
       });
+      setIsSaving(false);
       return;
     }
 
@@ -349,6 +371,7 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
         message: 'You can only edit your own stories',
         color: 'red',
       });
+      setIsSaving(false);
       return;
     }
 
@@ -358,6 +381,7 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
         message: 'Cannot edit archived stories',
         color: 'red',
       });
+      setIsSaving(false);
       return;
     }
 
@@ -376,6 +400,7 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
         message: 'No changes were made to save.',
         color: 'blue',
       });
+      setIsSaving(false);
       return;
     }
 
@@ -440,12 +465,17 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
 
       setOriginal({ title, body, images: editImages });
       setEditMode(false);
+
+      // Refresh the page to show updated server-side data
+      router.refresh();
     } catch (_error) {
       notifications.show({
         title: 'Error',
         message: 'Failed to update story. Please try again.',
         color: 'red',
       });
+    } finally {
+      setIsSaving(false);
     }
   }, [
     // updateStory,
@@ -458,6 +488,11 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
     original,
     isStoryOwner,
     isArchived,
+    setIsSaving,
+    setEditMode,
+    setOriginal,
+    router,
+    notifications,
   ]);
 
   return (
@@ -793,9 +828,9 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
                 <button
                   className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 transition-colors disabled:opacity-50"
                   onClick={handleSaveChanges}
-                  disabled={isEditing}
+                  disabled={isEditing || isSaving}
                 >
-                  {isEditing ? 'Saving...' : 'Save'}
+                  {isSaving ? 'Saving...' : 'Save'}
                 </button>
                 <button
                   className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition-colors"
@@ -804,8 +839,9 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
                     setTitle(original.title);
                     setBody(original.body);
                     setEditImages(original.images);
+                    setIsSaving(false);
                   }}
-                  disabled={isEditing}
+                  disabled={isEditing || isSaving}
                 >
                   Cancel
                 </button>

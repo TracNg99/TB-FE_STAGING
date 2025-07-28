@@ -31,7 +31,7 @@ export async function getSinglePublishedStory(storyId: string): Promise<{
         headers: {
           'Content-Type': 'application/json',
         },
-        cache: 'force-cache',
+        cache: 'no-cache',
       },
     );
 
@@ -84,7 +84,7 @@ export async function getAllPublishedStories(): Promise<{
         headers: {
           'Content-Type': 'application/json',
         },
-        cache: 'no-store',
+        cache: 'no-cache',
       },
     );
 
@@ -133,7 +133,7 @@ export async function uploadStoryAgent(payload: any): Promise<{
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),
-        cache: 'no-store',
+        cache: 'no-cache',
       },
     );
 

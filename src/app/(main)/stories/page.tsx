@@ -2,9 +2,10 @@
 
 import Link from 'next/link';
 
+import { useAuth } from '@/contexts/auth-provider';
 import {
   StoryProps,
-  useGetAllPublishedStoryQuery,
+  useGetAllStoryQuery,
 } from '@/store/redux/slices/user/story';
 
 import StoriesLoading from './loading';
@@ -17,7 +18,20 @@ function getErrorMessage(error: any) {
 }
 
 export default function StoriesPage() {
-  const { data, isLoading, isError, error } = useGetAllPublishedStoryQuery();
+  const { user } = useAuth();
+
+  // Only fetch stories if user is logged in
+  const { data, isLoading, isError, error } = useGetAllStoryQuery();
+
+  // Show loading while user is being determined or stories are loading
+  if (!user?.userid) {
+    return (
+      <div className="max-w-4xl mx-auto p-4 text-center">
+        <h1 className="text-3xl font-bold mb-6">My Travel Stories</h1>
+        <p className="text-gray-600">Please log in to view your stories.</p>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return <StoriesLoading />;
@@ -32,22 +46,40 @@ export default function StoriesPage() {
 
   const stories: StoryProps[] = data?.data || [];
 
+  // Filter stories to only show current user's stories
+  const userStories = stories.filter((story) => story.user_id === user?.userid);
+
   return (
     <div className="max-w-4xl mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">Travel Stories</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">My Travel Stories</h1>
+        <Link
+          href="/stories/new"
+          className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
+        >
+          Create New Story
+        </Link>
+      </div>
 
-      {stories.length === 0 ? (
+      {userStories.length === 0 ? (
         <div className="text-center py-12">
           <h2 className="text-xl font-semibold text-gray-600 mb-2">
             No Stories Found
           </h2>
-          <p className="text-gray-500">
-            Be the first to share your travel story!
+          <p className="text-gray-500 mb-6">
+            {`You haven't created any travel stories yet. Start sharing your
+            adventures!`}
           </p>
+          <Link
+            href="/stories/new"
+            className="inline-block px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
+          >
+            Create Your First Story
+          </Link>
         </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {stories.map((story: StoryProps) => (
+          {userStories.map((story: StoryProps) => (
             <div
               key={story.id}
               className="border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow flex flex-col gap-3"
