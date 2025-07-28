@@ -214,13 +214,11 @@ interface ImageUploaderProps {
   asBlob?: boolean;
   className?: string;
   children?: React.ReactNode;
-  isCleared?: boolean;
-  setIsCleared?: (state: boolean) => void;
+  disabled?: boolean;
 }
 
 const ImageUploader: React.FC<ImageUploaderProps> = ({
   onImageUpload,
-  setIsCleared,
   className,
   children,
   allowAddNew = true,
@@ -228,8 +226,8 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   asBlob = false,
   fetchImages = [],
   withResize = false,
-  isCleared = false,
   isStandalone = false,
+  disabled = false,
 }) => {
   const [selectedImages, setSelectedImages] = useState<
     {
@@ -239,6 +237,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   >([]);
   const [imageError, setImageError] = useState(false);
   const [loadingFiles, setLoadingFiles] = useState<{ name: string }[]>([]);
+  const [isCleared, setIsCleared] = useState<boolean>(false);
 
   const handleRemoveImage = (index: number) => {
     const updatedImages = selectedImages.filter((_, i) => i !== index);
@@ -296,6 +295,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       className={className ?? 'bg-transparent mt-2 size-6 cursor-pointer'}
       type="button"
       onClick={() => fileInputRef.current?.click()}
+      disabled={disabled}
     >
       {children ?? <IconCloudUpload className="size-6 text-white" />}
       <input

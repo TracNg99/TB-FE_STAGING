@@ -44,7 +44,6 @@ const NewStoryPage = () => {
   const router = useRouter();
   const [experiences, setExperiences] = useState<string[]>([]);
   const [isConfirmClicked, setIsConfirmClicked] = useState<boolean>(false);
-  const [isMediaCleared, setIsMediaCleared] = useState<boolean>(false);
   const [uploadStory, { isLoading: isUploading }] =
     useUploadStoryAgentMutation();
 
@@ -255,10 +254,8 @@ const NewStoryPage = () => {
                   }}
                   allowMultiple={true}
                   // withResize={true}
-                  isStandalone={true}
                   // asBlob={true}
-                  isCleared={isMediaCleared}
-                  setIsCleared={setIsMediaCleared}
+                  isStandalone={true}
                 >
                   <ImageUploadIcon
                     className="size-50 text-white color-orange-500"

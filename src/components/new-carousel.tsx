@@ -16,6 +16,7 @@ type FeatureCarouselProps<T> = {
   controlsPosition?: 'sides' | 'bottom' | 'none';
   enableInfiniteLoop?: boolean;
   slideGap?: number;
+  align?: 'start' | 'center' | 'end';
 };
 
 export default function FeatureCarousel<T>({
@@ -26,10 +27,11 @@ export default function FeatureCarousel<T>({
   controlsPosition = 'sides',
   enableInfiniteLoop = false,
   slideGap = 16,
+  align,
 }: FeatureCarouselProps<T>) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: enableInfiniteLoop,
-    align: 'start',
+    align: align || (items.length === 1 ? 'center' : 'start'),
     containScroll: 'trimSnaps',
   });
 
@@ -108,7 +110,13 @@ export default function FeatureCarousel<T>({
 
         {/* Carousel - Items control their own width */}
         <div className="overflow-hidden" ref={emblaRef}>
-          <div className="flex items-stretch" style={{ gap: `${slideGap}px` }}>
+          <div
+            className={cn(
+              'flex items-stretch',
+              items.length === 1 && 'justify-center',
+            )}
+            style={{ gap: `${slideGap}px` }}
+          >
             {items.map((item, index) => (
               <div key={index} className="flex-shrink-0">
                 {renderItem(item, index)}

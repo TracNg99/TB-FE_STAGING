@@ -54,6 +54,7 @@ interface VoiceButtonForm {
   onUnsupportDetected?: () => void;
   onAudioRecorded?: (audioBlob: Blob) => void;
   isInterrupted?: boolean;
+  disabled?: boolean;
 }
 
 const punctuations = {
@@ -75,6 +76,7 @@ const VoiceToTextButton: React.FC<VoiceButtonForm> = ({
   asModal = false,
   customIcon,
   isInterrupted,
+  disabled = false,
   // onAudioRecorded,
 }) => {
   const [isListening, setIsListening] = useState(false);
@@ -309,12 +311,15 @@ const VoiceToTextButton: React.FC<VoiceButtonForm> = ({
         )}
         // size="xl"
         type="button"
+        disabled={disabled}
         onClick={
-          asModal
-            ? () => setOpenModal((prev) => !prev)
-            : isListening
-              ? stopListening
-              : startListening
+          disabled
+            ? undefined
+            : asModal
+              ? () => setOpenModal((prev) => !prev)
+              : isListening
+                ? stopListening
+                : startListening
         }
       >
         {customIcon || <IconMicrophone className="size-5" />}

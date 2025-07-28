@@ -7,16 +7,19 @@ interface FollowUpQuestionsProps {
   questions: string[];
   experienceId?: string;
   className?: string;
+  disabled?: boolean;
 }
 
 export default function FollowUpQuestions({
   questions,
   experienceId,
   className = '',
+  disabled = false,
 }: FollowUpQuestionsProps) {
   const router = useRouter();
 
   const handleFollowUpClick = (question: string) => {
+    if (disabled) return;
     sessionStorage.setItem('chat-input', question);
     if (experienceId) {
       router.push(`/?experienceId=${experienceId}`);
@@ -42,6 +45,7 @@ export default function FollowUpQuestions({
             className="flex items-center justify-between py-4 px-0 text-base text-gray-800 hover:text-orange-500 transition font-medium text-left bg-transparent cursor-pointer"
             style={{ outline: 'none', border: 'none' }}
             onClick={() => handleFollowUpClick(question)}
+            disabled={disabled}
           >
             <span>{question}</span>
             <IconChevronRight className="w-5 h-5 text-gray-400" />

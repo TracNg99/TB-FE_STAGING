@@ -3,7 +3,7 @@ import { Dropzone, DropzoneIdle } from '@mantine/dropzone';
 import { IconCloudUpload } from '@tabler/icons-react';
 import React from 'react';
 
-import ImageDisplayFlexRow from './image-display-flex-row';
+import ImageDisplayBaseGrid from './image-display-base-grid';
 import { handleImageUpload } from './image-picker';
 
 interface ImageSubcomponentProps {
@@ -63,7 +63,7 @@ const DropzoneUploader: React.FC<ImageSubcomponentProps> = ({
         }
       >
         {selectedImages.length > 0 ? (
-          <ImageDisplayFlexRow
+          <ImageDisplayBaseGrid
             allowAddNew={allowAddNew}
             allowMultiple={allowMultiple}
             selectedImages={selectedImages}

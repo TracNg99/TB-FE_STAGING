@@ -42,7 +42,11 @@ const BaseImageGridDisplay: React.FC<ImageDisplayProps> = ({
     <div
       className={cn(
         className ??
-          `align-center justify-left items-center pointer-events-auto flex flex-row gap-3 flex-wrap`,
+          `grid 
+          grid-cols-[repeat(auto-fit,minmax(5rem,1fr))]
+          md:grid-cols-[repeat(auto-fit,minmax(7.5rem,1fr))]
+          lg:grid-cols-[repeat(auto-fit,minmax(8.75rem,1fr))]
+          gap-4`,
         // Remove grid/grid-cols-4, always use flex
       )}
     >
@@ -50,17 +54,17 @@ const BaseImageGridDisplay: React.FC<ImageDisplayProps> = ({
         <Box
           className={`
             ${singleImageClassName && 'hidden'}
+            w-20 h-20 md:w-30 md:h-30 lg:w-35 lg:h-35
             relative 
             overflow-hidden 
             rounded-md border 
             border-gray-300 bg-black/80
-            flex items-center justify-center
-            w-24 h-24
+            flex items-center justify-center 
         `}
         >
           <button
             type="button"
-            className="w-full h-full flex items-center justify-center cursor-pointer"
+            className="w-[80%] h-[80%] flex items-center justify-center cursor-pointer"
             // onClick={onAdd}
           >
             <IconPlus className="text-white" />
@@ -76,7 +80,7 @@ const BaseImageGridDisplay: React.FC<ImageDisplayProps> = ({
             rounded-md border 
             border-gray-300 bg-gray-200 animate-pulse
             flex items-center justify-center
-            w-24 h-24
+            w-20 h-20 md:w-30 md:h-30 lg:w-35 lg:h-35
           `}
         >
           <div className="w-full h-full flex items-center justify-center">
@@ -98,15 +102,8 @@ const BaseImageGridDisplay: React.FC<ImageDisplayProps> = ({
               key={index}
               className={
                 singleImageClassName ??
-                `relative overflow-hidden rounded-md border border-gray-300 flex items-center justify-center`
+                `relative overflow-hidden rounded-md border border-gray-300 flex items-center justify-center w-20 h-20 md:w-30 md:h-30 lg:w-35 lg:h-35`
               }
-              style={{
-                maxHeight: '150px',
-                maxWidth: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
             >
               <ImageDisplay
                 src={
@@ -118,9 +115,9 @@ const BaseImageGridDisplay: React.FC<ImageDisplayProps> = ({
                 onError={() => setImageError?.(true)}
                 style={{
                   objectFit: 'contain',
-                  height: 'auto',
-                  maxHeight: '150px',
-                  width: 'auto',
+                  height: '100%',
+                  width: '100%',
+                  maxHeight: '100%',
                   maxWidth: '100%',
                   display: 'block',
                 }}

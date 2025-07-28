@@ -21,6 +21,7 @@ interface ChatboxProps {
   ) => void;
   initialSuggestions: string[];
   hasMessages: boolean;
+  disabled?: boolean;
 }
 
 // Layer 6: Input Layer (Fixed, Bottom)
@@ -37,6 +38,7 @@ const InputLayer: React.FC<{
   ) => void;
   onRemoveImage: (index: number) => void;
   onVoiceTranscribe: (text: string) => void;
+  disabled?: boolean;
 }> = ({
   isHome,
   isMobile,
@@ -48,6 +50,7 @@ const InputLayer: React.FC<{
   onImageUpload,
   onRemoveImage,
   onVoiceTranscribe,
+  disabled,
 }) => {
   const CustomImageDisplay: React.FC<{
     index: number;
@@ -122,6 +125,7 @@ const InputLayer: React.FC<{
             ref={textAreaRef}
             style={{ minHeight: '60px', maxHeight: '100%', overflow: 'auto' }}
             rows={isMobile ? 2 : 4}
+            disabled={disabled}
           />
           {/* Image upload */}
           <div className="flex flex-row items-center place-self-end">
@@ -134,6 +138,7 @@ const InputLayer: React.FC<{
                   { 'size-8': isMobile, 'size-10': !isMobile },
                 )}
                 allowMultiple={true}
+                disabled={disabled}
               >
                 <Image
                   src="/assets/image_uploader_icon.svg"
@@ -154,6 +159,7 @@ const InputLayer: React.FC<{
               )}
               customIcon={<FaMicrophone className="size-5" />}
               asModal
+              disabled={disabled}
             />
             {/* Send button */}
             <button
@@ -164,7 +170,9 @@ const InputLayer: React.FC<{
                 },
               )}
               onClick={() => onSend(input)}
-              disabled={input === ''}
+              disabled={
+                disabled || (!input.trim() && selectedImages.length === 0)
+              }
             >
               <SendIcon className="text-white" size={20} />
             </button>
@@ -197,6 +205,7 @@ const Chatbox: React.FC<ChatboxProps> = ({
   onSend,
   initialSuggestions,
   hasMessages = false,
+  disabled = false,
 }) => {
   const [input, setInput] = useState('');
   const [selectedImages, setSelectedImages] = useState<
@@ -266,6 +275,7 @@ const Chatbox: React.FC<ChatboxProps> = ({
             setSelectedImages(selectedImages.filter((_, i) => i !== idx))
           }
           onVoiceTranscribe={setInput}
+          disabled={disabled}
         />
       </div>
     </div>
