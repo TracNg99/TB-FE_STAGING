@@ -93,10 +93,18 @@ export async function handleResize(
 interface UploadHandlerProps {
   acceptedFiles: File[] | FileList | null;
   asBlob?: boolean;
-  selectedImages: Array<{ image: string | null; name: string | null }>;
+  selectedImages: Array<{
+    image: string | null;
+    name: string | null;
+    isExisting?: boolean;
+  }>;
   setImageError?: (state: boolean) => void;
   setSelectedImages: (
-    images: Array<{ image: string | null; name: string | null }>,
+    images: Array<{
+      image: string | null;
+      name: string | null;
+      isExisting?: boolean;
+    }>,
   ) => void;
   onImageUpload: (
     images: Array<{ image: string | null; name: string | null } & File>,
@@ -117,6 +125,7 @@ export const handleImageUpload = ({
   asBlob = false,
   setLoadingFiles,
 }: UploadHandlerProps) => {
+  console.log('handleImageUpload called with acceptedFiles:', acceptedFiles);
   if (acceptedFiles && acceptedFiles.length > 0) {
     const files =
       typeof acceptedFiles === 'object'
@@ -208,7 +217,11 @@ interface ImageUploaderProps {
   withDropzone?: boolean;
   allowMultiple?: boolean; // New prop for choosing and displaying multiple images
   allowAddNew?: boolean;
-  fetchImages?: { image: string | null; name: string | null }[];
+  fetchImages?: {
+    image: string | null;
+    name: string | null;
+    isExisting?: boolean;
+  }[];
   withResize?: boolean;
   isStandalone?: boolean;
   asBlob?: boolean;
@@ -233,6 +246,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     {
       image: string | null;
       name: string | null;
+      isExisting?: boolean;
     }[]
   >([]);
   const [imageError, setImageError] = useState(false);
@@ -248,7 +262,14 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         const file = base64ToBlob(image.image);
         return file;
       }
-      return image;
+      // Ensure the returned object has the expected structure
+      return {
+        ...image,
+        // Add File properties for type compatibility
+        size: 0,
+        type: 'image/jpeg',
+        lastModified: Date.now(),
+      } as any;
     });
     onImageUpload(updatedFiles as any); // Notify parent component
   };

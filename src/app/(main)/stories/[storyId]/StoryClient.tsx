@@ -33,8 +33,8 @@ const EditDeleteMenu = ({
   return (
     <Popover position="bottom-end" withArrow>
       <Popover.Target>
-        <UnstyledButton className="p-2">
-          <span className="text-2xl">⋮</span>
+        <UnstyledButton className="p-2 text-gray-600 hover:text-gray-900 transition-colors cursor-pointer">
+          <span className="text-xl">⋯</span>
         </UnstyledButton>
       </Popover.Target>
       <Popover.Dropdown className="w-32">
@@ -57,12 +57,18 @@ const EditDeleteMenu = ({
 
 interface StoryClientProps {
   story: StoryProps;
-  firstAccess: boolean;
+  firstAccess?: boolean;
 }
 
 export default function StoryClient({ story, firstAccess }: StoryClientProps) {
-  // Memoize derived values
+  // Hooks
+  const router = useRouter();
+  const { user } = useAuth();
+  const [deleteStory, { isLoading: isDeleting }] = useDeleteStoryMutation();
+  const [updateStory, { isLoading: isUpdating }] = useUpdateStoryMutation();
+  const [uploadImageCloudRun] = useUploadImageCloudRunMutation();
 
+  // Story data extraction
   const {
     experience_id,
     seo_title_tag,
@@ -76,38 +82,43 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
     user_id: storyUserId,
     status: storyStatus,
   } = story;
+
+  // Computed values
   const storyTitle = useMemo(
     () => seo_title_tag || experiences?.name || 'Travel Story',
-    [story],
+    [seo_title_tag, experiences?.name],
   );
   const storyContent = useMemo(
     () => story_content || 'No content available',
-    [story],
+    [story_content],
   );
   const storyAuthor = useMemo(
     () =>
       userprofiles?.firstname && userprofiles?.lastname
         ? `${userprofiles.firstname} ${userprofiles.lastname}`
         : userprofiles?.email || 'Unknown Author',
-    [story],
+    [userprofiles],
   );
   const userImageSrc = userprofiles?.media_assets?.url;
-
   const storyDate = useMemo(
     () =>
-      created_at ? new Date(created_at).toLocaleDateString() : 'Unknown Date',
-    [story],
+      created_at
+        ? new Date(created_at).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+          })
+        : 'Unknown Date',
+    [created_at],
   );
   const storyExperience = useMemo(
     () => experiences?.name || 'Unknown Experience',
-    [story],
+    [experiences?.name],
   );
   const images = useMemo(
     () => media_assets?.map((item) => item.url).filter(Boolean) || [],
-    [story],
+    [media_assets],
   );
-
-  // Convert images to IconicPhoto format for the modal
   const iconicPhotos = useMemo(
     () =>
       images.map((url, index) => ({
@@ -118,31 +129,28 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
       })),
     [images],
   );
-
-  const router = useRouter();
-  const { user } = useAuth();
-  const [deleteStory, { isLoading: isDeleting }] = useDeleteStoryMutation();
-  const [updateStory, { isLoading: isUpdating }] = useUpdateStoryMutation();
-  const [uploadImageCloudRun] = useUploadImageCloudRunMutation();
-
-  // Check if current user is the story owner
-  const isStoryOwner = useMemo(() => {
-    return user?.userid === storyUserId;
-  }, [user?.userid, storyUserId]);
-
-  // Check if story is archived
-  const isArchived = storyStatus === 'ARCHIVED';
-
-  // Memoize editImages initialization
   const initialEditImages = useMemo(
     () =>
       story?.media_assets?.map((item) => ({
         image: item.url ?? null,
         name: item.url ? (item.url.split('/').pop() ?? null) : null,
+        isExisting: true,
       })) ?? [],
-    [story],
+    [story?.media_assets],
   );
 
+  // State management
+  const [isFirstAccess, _setIsFirstAccess] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const sessionKey = `story-${story.id}-first-access`;
+      const hasFirstAccess = sessionStorage.getItem(sessionKey) === 'true';
+      if (hasFirstAccess) {
+        sessionStorage.removeItem(sessionKey);
+        return true;
+      }
+    }
+    return firstAccess || false;
+  });
   const [editMode, setEditMode] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
   const [title, setTitle] = useState(storyTitle);
@@ -156,13 +164,17 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
     body: storyContent,
     images: initialEditImages,
   });
+  const [showTypingAnimation, setShowTypingAnimation] = useState(isFirstAccess);
 
-  // Memoize callbacks
-  // const handleRemoveImage = useCallback((idx: number) => {
-  //   setEditImages((prev) => prev.filter((_, i) => i !== idx));
-  // }, []);
+  // Computed flags
+  const isStoryOwner = useMemo(() => {
+    return user?.userid === storyUserId;
+  }, [user?.userid, storyUserId]);
+  const isArchived = storyStatus === 'ARCHIVED';
+  const isMobile =
+    typeof window !== 'undefined' && /Mobi|Android/i.test(navigator.userAgent);
 
-  // Move renderItem useCallback to top level
+  // Callbacks
   const renderCarouselItem = useCallback(
     (photo: string, index: number) => (
       <div
@@ -180,26 +192,45 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
     [],
   );
 
-  const isMobile =
-    typeof window !== 'undefined' && /Mobi|Android/i.test(navigator.userAgent);
   const handleChatSend = useCallback(
     (
       text: string,
       _images: Array<{ image: string | null; name: string | null }> = [],
     ) => {
       localStorage.setItem('chat-input', text);
-      router.push(`/?experienceId=${experience_id}`);
+      router.replace(`/?experienceId=${experience_id}`);
     },
     [router, experience_id],
   );
   const handleShare = useCallback(() => {
-    navigator.clipboard.writeText(window.location.href);
-    notifications.show({
-      title: 'Link copied!',
-      message: 'Story link has been copied to clipboard',
-      color: 'green',
-    });
-  }, []);
+    // Check if native share API is available (mobile devices)
+    if (navigator.share && isMobile) {
+      navigator
+        .share({
+          title: storyTitle,
+          text: `Check out this travel story: ${storyTitle}`,
+          url: window.location.href,
+        })
+        .catch((error) => {
+          console.log('Error sharing:', error);
+          // Fallback to clipboard copy
+          navigator.clipboard.writeText(window.location.href);
+          notifications.show({
+            title: 'Link copied!',
+            message: 'Story link has been copied to clipboard',
+            color: 'green',
+          });
+        });
+    } else {
+      // Desktop: copy to clipboard and show notification
+      navigator.clipboard.writeText(window.location.href);
+      notifications.show({
+        title: 'Link copied!',
+        message: 'Story link has been copied to clipboard',
+        color: 'green',
+      });
+    }
+  }, [storyTitle, isMobile]);
 
   // Add delete handler
   const handleDelete = useCallback(async () => {
@@ -231,9 +262,8 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
         color: 'green',
       });
       // Navigate back to stories list
-      router.push('/stories');
-    } catch (error) {
-      console.error('Error deleting story:', error);
+      router.replace('/stories');
+    } catch (_error) {
       notifications.show({
         title: 'Error',
         message: 'Failed to delete story. Please try again.',
@@ -271,44 +301,72 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
       return;
     }
 
-    try {
-      // Upload new images if any
-      const mediaUrls: string[] = [];
+    // Check if any changes were made
+    const hasTitleChanged = title !== original.title;
+    const hasBodyChanged = body !== original.body;
 
-      for (const imageItem of editImages) {
-        if (imageItem.image && !imageItem.image.startsWith('http')) {
-          // This is a new image that needs to be uploaded
-          try {
-            const payload = {
-              media: {
-                mimeType: 'image/jpeg',
-                body: imageItem.image,
-              },
-              bucket_name: 'story',
-            };
-            const { url } = await uploadImageCloudRun(payload).unwrap();
-            mediaUrls.push(url);
-          } catch (error) {
-            console.error('Error uploading image:', error);
-            notifications.show({
-              title: 'Error uploading image',
-              message: 'Failed to upload one or more images.',
-              color: 'red',
-            });
-            return;
-          }
-        } else if (imageItem.image) {
-          // This is an existing image URL
-          mediaUrls.push(imageItem.image);
-        }
+    // Check if images have changed by comparing the current editImages with original images
+    const hasImagesChanged =
+      JSON.stringify(editImages) !== JSON.stringify(original.images);
+
+    // If no changes were made, show a notification and return early
+    if (!hasTitleChanged && !hasBodyChanged && !hasImagesChanged) {
+      notifications.show({
+        title: 'No Changes',
+        message: 'No changes were made to save.',
+        color: 'blue',
+      });
+      return;
+    }
+
+    try {
+      // Prepare update payload with only changed fields
+      const updatePayload: any = {};
+
+      // Only include title if it changed
+      if (hasTitleChanged) {
+        updatePayload.seo_title_tag = title;
       }
 
-      // Prepare update payload
-      const updatePayload = {
-        seo_title_tag: title,
-        story_content: body,
-        media: mediaUrls,
-      };
+      // Only include body if it changed
+      if (hasBodyChanged) {
+        updatePayload.story_content = body;
+      }
+
+      // Only handle images if they changed
+      if (hasImagesChanged) {
+        const mediaUrls: string[] = [];
+
+        for (const imageItem of editImages) {
+          if (imageItem.image) {
+            if (imageItem.isExisting) {
+              // This is an existing image URL - preserve it
+              mediaUrls.push(imageItem.image);
+            } else {
+              // This is a new image that needs to be uploaded
+              try {
+                const payload = {
+                  media: {
+                    mimeType: 'image/jpeg',
+                    body: imageItem.image,
+                  },
+                  bucket_name: 'story',
+                };
+                const { url } = await uploadImageCloudRun(payload).unwrap();
+                mediaUrls.push(url);
+              } catch (_error) {
+                notifications.show({
+                  title: 'Error uploading image',
+                  message: 'Failed to upload one or more images.',
+                  color: 'red',
+                });
+                return;
+              }
+            }
+          }
+        }
+        updatePayload.media_assets = mediaUrls;
+      }
 
       await updateStory({ storyId, payload: updatePayload }).unwrap();
 
@@ -320,8 +378,7 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
 
       setEditMode(false);
       setOriginal({ title, body, images: editImages });
-    } catch (error) {
-      console.error('Error updating story:', error);
+    } catch (_error) {
       notifications.show({
         title: 'Error',
         message: 'Failed to update story. Please try again.',
@@ -335,6 +392,7 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
     title,
     body,
     editImages,
+    original,
     isStoryOwner,
     isArchived,
   ]);
@@ -377,20 +435,36 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
               </div>
             </div>
             <div className="space-y-4">
-              <a
-                href="/stories"
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('Navigating to /stories');
+                  setTimeout(() => {
+                    router.replace('/stories');
+                  }, 0);
+                }}
                 className="inline-block px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
               >
                 📚 Browse Other Stories
-              </a>
+              </button>
               <div className="text-sm text-gray-500">
                 <p>Or</p>
-                <a
-                  href="/stories/new"
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Navigating to /stories/new');
+                    setTimeout(() => {
+                      router.replace('/stories/new');
+                    }, 0);
+                  }}
                   className="text-orange-500 hover:text-orange-600 underline font-medium"
                 >
                   ✍️ Create Your Own Adventure
-                </a>
+                </button>
               </div>
             </div>
           </div>
@@ -400,20 +474,60 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
         {(!isArchived || isStoryOwner) && (
           <>
             {/* Title and Share */}
-            <div className="mb-2">
+            <div>
+              {/* Mobile: Buttons above title */}
+              <div className="flex mx-2 gap-2 justify-end md:hidden">
+                {isStoryOwner && !editMode && (
+                  <EditDeleteMenu
+                    onEdit={() => {
+                      if (isArchived) {
+                        notifications.show({
+                          title: 'Cannot Edit',
+                          message: 'Archived stories cannot be edited',
+                          color: 'yellow',
+                        });
+                        return;
+                      }
+                      setEditMode(true);
+                      setOriginal({ title, body, images: editImages });
+                    }}
+                    onDelete={() => {
+                      if (isArchived) {
+                        notifications.show({
+                          title: 'Cannot Delete',
+                          message: 'Archived stories cannot be deleted',
+                          color: 'yellow',
+                        });
+                        return;
+                      }
+                      setShowDelete(true);
+                    }}
+                  />
+                )}
+
+                {!editMode && (
+                  <button
+                    onClick={handleShare}
+                    className="flex items-center gap-2 text-gray-600 hover:text-gray-900 cursor-pointer"
+                  >
+                    <PiShareFat size={20} />
+                  </button>
+                )}
+              </div>
+
               <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-3">
                 {editMode ? (
                   <input
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    className="border-b-2 w-full flex-1 text-[32px] font-semibold text-gray-900 leading-tight"
+                    className="border-b-2 w-full flex-1 text-[32px] font-semibold text-gray-900 leading-tight mt-2 md:mt-0"
                   />
                 ) : (
                   <h1 className="text-[32px] font-semibold text-gray-900 leading-tight">
                     {title}
                   </h1>
                 )}
-                <div className="flex gap-2 justify-end md:ml-2 md:align-middle">
+                <div className="hidden md:flex gap-2 justify-end md:ml-2 md:align-middle">
                   {isStoryOwner && !editMode && (
                     <EditDeleteMenu
                       onEdit={() => {
@@ -458,7 +572,7 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
               <div className="flex-shrink-0">
                 <Avatar
                   src={userImageSrc}
-                  size="lg"
+                  size="md"
                   radius="xl"
                   color="orange"
                   name={storyAuthor}
@@ -493,18 +607,62 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
             {/* Photo Grid or Carousel */}
             {editMode ? (
               <div className="mb-4">
+                <h4 className="text-sm font-medium text-gray-700 mb-2">
+                  Story Images:
+                </h4>
                 <ImageUploader
-                  onImageUpload={(files) =>
-                    setEditImages(
-                      files.map((f) => ({
-                        image: f.image || '',
-                        name: f.name,
-                      })),
-                    )
-                  }
+                  onImageUpload={(files) => {
+                    // Handle both adding new images and removing existing ones
+                    setEditImages((prev) => {
+                      // If files array is smaller than prev, it means images were removed
+                      if (files.length < prev.length) {
+                        // Find which images were removed by comparing names
+                        const remainingNames = files
+                          .map((f) => f.name)
+                          .filter(Boolean);
+                        return prev.filter((img) => {
+                          // Keep existing images that are still in the files array
+                          if (img.isExisting) {
+                            return (
+                              img.name && remainingNames.includes(img.name)
+                            );
+                          }
+                          // Keep new images that are still in the files array
+                          return img.name && remainingNames.includes(img.name);
+                        });
+                      } else {
+                        // Adding new images - apply deduplication
+                        const existingNames = prev
+                          .map((img) => img.name)
+                          .filter(Boolean);
+
+                        // Filter out files that already exist based on name
+                        const newFiles = files.filter((file) => {
+                          if (!file.name) return true; // Allow files without names
+                          return !existingNames.includes(file.name);
+                        });
+
+                        // Add only new, non-duplicate files
+                        return [
+                          ...prev,
+                          ...newFiles.map((f) => ({
+                            image: f.image || '',
+                            name: f.name,
+                            isExisting: false, // Mark new images
+                          })),
+                        ];
+                      }
+                    });
+                  }}
                   allowMultiple={true}
                   isStandalone={true}
                   className="mt-2"
+                  // Pass existing images to show them in the uploader
+                  fetchImages={editImages.map((img) => ({
+                    image: img.image || '',
+                    name: img.name || '',
+                    isExisting: img.isExisting,
+                  }))}
                 >
                   <ImageUploadIcon
                     className="size-50 text-white color-orange-500"
@@ -526,21 +684,28 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
             )}
             {/* Story Content */}
             <section>
-              <div className="text-base font-normal text-gray-800">
+              <div className="text-base font-normal text-gray-800 pb-4">
                 {editMode ? (
                   <textarea
                     value={body}
                     onChange={(e) => setBody(e.target.value)}
                     className="w-full border rounded p-2 min-h-[200px]"
                   />
-                ) : firstAccess ? (
-                  <TypingText text={body} duration={5} />
+                ) : showTypingAnimation ? (
+                  <div className="space-y-2">
+                    <TypingText
+                      text={body}
+                      duration={5}
+                      onComplete={() => {
+                        // Clear the animation state after completion
+                        setShowTypingAnimation(false);
+                      }}
+                    />
+                  </div>
                 ) : (
-                  body.split('\n').map((para, idx) => (
-                    <p key={idx} className="mb-2 whitespace-pre-line">
-                      {para}
-                    </p>
-                  ))
+                  <div>
+                    <p className="whitespace-pre-line">{body}</p>
+                  </div>
                 )}
               </div>
             </section>
@@ -569,11 +734,13 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
               </div>
             )}
             {/* Follow-up Questions */}
-            <FollowUpQuestions
-              questions={follow_up_questions || []}
-              experienceId={experience_id}
-              disabled={editMode}
-            />
+            {!editMode && (
+              <FollowUpQuestions
+                questions={follow_up_questions || []}
+                experienceId={experience_id}
+                disabled={editMode}
+              />
+            )}
             {/* Sticky Chatbox at the bottom */}
             {!editMode && (
               <StickyChatbox

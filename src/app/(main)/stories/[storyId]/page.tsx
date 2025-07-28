@@ -79,16 +79,9 @@ export async function generateMetadata({
   };
 }
 
-export default async function Page({
-  params,
-  searchParams,
-}: {
-  params: any;
-  searchParams: any;
-}) {
+export default async function Page({ params }: { params: any }) {
   const storyId = (await params).storyId;
   const result = await queryPost(storyId);
-  const firstAccess = !!(await searchParams)?.first;
 
   // Handle error cases
   if (!result.isSuccess) {
@@ -149,7 +142,7 @@ export default async function Page({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-      <StoryClient story={story} firstAccess={firstAccess} />
+      <StoryClient story={story} />
     </>
   );
 }

@@ -2,9 +2,10 @@
 
 import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconCopy, IconInfoCircle, IconQrcode } from '@tabler/icons-react';
+import { IconInfoCircle, IconQrcode } from '@tabler/icons-react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { PiShareFat } from 'react-icons/pi';
 
 import TTSButton from '@/components/audio-handler/tts-button';
 import FollowUpQuestions from '@/components/chatbot/follow-up-questions';
@@ -162,7 +163,7 @@ const ExperienceDetailPage = () => {
               onClick={handleCopy}
               title="Copy link to clipboard"
             >
-              <IconCopy className="w-8 h-8 " />
+              <PiShareFat size={20} />
             </button>
             <TTSButton contentId={experienceId as string} language={language} />
           </div>

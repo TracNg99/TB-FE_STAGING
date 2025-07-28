@@ -9,7 +9,11 @@ import { cn } from '@/utils/class';
 interface ImageDisplayProps {
   allowMultiple?: boolean; // New prop for choosing and displaying multiple images
   allowAddNew?: boolean;
-  selectedImages: Array<{ image: string | null; name: string | null }>;
+  selectedImages: Array<{
+    image: string | null;
+    name: string | null;
+    isExisting?: boolean;
+  }>;
   imageError?: boolean;
   setImageError?: (state: boolean) => void;
   className?: string;
@@ -36,7 +40,7 @@ const BaseImageGridDisplay: React.FC<ImageDisplayProps> = ({
   setImageError,
   handleRemoveImage,
   CustomChildren,
-  // onAdd
+  onAdd,
 }) => {
   return (
     <div
@@ -65,7 +69,11 @@ const BaseImageGridDisplay: React.FC<ImageDisplayProps> = ({
           <button
             type="button"
             className="w-[80%] h-[80%] flex items-center justify-center cursor-pointer"
-            // onClick={onAdd}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onAdd?.();
+            }}
           >
             <IconPlus className="text-white" />
           </button>
@@ -89,7 +97,7 @@ const BaseImageGridDisplay: React.FC<ImageDisplayProps> = ({
         </Box>
       ))}
       {selectedImages.map((img, index) => (
-        <>
+        <React.Fragment key={index}>
           {CustomChildren ? (
             <CustomChildren
               index={index}
@@ -99,11 +107,15 @@ const BaseImageGridDisplay: React.FC<ImageDisplayProps> = ({
             />
           ) : (
             <Box
-              key={index}
+              data-image-container="true"
               className={
                 singleImageClassName ??
                 `relative overflow-hidden rounded-md border border-gray-300 flex items-center justify-center w-20 h-20 md:w-30 md:h-30 lg:w-35 lg:h-35`
               }
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
             >
               <ImageDisplay
                 src={
@@ -121,6 +133,10 @@ const BaseImageGridDisplay: React.FC<ImageDisplayProps> = ({
                   maxWidth: '100%',
                   display: 'block',
                 }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
               />
 
               {allowAddNew && (
@@ -131,12 +147,17 @@ const BaseImageGridDisplay: React.FC<ImageDisplayProps> = ({
                       e.stopPropagation();
                       handleRemoveImage(index);
                     }}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
                     className={`
-                  absolute top-[-5px] right-[-5px] 
-                  p-1 text-black bg-white/70 
-                  hover:bg-white/80 z-100 
-                  rounded-full cursor-pointer
-                `}
+                   absolute top-[-5px] right-[-5px] 
+                   p-1 text-black bg-white/70 
+                   hover:bg-white/80 z-[9999]
+                   rounded-full cursor-pointer
+                   pointer-events-auto remove-button
+                 `}
                   >
                     <IconX size="0.8rem" />
                   </button>
@@ -144,7 +165,7 @@ const BaseImageGridDisplay: React.FC<ImageDisplayProps> = ({
               )}
             </Box>
           )}
-        </>
+        </React.Fragment>
       ))}
     </div>
   );

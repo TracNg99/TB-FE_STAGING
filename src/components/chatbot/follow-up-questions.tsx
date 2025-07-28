@@ -34,7 +34,7 @@ export default function FollowUpQuestions({
 
   return (
     <section className={className}>
-      <div className="text-[#222] text-[20px] font-semibold flex items-center gap-2 mb-4">
+      <div className="text-[#222] text-[20px] font-semibold flex items-center gap-2 mb-2">
         <span className="text-pink-500">❓</span>
         <span className="text-orange-500">Follow-up Questions</span>
       </div>

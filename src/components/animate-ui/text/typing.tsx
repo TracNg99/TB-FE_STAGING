@@ -42,6 +42,7 @@ type TypingTextProps = Omit<React.ComponentProps<'span'>, 'children'> & {
   text: string | string[];
   cursorClassName?: string;
   animateOnChange?: boolean;
+  onComplete?: () => void;
 };
 
 function TypingText({
@@ -57,6 +58,7 @@ function TypingText({
   text,
   cursorClassName,
   animateOnChange = true,
+  onComplete,
   ...props
 }: TypingTextProps) {
   const localRef = React.useRef<HTMLSpanElement>(null);
@@ -130,6 +132,8 @@ function TypingText({
       typeText(texts[index] ?? '', () => {
         const isLast = index === texts.length - 1;
         if (isLast && !loop) {
+          // Call onComplete when animation finishes
+          onComplete?.();
           return;
         }
         const id = setTimeout(() => {
@@ -151,7 +155,9 @@ function TypingText({
 
   return (
     <span ref={localRef} data-slot="typing-text" {...props}>
-      <motion.span>{displayedText}</motion.span>
+      <motion.span style={{ whiteSpace: 'pre-line' }}>
+        {displayedText}
+      </motion.span>
       {cursor && <CursorBlinker className={cursorClassName} />}
     </span>
   );

@@ -13,15 +13,27 @@ interface ImageSubcomponentProps {
   children?: React.ReactNode;
   allowMultiple?: boolean; // New prop for choosing and displaying multiple images
   allowAddNew?: boolean;
-  fetchImages?: { image: string | null; name: string | null }[];
+  fetchImages?: {
+    image: string | null;
+    name: string | null;
+    isExisting?: boolean;
+  }[];
   withResize?: boolean;
   loadingFiles?: { name: string }[];
-  selectedImages: Array<{ image: string | null; name: string | null }>;
+  selectedImages: Array<{
+    image: string | null;
+    name: string | null;
+    isExisting?: boolean;
+  }>;
   imageError: boolean;
   asBlob?: boolean;
   setImageError: (state: boolean) => void;
   setSelectedImages: (
-    images: Array<{ image: string | null; name: string | null }>,
+    images: Array<{
+      image: string | null;
+      name: string | null;
+      isExisting?: boolean;
+    }>,
   ) => void;
   handleRemoveImage: (index: number) => void;
 }
@@ -54,13 +66,20 @@ const DropzoneUploader: React.FC<ImageSubcomponentProps> = ({
     <div className="flex flex-col lg:mx gap-4">
       <Dropzone
         multiple={allowMultiple}
+        accept={{
+          'image/*': ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.heic'],
+        }}
         className="border-solid mb-4 lg:mb-0"
-        onDrop={(files) =>
+        onDrop={(files) => {
+          console.log('Dropzone onDrop called with files:', files);
           handleImageUpload({
             acceptedFiles: files,
             ...paramObj,
-          })
-        }
+          });
+        }}
+        onReject={(files) => {
+          console.log('Dropzone onReject called with files:', files);
+        }}
       >
         {selectedImages.length > 0 ? (
           <ImageDisplayBaseGrid
@@ -71,6 +90,24 @@ const DropzoneUploader: React.FC<ImageSubcomponentProps> = ({
             setImageError={setImageError}
             handleRemoveImage={handleRemoveImage}
             loadingFiles={loadingFiles}
+            onAdd={() => {
+              // Trigger file input click
+              const input = document.createElement('input');
+              input.type = 'file';
+              input.multiple = allowMultiple;
+              input.accept = 'image/*';
+              input.onchange = (e) => {
+                const files = (e.target as HTMLInputElement).files;
+                if (files) {
+                  console.log('File input onchange called with files:', files);
+                  handleImageUpload({
+                    acceptedFiles: files,
+                    ...paramObj,
+                  });
+                }
+              };
+              input.click();
+            }}
           />
         ) : (
           <DropzoneIdle>

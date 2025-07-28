@@ -151,7 +151,9 @@ const NewStoryPage = () => {
       };
       const result = await uploadStory({ payload }).unwrap();
       if (result?.data?.id) {
-        router.push(`/stories/${result.data.id}?first=true`);
+        // Set sessionStorage to indicate this is a newly created story
+        sessionStorage.setItem(`story-${result.data.id}-first-access`, 'true');
+        router.push(`/stories/${result.data.id}`);
       } else {
         setIsConfirmClicked(false);
         notifications.show({
@@ -188,9 +190,7 @@ const NewStoryPage = () => {
   const watchedNotes = form.watch('notes');
 
   if (isUploading || isConfirmClicked) {
-    return (
-      <StoryCreationLoading message="Your AI-assisted story is on the way..." />
-    );
+    return <StoryCreationLoading />;
   }
 
   const renderSelectOption: SelectProps['renderOption'] = ({
