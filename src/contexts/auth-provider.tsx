@@ -215,7 +215,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setRoleTracker(role);
     const checkAuthValid = async () => {
       const isValid = await isAuthenticated(jwt);
-      if (!isValid) {
+      if (!isValid && !isSessionExpired.current) {
         isSessionExpired.current = true;
         logout();
         notifications.show({
