@@ -104,7 +104,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // Redirect to role-based dashboard if on root path with valid JWT and role
         if (pathname === '/auth/login' && isValidJwt && role) {
           if (role === 'user') {
-            console.log('not public route');
             router.replace(`/`);
           } else {
             router.replace(`/business`);
