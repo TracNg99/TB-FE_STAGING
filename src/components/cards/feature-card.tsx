@@ -54,7 +54,7 @@ const FeatureCard = ({
             onClick={(event) => handleQrIconClick(event, item.id, item.title)}
             className="p-2 hover:bg-gray-100 rounded-full cursor-pointer"
           >
-            <IconQrcode className="h-5 w-5 text-gray-600 z-1000" />
+            <IconQrcode className="h-5 w-5 text-gray-600 z-50" />
           </button>
         </div>
       </div>

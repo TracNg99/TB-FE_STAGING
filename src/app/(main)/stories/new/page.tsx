@@ -152,7 +152,8 @@ const NewStoryPage = () => {
       const result = await uploadStory({ payload }).unwrap();
       if (result?.data?.id) {
         // Set sessionStorage to indicate this is a newly created story
-        sessionStorage.setItem(`story-${result.data.id}-first-access`, 'true');
+        const sessionKey = `story-${result.data.id}-first-access`;
+        sessionStorage.setItem(sessionKey, 'true');
         router.push(`/stories/${result.data.id}`);
       } else {
         setIsConfirmClicked(false);
@@ -169,8 +170,6 @@ const NewStoryPage = () => {
         message: error instanceof Error ? error.message : 'Unknown error',
         color: 'red',
       });
-      // Ensure form state is preserved after error
-      console.log('Form state after error:', form.getValues());
     }
   };
 

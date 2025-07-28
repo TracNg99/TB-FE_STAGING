@@ -126,14 +126,10 @@ const ImageDisplayFlexRow: React.FC<ImageDisplayFlexRowProps> = ({
                     e.stopPropagation();
                     handleRemoveImage(index);
                   }}
-                  className="
-                    absolute top-2 right-2
-                    p-1 text-black bg-white/90
-                    shadow-lg
-                    hover:bg-white z-100
-                    rounded-full cursor-pointer
-                    transition
-                  "
+                  className={cn(
+                    'absolute top-2 right-2 flex items-center justify-center rounded-full bg-white/80 backdrop-blur-sm text-gray-700 transition-colors',
+                    'hover:bg-white z-50',
+                  )}
                   style={{
                     boxShadow: '0 2px 8px rgba(0,0,0,0.25)',
                   }}

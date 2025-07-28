@@ -31,7 +31,7 @@ export async function getSinglePublishedStory(storyId: string): Promise<{
         headers: {
           'Content-Type': 'application/json',
         },
-        cache: 'no-store',
+        cache: 'force-cache',
       },
     );
 

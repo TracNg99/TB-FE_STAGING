@@ -106,7 +106,7 @@ const Navbar = ({ isMobile }: { isMobile?: boolean }) => {
   return (
     <>
       {pathname === '/' && isMobile && (
-        <div className={cn('fixed top-[2dvh] left-[2dvh] flex flex-row z-10')}>
+        <div className={cn('fixed top-[2dvh] left-[2dvh] flex flex-row z-30')}>
           {user ? (
             <Popover position="top-end" withArrow>
               <Popover.Target>
@@ -184,7 +184,7 @@ const Navbar = ({ isMobile }: { isMobile?: boolean }) => {
         <footer
           className={`
         fixed bottom-0 left-0 right-0 
-        z-1000 flex h-16 w-full items-center 
+        z-30 flex h-16 w-full items-center 
         justify-around border-t border-gray-200 
         bg-white md:hidden
       `}

@@ -1,7 +1,7 @@
 // Improved loading skeleton for story detail page - matches latest UI
 export default function StoryDetailLoading() {
   return (
-    <div className="w-full flex flex-col gap-4 pt-4 pb-24 md:pb-4 min-h-screen">
+    <div className="w-full flex flex-col gap-4 pt-4 pb-24 md:pb-4 min-h-screen animate-pulse">
       {/* Title and Share skeleton */}
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-3">
         {/* Mobile buttons skeleton */}

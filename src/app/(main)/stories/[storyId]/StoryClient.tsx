@@ -121,14 +121,14 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
     [media_assets],
   );
 
-  const handleImageLoad = useCallback((imageUrl: string) => {
+  const handleImageLoad = useCallback((_imageUrl: string) => {
     // Image loaded successfully - could be used for analytics or debugging
-    console.log('Image loaded:', imageUrl);
+    // console.log('Image loaded:', imageUrl);
   }, []);
 
-  const handleImageError = useCallback((imageUrl: string) => {
+  const handleImageError = useCallback((_imageUrl: string) => {
     // Handle image load error - could be used for analytics or debugging
-    console.log('Image failed to load:', imageUrl);
+    // console.log('Image failed to load:', imageUrl);
   }, []);
   const iconicPhotos = useMemo(
     () =>
@@ -153,17 +153,6 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
   );
 
   // State management
-  const [isFirstAccess, _setIsFirstAccess] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const sessionKey = `story-${story.id}-first-access`;
-      const hasFirstAccess = sessionStorage.getItem(sessionKey) === 'true';
-      if (hasFirstAccess) {
-        sessionStorage.removeItem(sessionKey);
-        return true;
-      }
-    }
-    return firstAccess || false;
-  });
   const [editMode, setEditMode] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
   const [title, setTitle] = useState(storyTitle);
@@ -177,7 +166,24 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
     body: storyContent,
     images: initialEditImages,
   });
-  const [showTypingAnimation, setShowTypingAnimation] = useState(isFirstAccess);
+
+  // Use useMemo to check for first access (don't cleanup immediately)
+  const isFirstAccess = useMemo(() => {
+    if (typeof window !== 'undefined') {
+      const sessionKey = `story-${story.id}-first-access`;
+      const hasFirstAccess = sessionStorage.getItem(sessionKey) === 'true';
+      if (hasFirstAccess) {
+        // Don't remove session storage here - will be cleaned up when animation completes
+        return true;
+      }
+      return false;
+    }
+
+    return {
+      isFirstAccess: firstAccess || false,
+      showTypingAnimation: firstAccess || false,
+    };
+  }, [story.id, story.created_at, firstAccess]);
 
   // Computed flags
   const isStoryOwner = useMemo(() => {
@@ -196,26 +202,40 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
     (photo: string, index: number) => (
       <div
         key={photo}
-        className="h-full flex items-center justify-center rounded-md border border-gray-200 bg-white flex-shrink-0 cursor-pointer overflow-hidden"
+        className="h-full flex items-center justify-center rounded-md border border-gray-200 bg-white flex-shrink-0 cursor-pointer overflow-hidden relative"
         onClick={() => setSelectedPhotoIndex(index)}
       >
+        {/* Loading skeleton - shown while image is loading */}
+        <div className="absolute w-80 inset-0 bg-gradient-to-br from-gray-100 to-gray-200 animate-pulse flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-16 h-16 bg-gray-300 rounded-full animate-pulse"></div>
+            <div className="flex flex-col gap-2 items-center">
+              <div className="h-3 bg-gray-300 rounded w-24 animate-pulse"></div>
+              <div className="h-3 bg-gray-300 rounded w-20 animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+
         <img
           src={photo}
           alt={photo}
-          className="w-auto min-w-20 h-80 md:h-96 object-cover rounded-md"
+          className="w-auto h-80 md:h-96 object-cover rounded-md relative z-10"
           onLoad={(e) => {
-            // Image loaded successfully
+            // Image loaded successfully - hide skeleton and show image
             e.currentTarget.style.opacity = '1';
+            e.currentTarget.previousElementSibling?.classList.add('hidden');
             handleImageLoad(photo);
           }}
           onError={(e) => {
-            // Handle image load error
+            // Handle image load error - show error fallback
             e.currentTarget.style.display = 'none';
+            e.currentTarget.previousElementSibling?.classList.add('hidden');
             e.currentTarget.nextElementSibling?.classList.remove('hidden');
             handleImageError(photo);
           }}
           style={{ opacity: 0, transition: 'opacity 0.3s ease-in-out' }}
         />
+
         {/* Fallback for failed images */}
         <div className="hidden w-auto h-80 md:h-96 bg-gray-100 items-center justify-center rounded-md">
           <div className="text-gray-400 text-sm text-center">
@@ -743,14 +763,20 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
                     onChange={(e) => setBody(e.target.value)}
                     className="w-full border rounded p-2 min-h-[200px]"
                   />
-                ) : showTypingAnimation ? (
+                ) : isFirstAccess &&
+                  storyContent &&
+                  storyContent.length > 0 &&
+                  !isArchived ? (
                   <div className="space-y-2">
                     <TypingText
                       text={body}
                       duration={5}
                       onComplete={() => {
-                        // Clear the animation state after completion
-                        setShowTypingAnimation(false);
+                        // Clean up session storage when typing animation is fully displayed and finished
+                        if (typeof window !== 'undefined') {
+                          const sessionKey = `story-${story.id}-first-access`;
+                          sessionStorage.removeItem(sessionKey);
+                        }
                       }}
                     />
                   </div>

@@ -238,7 +238,7 @@ const Chatbox: React.FC<ChatboxProps> = ({
   return (
     <div
       className={cn(
-        'w-full flex flex-col items-center relative z-50 bg-transparent',
+        'w-full flex flex-col items-center relative z-30 bg-transparent',
       )}
     >
       {/* Suggestions Layer */}

@@ -17,7 +17,7 @@ export default function StoryCreationLoading() {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentMessageIndex((prev) => (prev + 1) % processingMessages.length);
-    }, 3000); // Faster duration
+    }, 2000); // Even faster duration to reduce flickering
 
     return () => clearInterval(interval);
   }, [processingMessages.length]);

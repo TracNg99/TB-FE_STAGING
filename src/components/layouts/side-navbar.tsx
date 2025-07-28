@@ -106,7 +106,7 @@ const Navbar = () => {
     <aside
       onMouseEnter={() => setIsSidebarOpen(true)}
       // onMouseLeave={() => setIsSidebarOpen(false)}
-      className="fixed left-0 top-0 h-screen w-24 flex flex-col items-center border-r border-gray-200 bg-white py-4 z-10"
+      className="fixed left-0 top-0 h-screen w-24 flex flex-col items-center border-r border-gray-200 bg-white py-4 z-20"
     >
       <Link href="/" onClick={triggerReset}>
         <Image

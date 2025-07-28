@@ -19,21 +19,19 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
         {isMobile ? <MobileNavbar isMobile={isMobile} /> : <Navbar />}
         <main
           className={cn(
-            'flex-1 overflow-y-auto',
-            !isMobile && 'ml-24', // Add margin to account for fixed sidebar width
+            'flex-1 overflow-y-auto w-screen',
+            !isMobile && 'pl-24', // Add margin to account for fixed sidebar width
           )}
         >
           <AnimatePresence mode="wait">
             <motion.div
               key={pathname}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               transition={{
-                type: 'spring',
-                stiffness: 300,
-                damping: 30,
-                duration: 0.3,
+                duration: 0.2,
+                ease: 'easeInOut',
               }}
               className="h-full"
             >

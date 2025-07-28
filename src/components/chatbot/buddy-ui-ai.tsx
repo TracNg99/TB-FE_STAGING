@@ -719,7 +719,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
   ]); // messages
 
   return (
-    <div className="absolute h-full w-full overflow-hidden">
+    <div className="h-full w-full overflow-hidden">
       {/* Main flex-row container: [Sidebar][MainContentColumn] */}
       <div className="flex flex-row h-screen w-full z-10">
         {/* Sidebar Layer */}
@@ -739,15 +739,15 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
         />
 
         {/* MainContentColumn: flex-col [ScrollableContent][Chatbox] */}
-        <div className="flex pt-18 md:pt-2 grow flex-col min-w-0">
+        <div className="flex pt-18 md:pt-2 grow flex-col min-w-0 z-10">
           <BackgroundLayer
             isHome={isHome}
             hasMessages={messages.length > 0}
             isInputActive={isInputActive || isThreadFetching || isThreadLoading}
           />
-          <div className="flex grow h-[100dvh] flex-col overflow-hidden mx-auto w-[90%] md:w-[70%]">
+          <div className="flex grow h-[100dvh] flex-col overflow-hidden mx-auto w-[90%] md:w-[70%] z-10">
             {/* Scrollable content area (only this should scroll) */}
-            <div className="relative flex-1 overscroll-none overflow-y-auto">
+            <div className="relative flex-1 overscroll-none overflow-y-auto z-10">
               <ContentLayer
                 isHome={isHome}
                 isMobile={isMobile}
@@ -769,7 +769,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
             {/* Chatbox always visible at the bottom except in home page with no messages */}
             <div
               className={cn(
-                'w-full shrink min-w-0 mb-40',
+                'w-full shrink min-w-0 mb-40 z-20',
                 isHome &&
                   messages.length === 0 &&
                   !isMobile &&
