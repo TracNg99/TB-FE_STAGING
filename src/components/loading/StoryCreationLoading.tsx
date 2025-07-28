@@ -1,64 +1,46 @@
 'use client';
 
-import { LayoutGroup, motion } from 'framer-motion';
-
-import WordListSwap from '../animate-ui/text/word-list-swap';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
 
 export default function StoryCreationLoading() {
   const processingMessages = [
-    'generating ✈️',
-    'added with AI keywords 🎯',
-    'optimizing... 🌍',
-    'crafting with beautiful memories 🎉',
-    'almost ready! 🚀',
+    'Generating your custom story...',
+    'Enhancing with targeted keywords',
+    'Refining structure and flow',
+    'Enriching with local highlights',
+    'Ready! Your optimized story awaits',
   ];
+
+  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentMessageIndex((prev) => (prev + 1) % processingMessages.length);
+    }, 3000); // Faster duration
+
+    return () => clearInterval(interval);
+  }, [processingMessages.length]);
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="max-w-lg w-full">
         {/* Loading Box */}
         <div className="border bg-white border-gray-200 rounded-lg p-6 text-center pt-10 -translate-y-10">
-          <LayoutGroup>
-            <motion.div
-              className="text-orange-500 font-medium mb-4 flex justify-center"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              layout={true}
-            >
-              <motion.p
-                className="flex whitespace-pre text-xl"
-                layout={true}
-                transition={{ type: 'spring', damping: 20, stiffness: 200 }}
+          <div className="text-orange-500 font-medium mb-4 flex justify-center">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentMessageIndex}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5 }}
+                className="text-xl font-medium"
               >
-                <motion.span
-                  className="align-middle flex items-center"
-                  layout={true}
-                  transition={{ type: 'spring', damping: 20, stiffness: 200 }}
-                >
-                  Your feedback is{' '}
-                </motion.span>
-                <motion.div
-                  layout={true}
-                  className="inline-block"
-                  transition={{ type: 'spring', damping: 20, stiffness: 200 }}
-                >
-                  <WordListSwap
-                    texts={processingMessages}
-                    mainClassName="text-white px-1 sm:px-1 md:px-2 bg-orange-500 overflow-hidden py-2 sm:py-1 md:py-2 justify-center rounded-lg text-xl"
-                    staggerFrom="last"
-                    initial={{ y: '100%' }}
-                    animate={{ y: 0 }}
-                    exit={{ y: '-120%' }}
-                    staggerDuration={0.025}
-                    splitLevelClassName="overflow-hidden pb-0.5 sm:pb-1 md:pb-1"
-                    transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                    rotationInterval={4000}
-                  />
-                </motion.div>
-              </motion.p>
-            </motion.div>
-          </LayoutGroup>
+                {processingMessages[currentMessageIndex]}
+              </motion.div>
+            </AnimatePresence>
+          </div>
 
           {/* Spinner */}
           <motion.div

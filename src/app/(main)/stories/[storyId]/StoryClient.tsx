@@ -119,6 +119,16 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
     () => media_assets?.map((item) => item.url).filter(Boolean) || [],
     [media_assets],
   );
+
+  const handleImageLoad = useCallback((imageUrl: string) => {
+    // Image loaded successfully - could be used for analytics or debugging
+    console.log('Image loaded:', imageUrl);
+  }, []);
+
+  const handleImageError = useCallback((imageUrl: string) => {
+    // Handle image load error - could be used for analytics or debugging
+    console.log('Image failed to load:', imageUrl);
+  }, []);
   const iconicPhotos = useMemo(
     () =>
       images.map((url, index) => ({
@@ -171,8 +181,12 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
     return user?.userid === storyUserId;
   }, [user?.userid, storyUserId]);
   const isArchived = storyStatus === 'ARCHIVED';
-  const isMobile =
-    typeof window !== 'undefined' && /Mobi|Android/i.test(navigator.userAgent);
+  const isMobile = useMemo(
+    () =>
+      typeof window !== 'undefined' &&
+      /Mobi|Android/i.test(navigator.userAgent),
+    [],
+  );
 
   // Callbacks
   const renderCarouselItem = useCallback(
@@ -185,11 +199,30 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
         <img
           src={photo}
           alt={photo}
-          className="w-auto h-80 md:h-96 object-cover rounded-md"
+          className="w-auto min-w-20 h-80 md:h-96 object-cover rounded-md"
+          onLoad={(e) => {
+            // Image loaded successfully
+            e.currentTarget.style.opacity = '1';
+            handleImageLoad(photo);
+          }}
+          onError={(e) => {
+            // Handle image load error
+            e.currentTarget.style.display = 'none';
+            e.currentTarget.nextElementSibling?.classList.remove('hidden');
+            handleImageError(photo);
+          }}
+          style={{ opacity: 0, transition: 'opacity 0.3s ease-in-out' }}
         />
+        {/* Fallback for failed images */}
+        <div className="hidden w-auto h-80 md:h-96 bg-gray-100 items-center justify-center rounded-md">
+          <div className="text-gray-400 text-sm text-center">
+            <div className="w-8 h-8 bg-gray-300 rounded-full mx-auto mb-2 animate-pulse"></div>
+            Image unavailable
+          </div>
+        </div>
       </div>
     ),
-    [],
+    [handleImageLoad, handleImageError],
   );
 
   const handleChatSend = useCallback(
@@ -215,20 +248,24 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
           console.log('Error sharing:', error);
           // Fallback to clipboard copy
           navigator.clipboard.writeText(window.location.href);
-          notifications.show({
-            title: 'Link copied!',
-            message: 'Story link has been copied to clipboard',
-            color: 'green',
-          });
+          if (!isMobile) {
+            notifications.show({
+              title: 'Link copied!',
+              message: 'Story link has been copied to clipboard',
+              color: 'green',
+            });
+          }
         });
     } else {
       // Desktop: copy to clipboard and show notification
       navigator.clipboard.writeText(window.location.href);
-      notifications.show({
-        title: 'Link copied!',
-        message: 'Story link has been copied to clipboard',
-        color: 'green',
-      });
+      if (!isMobile) {
+        notifications.show({
+          title: 'Link copied!',
+          message: 'Story link has been copied to clipboard',
+          color: 'green',
+        });
+      }
     }
   }, [storyTitle, isMobile]);
 
@@ -670,17 +707,26 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
                   />
                 </ImageUploader>
               </div>
+            ) : images.length > 0 ? (
+              <div className="relative w-full rounded-lg">
+                <NewCarousel
+                  items={images}
+                  enableInfiniteLoop={false}
+                  slideGap={16}
+                  renderItem={renderCarouselItem}
+                />
+              </div>
             ) : (
-              images.length > 0 && (
-                <div className="relative w-full rounded-lg ">
-                  <NewCarousel
-                    items={images}
-                    enableInfiniteLoop={false}
-                    slideGap={16}
-                    renderItem={renderCarouselItem}
-                  />
+              <div className="relative w-full rounded-lg overflow-hidden">
+                <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 animate-pulse">
+                  <div className="w-full h-full flex items-center justify-center">
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="w-12 h-12 bg-gray-300 rounded-full animate-pulse"></div>
+                      <div className="h-4 bg-gray-300 rounded w-32 animate-pulse"></div>
+                    </div>
+                  </div>
                 </div>
-              )
+              </div>
             )}
             {/* Story Content */}
             <section>

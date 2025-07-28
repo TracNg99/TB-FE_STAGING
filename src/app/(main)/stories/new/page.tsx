@@ -169,6 +169,8 @@ const NewStoryPage = () => {
         message: error instanceof Error ? error.message : 'Unknown error',
         color: 'red',
       });
+      // Ensure form state is preserved after error
+      console.log('Form state after error:', form.getValues());
     }
   };
 
@@ -235,7 +237,6 @@ const NewStoryPage = () => {
               data={experiences}
               onChange={onChange}
               value={value as any}
-              searchable
             />
           )}
         />
@@ -256,6 +257,15 @@ const NewStoryPage = () => {
                   // withResize={true}
                   // asBlob={true}
                   isStandalone={true}
+                  fetchImages={watchedMedia.map((item) => {
+                    if (typeof item === 'string') {
+                      return { image: item, name: 'image' };
+                    }
+                    if (item instanceof Blob) {
+                      return { image: null, name: 'blob' };
+                    }
+                    return { image: item.image, name: item.name };
+                  })}
                 >
                   <ImageUploadIcon
                     className="size-50 text-white color-orange-500"
@@ -266,48 +276,50 @@ const NewStoryPage = () => {
             )}
           />
         </div>
-        {watchedMedia.length > 0 && (
-          <>
-            <div className="relative mb-4 lg:mb-0">
-              <Textarea
-                id="story"
-                placeholder="Anything to add?"
-                resize="vertical"
-                classNames={{
-                  input: 'pb-20 pt-4',
-                }}
-                error={form.formState.errors.notes?.message}
-                {...form.register('notes')}
-              />
-              <VoiceToTextButton
-                language="en-US"
-                existingTexts={watchedNotes ?? ''}
-                onUnsupportDetected={() => {
-                  notifications.show({
-                    title: 'Error: Browser not supported',
-                    message: 'This browser does not support speech recognition',
-                    color: 'red',
-                  });
-                }}
-                onTranscribe={(e) => handleTranscription(e)}
-                isInterrupted={isConfirmClicked || isUploading}
-              />
-            </div>
-            <div className="lg:col-span-2 flex justify-center">
-              <AiButton
-                additionalClassName="lg:w-96 h-16 disabled:opacity-50 text-white bg-orange-500 hover:bg-orange-600 cursor-pointer text-white"
-                type="submit"
-                displayText="Generate your AI-assisted story"
-                disabled={form.formState.isSubmitting}
-                onClick={() => {
-                  handleInputsUpload(form.getValues());
-                }}
-                altIcon={<IconSparkles size={24} />}
-                asFloating={false}
-              />
-            </div>
-          </>
-        )}
+        {watchedMedia.length > 0 &&
+          form.watch('experience') !== 'No experience selected' && (
+            <>
+              <div className="relative mb-4 lg:mb-0">
+                <Textarea
+                  id="story"
+                  placeholder="Anything to add?"
+                  resize="vertical"
+                  classNames={{
+                    input: 'pb-20 pt-4',
+                  }}
+                  error={form.formState.errors.notes?.message}
+                  {...form.register('notes')}
+                />
+                <VoiceToTextButton
+                  language="en-US"
+                  existingTexts={watchedNotes ?? ''}
+                  onUnsupportDetected={() => {
+                    notifications.show({
+                      title: 'Error: Browser not supported',
+                      message:
+                        'This browser does not support speech recognition',
+                      color: 'red',
+                    });
+                  }}
+                  onTranscribe={(e) => handleTranscription(e)}
+                  isInterrupted={isConfirmClicked || isUploading}
+                />
+              </div>
+              <div className="w-full flex justify-center">
+                <AiButton
+                  additionalClassName="w-full md:w-auto h-16 disabled:opacity-50 text-white bg-orange-500 hover:bg-orange-600 cursor-pointer text-white px-8 py-4 flex items-center justify-center gap-2"
+                  type="submit"
+                  displayText="Generate your AI-assisted story"
+                  disabled={form.formState.isSubmitting}
+                  onClick={() => {
+                    handleInputsUpload(form.getValues());
+                  }}
+                  altIcon={<IconSparkles size={24} />}
+                  asFloating={false}
+                />
+              </div>
+            </>
+          )}
       </Section>
     </form>
   );

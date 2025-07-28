@@ -92,7 +92,10 @@ const BaseImageGridDisplay: React.FC<ImageDisplayProps> = ({
           `}
         >
           <div className="w-full h-full flex items-center justify-center">
-            <p className="text-xs text-gray-500">Converting...</p>
+            <div className="flex flex-col items-center gap-1">
+              <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+              <p className="text-xs text-gray-500">Converting...</p>
+            </div>
           </div>
         </Box>
       ))}
@@ -154,7 +157,7 @@ const BaseImageGridDisplay: React.FC<ImageDisplayProps> = ({
                     className={`
                    absolute top-[-5px] right-[-5px] 
                    p-1 text-black bg-white/70 
-                   hover:bg-white/80 z-[9999]
+                   hover:bg-white/80 z-[10]
                    rounded-full cursor-pointer
                    pointer-events-auto remove-button
                  `}
