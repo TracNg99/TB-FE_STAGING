@@ -12,6 +12,7 @@ const queryPost = cache(async (id: string) => {
   const result = await getSinglePublishedStory(id);
   return result;
 });
+
 // Generate metadata function for dynamic SEO
 export async function generateMetadata({
   params,
@@ -77,6 +78,7 @@ export async function generateMetadata({
     },
   };
 }
+
 export default async function Page({
   params,
   searchParams,
