@@ -47,6 +47,14 @@ const BackgroundLayer: React.FC<{
 }> = ({ isHome, hasMessages, isInputActive }) => {
   return (
     <div className="absolute inset-0 z-0 bg-[#FCFCF9]">
+      {isHome && (
+        <div
+          className={cn('absolute inset-0', {
+            [`bg-[url(https://kkhkvzjpcnivhhutxled.supabase.co/storage/v1/object/sign/chat/thumbnail/be9f7c75bbf9040889e91b5eae71b8b84d66f7d7.jpg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9jOWIwY2JhZC1hOTc4LTRkNDgtODQyYi0yOWE1OWViY2ViYTYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjaGF0L3RodW1ibmFpbC9iZTlmN2M3NWJiZjkwNDA4ODllOTFiNWVhZTcxYjhiODRkNjZmN2Q3LmpwZyIsImlhdCI6MTc1MzY3NjgyOSwiZXhwIjoyMDY5MDM2ODI5fQ.6eCc1euD2ToslJdXQZWuJwIBouliK3-9xR4dBUqDhsw)] bg-cover bg-center`]:
+              isHome && !hasMessages && !isInputActive,
+          })}
+        />
+      )}
       {/* Default Background */}
       {(!isHome || hasMessages || isInputActive) && (
         <div className="absolute inset-0 bg-[#FCFCF9]" />
@@ -202,6 +210,7 @@ const ContentLayer: React.FC<{
         'relative w-full z-10 overflow-y-auto flex flex-col items-center',
         {
           'h-full': isHome,
+          'h-[40dvh]': isHome && !isMobile && messages.length === 0,
           'h-[80%]': !isHome,
           'pt-0': !isHome,
         },
@@ -268,11 +277,18 @@ const ContentLayer: React.FC<{
         !isThreadFetching &&
         !isThreadLoading &&
         !isSessionActive && (
-          <div className="flex flex-col h-full place-self-center justify-center">
+          <div
+            className={cn(
+              'flex flex-col h-full place-self-center justify-center',
+              {
+                'justify-end': isHome && !isMobile,
+              },
+            )}
+          >
             <h2
-              className={cn('text-[#FE6F1C]', {
+              className={cn('text-white font-semibold', {
                 'text-[24px]': isMobile,
-                'text-[40px] mt-40': !isMobile,
+                'text-[40px] mt-30': !isMobile,
               })}
             >
               Welcome to Travel Buddy!
@@ -751,10 +767,14 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                 }
               />
             </div>
-            {/* Chatbox always visible at the bottom */}
+            {/* Chatbox always visible at the bottom except in home page with no messages */}
             <div
               className={cn(
                 'w-full shrink min-w-0 mb-40',
+                isHome &&
+                  messages.length === 0 &&
+                  !isMobile &&
+                  'mb-0 grow h-[5dvh] bg-white/30',
                 !isMobile && 'mb-10',
                 messages.length > 0 && isMobile && !isIOS && 'mb-[25vh]',
                 messages.length > 0 && isMobile && isIOS && 'mb-[22dvh]',

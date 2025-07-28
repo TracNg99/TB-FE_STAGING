@@ -115,10 +115,10 @@ const Navbar = ({ isMobile }: { isMobile?: boolean }) => {
                   className={cn(
                     'flex flex-col items-center gap-1 rounded-lg p-2',
                     activeTab === '/profile' && 'bg-orange-100/50',
-                    'bg-white/50 rounded-full',
+                    'bg-transparent rounded-full',
                   )}
                 >
-                  <div className="bg-orange-400 text-white rounded-full p-1">
+                  <div className="bg-transparent text-white rounded-full p-0">
                     <Avatar
                       className="bg-white"
                       src={user.media_assets?.url ?? null}
@@ -156,7 +156,7 @@ const Navbar = ({ isMobile }: { isMobile?: boolean }) => {
           ) : (
             <div
               // href="/auth/login"
-              className="flex flex-col items-center gap-1 rounded-full p-4 bg-white/50"
+              className="flex flex-col items-center gap-1 rounded-full p-4 bg-transparent"
               onClick={logout}
             >
               <BsPersonCircle color="#FB5607" size={32} />
@@ -165,7 +165,7 @@ const Navbar = ({ isMobile }: { isMobile?: boolean }) => {
           )}
           <Link
             href="/"
-            className="fixed top-[2dvh] left-[50%] translate-x-[-50%] p-1 bg-white/50 rounded-xl"
+            className="fixed top-[2dvh] left-[50%] translate-x-[-50%] p-1 bg-transparent rounded-xl"
             onClick={triggerReset}
           >
             <Image

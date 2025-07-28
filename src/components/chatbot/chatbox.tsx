@@ -96,12 +96,18 @@ const InputLayer: React.FC<{
   return (
     <div
       className={cn(
-        'relative z-30 w-full min-h-[80px] flex flex-col justify-end h-20',
+        'relative z-30 w-full min-h-[120px] flex flex-col justify-end h-20',
+        {
+          'min-h-[60px]': isMobile,
+          'min-h-[80px]': !isMobile && !isHome,
+        },
       )}
     >
       {/* Dynamic height, grows with content */}
       <div
-        className={cn('w-full mx-auto h-full flex flex-col justify-end px-3')}
+        className={cn(
+          'w-full mx-auto h-full flex flex-col justify-end px-3 bg-transparent',
+        )}
       >
         <InchatUploader
           className={cn('flex flex-row w-full lg:mx gap-4 my-3')}
@@ -113,7 +119,7 @@ const InputLayer: React.FC<{
 
         <div
           className={cn(
-            'w-full flex flex-row items-center bg-white mx-1 h-full gap-2',
+            'w-full flex flex-row items-center bg-white mx-1 h-full gap-2 bg-transparent',
           )}
         >
           <textarea
@@ -230,7 +236,11 @@ const Chatbox: React.FC<ChatboxProps> = ({
   };
 
   return (
-    <div className="w-full flex flex-col items-center relative z-50">
+    <div
+      className={cn(
+        'w-full flex flex-col items-center relative z-50 bg-transparent',
+      )}
+    >
       {/* Suggestions Layer */}
       {isHome &&
         initialSuggestions &&
@@ -243,7 +253,7 @@ const Chatbox: React.FC<ChatboxProps> = ({
               renderItem={(item) => (
                 <button
                   key={item}
-                  className="text-nowrap rounded-full bg-[#FFF2E5] px-2 py-2 text-[11px] text-black hover:bg-gray-100 cursor-pointer"
+                  className="text-nowrap rounded-full bg-white/80 px-2 py-2 text-[11px] text-black hover:bg-gray-100 cursor-pointer"
                   onClick={() => handleSend(item)}
                 >
                   {item}
@@ -259,7 +269,7 @@ const Chatbox: React.FC<ChatboxProps> = ({
       {/* Input Layer */}
       <div
         className={cn(
-          'w-full flex flex-col bg-white items-center h-full shadow-none border-1 border-black/25 rounded-lg',
+          'w-full flex flex-col bg-white/80 items-center h-full shadow-none border-1 border-black/25 rounded-lg',
         )}
       >
         <InputLayer
