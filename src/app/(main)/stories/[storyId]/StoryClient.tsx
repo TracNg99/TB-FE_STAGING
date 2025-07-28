@@ -20,7 +20,8 @@ import { useUploadImageCloudRunMutation } from '@/store/redux/slices/storage/upl
 import {
   StoryProps,
   useDeleteStoryMutation,
-  useUpdateStoryMutation,
+  // useUpdateStoryMutation,
+  useEditStoryMutation,
 } from '@/store/redux/slices/user/story';
 
 const EditDeleteMenu = ({
@@ -65,7 +66,7 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
   const router = useRouter();
   const { user } = useAuth();
   const [deleteStory, { isLoading: isDeleting }] = useDeleteStoryMutation();
-  const [updateStory, { isLoading: isUpdating }] = useUpdateStoryMutation();
+  const [editStory, { isLoading: isEditing }] = useEditStoryMutation();
   const [uploadImageCloudRun] = useUploadImageCloudRunMutation();
 
   // Story data extraction
@@ -139,6 +140,8 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
       })),
     [images],
   );
+
+  // Memoize editImages initialization
   const initialEditImages = useMemo(
     () =>
       story?.media_assets?.map((item) => ({
@@ -405,7 +408,9 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
         updatePayload.media_assets = mediaUrls;
       }
 
-      await updateStory({ storyId, payload: updatePayload }).unwrap();
+      updatePayload.story_id = storyId;
+
+      await editStory(updatePayload).unwrap();
 
       notifications.show({
         title: 'Success',
@@ -413,8 +418,8 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
         color: 'green',
       });
 
-      setEditMode(false);
       setOriginal({ title, body, images: editImages });
+      setEditMode(false);
     } catch (_error) {
       notifications.show({
         title: 'Error',
@@ -423,7 +428,8 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
       });
     }
   }, [
-    updateStory,
+    // updateStory,
+    editStory,
     uploadImageCloudRun,
     storyId,
     title,
@@ -761,9 +767,9 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
                 <button
                   className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 transition-colors disabled:opacity-50"
                   onClick={handleSaveChanges}
-                  disabled={isUpdating}
+                  disabled={isEditing}
                 >
-                  {isUpdating ? 'Saving...' : 'Save'}
+                  {isEditing ? 'Saving...' : 'Save'}
                 </button>
                 <button
                   className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition-colors"
@@ -773,7 +779,7 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
                     setBody(original.body);
                     setEditImages(original.images);
                   }}
-                  disabled={isUpdating}
+                  disabled={isEditing}
                 >
                   Cancel
                 </button>

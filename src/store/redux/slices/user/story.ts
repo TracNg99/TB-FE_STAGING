@@ -95,6 +95,19 @@ export interface StorySingleRes {
   error?: any;
 }
 
+interface StoryEditingReqProps {
+  story_id: string;
+  media:
+    | string[]
+    | {
+        body: string;
+        path: string;
+        mimeType: string;
+      }[];
+  seo_title_tag: string;
+  story_content: string;
+}
+
 const StoryApi = createApi({
   reducerPath: 'story',
   baseQuery,
@@ -206,6 +219,20 @@ interface StreamStoryArgs {
   formData: FormData;
   onChunk: (chunk: StoryStreamRes) => void;
 }
+
+const storyCloudRunApi = createApi({
+  reducerPath: 'storyCloudRunApi',
+  baseQuery: baseQueryAgent,
+  endpoints: (builder) => ({
+    editStory: builder.mutation<StorySingleRes, StoryEditingReqProps>({
+      query: (payload) => ({
+        url: `/story/edit`,
+        method: 'POST',
+        body: payload,
+      }),
+    }),
+  }),
+});
 
 const streamStoryApi = createApi({
   reducerPath: 'streamStoryApi',
@@ -425,6 +452,8 @@ const streamStoryApi = createApi({
 
 export const { useStreamStoryMutation } = streamStoryApi;
 
+export const { useEditStoryMutation } = storyCloudRunApi;
+
 // ... (rest of the file, e.g., StoryApi and its exports)
 
 export const {
@@ -438,4 +467,4 @@ export const {
   useGetSinglePublishedStoryQuery,
 } = StoryApi;
 
-export { StoryApi, streamStoryApi };
+export { StoryApi, streamStoryApi, storyCloudRunApi };
