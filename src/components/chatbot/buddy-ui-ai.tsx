@@ -746,7 +746,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
           <BackgroundLayer
             isHome={isHome}
             hasMessages={messages.length > 0}
-            isInputActive={isInputActive}
+            isInputActive={isInputActive || isThreadFetching || isThreadLoading}
           />
           <div className="flex grow h-[100dvh] flex-col overflow-hidden mx-auto w-[90%] md:w-[70%]">
             {/* Scrollable content area (only this should scroll) */}
