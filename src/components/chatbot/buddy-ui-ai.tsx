@@ -50,7 +50,7 @@ const BackgroundLayer: React.FC<{
       {isHome && (
         <div
           className={cn('absolute inset-0', {
-            [`bg-[url(https://kkhkvzjpcnivhhutxled.supabase.co/storage/v1/object/sign/chat/thumbnail/be9f7c75bbf9040889e91b5eae71b8b84d66f7d7.jpg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9jOWIwY2JhZC1hOTc4LTRkNDgtODQyYi0yOWE1OWViY2ViYTYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjaGF0L3RodW1ibmFpbC9iZTlmN2M3NWJiZjkwNDA4ODllOTFiNWVhZTcxYjhiODRkNjZmN2Q3LmpwZyIsImlhdCI6MTc1MzY3NjgyOSwiZXhwIjoyMDY5MDM2ODI5fQ.6eCc1euD2ToslJdXQZWuJwIBouliK3-9xR4dBUqDhsw)] bg-cover bg-center`]:
+            [`bg-[url(https://kkhkvzjpcnivhhutxled.supabase.co/storage/v1/object/sign/chat/thumbnail/be9f7c75bbf9040889e91b5eae71b8b84d66f7d7.jpg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9jOWIwY2JhZC1hOTc4LTRkNDgtODQyYi0yOWE1OWViY2ViYTYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjaGF0L3RodW1ibmFpbC9iZTlmN2M3NWJiZjkwNDA4ODllOTFiNWVhZTcxYjhiODRkNjZmN2Q3LmpwZyIsImlhdCI6MTc1MzY3NjgyOSwiZXhwIjoyMDY5MDM2ODI5fQ.6eCc1euD2ToslJdXQZWuJwIBouliK3-9xR4dBUqDhsw)] bg-center bg-auto`]:
               isHome && !hasMessages && !isInputActive,
           })}
         />
@@ -621,7 +621,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
       setIsDefault(false);
       if (!isHome) {
         handleReset();
-        localStorage.setItem('chat-input', text);
+        sessionStorage.setItem('chat-input', text);
         router.push(`/?experienceId=${experienceId}`);
       }
       setIsLoading(true);
