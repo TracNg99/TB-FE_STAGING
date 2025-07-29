@@ -339,8 +339,6 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
   const [activeThread, setActiveThread] = useState<string | null>(
     threadId ?? chatSessionId.current ?? null,
   );
-  // const chatState = useRef(false);
-  const [isChat, setIsChat] = useState(false);
   const [isInputActive, setIsInputActive] = useState(false);
   const [initialSuggestions, setInitialSuggestions] =
     useState<string[]>(suggestionChips);
@@ -400,7 +398,11 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
       session_id: activeThread,
     },
     {
-      skip: activeThread === '' || !threadId || threadId === '' || isChat,
+      skip:
+        activeThread === '' ||
+        !threadId ||
+        threadId === '' ||
+        messages.length > 0,
       // refetchOnMountOrArgChange: true
     },
   );
@@ -542,15 +544,26 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
 
   const handleThreadSelect = useCallback(
     (selectedThreadId: string) => {
-      setMessages([]);
       setActiveThread(selectedThreadId);
       chatSessionId.current = selectedThreadId;
+      const matchedThread = threadsList.find(
+        (thread) => thread.id === selectedThreadId,
+      );
+      if (matchedThread) {
+        setMessages(matchedThread.messages);
+      }
       const params = new URLSearchParams(Array.from(searchParams.entries()));
       params.set('threadId', selectedThreadId);
-      // refetchThreadData();
       router.push(`/?${params.toString()}`);
     },
-    [setActiveThread, chatSessionId, searchParams, router, setMessages],
+    [
+      threadsList,
+      setActiveThread,
+      chatSessionId,
+      searchParams,
+      router,
+      setMessages,
+    ],
   );
 
   const handleOnChunkAvailable = useCallback(
@@ -613,7 +626,6 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
         });
         chatSessionId.current = chunk.data?.session_id;
         // sessionStorage.setItem('thread-id', chunk.data?.session_id);
-        setIsChat(true);
         router.replace(`/?threadId=${chunk.data?.session_id}`);
       }
     },
