@@ -42,15 +42,16 @@ const suggestionChips = [
 // Layer 1: Background Layer (Fixed, Non-scrollable)
 const BackgroundLayer: React.FC<{
   isHome: boolean;
+  isMobile?: boolean;
   hasMessages: boolean;
   isInputActive: boolean;
-}> = ({ isHome, hasMessages, isInputActive }) => {
+}> = ({ isHome, isMobile, hasMessages, isInputActive }) => {
   return (
     <div className="absolute inset-0 z-0 bg-[#FCFCF9]">
       {isHome && (
         <div
           className={cn('absolute inset-0', {
-            [`bg-[url(https://kkhkvzjpcnivhhutxled.supabase.co/storage/v1/object/sign/chat/thumbnail/be9f7c75bbf9040889e91b5eae71b8b84d66f7d7.jpg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9jOWIwY2JhZC1hOTc4LTRkNDgtODQyYi0yOWE1OWViY2ViYTYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjaGF0L3RodW1ibmFpbC9iZTlmN2M3NWJiZjkwNDA4ODllOTFiNWVhZTcxYjhiODRkNjZmN2Q3LmpwZyIsImlhdCI6MTc1MzY3NjgyOSwiZXhwIjoyMDY5MDM2ODI5fQ.6eCc1euD2ToslJdXQZWuJwIBouliK3-9xR4dBUqDhsw)] bg-center bg-auto`]:
+            [`bg-[url(https://kkhkvzjpcnivhhutxled.supabase.co/storage/v1/object/sign/chat/thumbnail/be9f7c75bbf9040889e91b5eae71b8b84d66f7d7.jpg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9jOWIwY2JhZC1hOTc4LTRkNDgtODQyYi0yOWE1OWViY2ViYTYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjaGF0L3RodW1ibmFpbC9iZTlmN2M3NWJiZjkwNDA4ODllOTFiNWVhZTcxYjhiODRkNjZmN2Q3LmpwZyIsImlhdCI6MTc1MzY3NjgyOSwiZXhwIjoyMDY5MDM2ODI5fQ.6eCc1euD2ToslJdXQZWuJwIBouliK3-9xR4dBUqDhsw)] bg-center ${!isMobile ? 'bg-auto' : 'bg-cover'}`]:
               isHome && !hasMessages && !isInputActive,
           })}
         />
@@ -786,6 +787,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
         <div className="flex pt-18 md:pt-2 grow flex-col min-w-0 z-10">
           <BackgroundLayer
             isHome={isHome}
+            isMobile={isMobile}
             hasMessages={messages.length > 0}
             isInputActive={isInputActive || isThreadFetching || isThreadLoading}
           />
