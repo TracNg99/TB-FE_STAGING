@@ -863,7 +863,6 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
               <ThreadLoading />
             ) : (
               <BuddyResponse
-                threadId={activeThread || ''}
                 isLoading={isLoading}
                 displayText={displayedText}
                 messages={messages.current}

@@ -321,7 +321,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
   const { user, setIsDefault } = useAuth();
   const { resetState: resetFromContext } = useChat();
   const searchParams = useSearchParams();
-  const threadId = searchParams.get('threadId'); // || sessionStorage.getItem('thread-id');
+  const threadId = searchParams.get('threadId');
   const companyId =
     searchParams.get('companyId') || sessionStorage.getItem('company_id');
   const isHome = pathname === '/';
@@ -525,7 +525,6 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
     ) {
       refetchHistoryData();
     }
-    // sessionStorage.removeItem('thread-id');
     sessionStorage.removeItem('chat-input');
     sessionStorage.removeItem('experience_id');
     sessionStorage.removeItem('company_id');
@@ -625,7 +624,6 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
           ];
         });
         chatSessionId.current = chunk.data?.session_id;
-        // sessionStorage.setItem('thread-id', chunk.data?.session_id);
         router.replace(`/?threadId=${chunk.data?.session_id}`);
       }
     },
