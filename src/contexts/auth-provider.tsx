@@ -216,14 +216,14 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const checkAuthValid = async () => {
       const isValid = await isAuthenticated(jwt);
       if (!isValid && !isSessionExpired.current) {
-        isSessionExpired.current = true;
-        logout();
         notifications.show({
           title: 'Session Expired',
           message: 'Your session has expired! Please log in again!',
           color: 'yellow',
           position: 'top-center',
         });
+        isSessionExpired.current = true;
+        logout();
         router.push('/');
         return;
       }

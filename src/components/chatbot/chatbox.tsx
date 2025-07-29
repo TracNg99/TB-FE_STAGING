@@ -2,7 +2,7 @@ import { Box, Image as ImageDisplay, Tooltip } from '@mantine/core';
 // import { useMediaQuery } from '@mantine/hooks';
 import { IconX } from '@tabler/icons-react';
 import Image from 'next/image';
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { FaMicrophone } from 'react-icons/fa';
 
 import VoiceButtonForm from '@/components/audio-handler/voice-to-text';
@@ -217,28 +217,42 @@ const Chatbox: React.FC<ChatboxProps> = ({
   const [selectedImages, setSelectedImages] = useState<
     Array<{ image: string | null; name: string | null }>
   >([]);
+  const isSending = useRef(false);
 
-  const handleSend = (text?: string) => {
-    const message = text ?? input;
-    if (message.trim() !== '' || selectedImages.length > 0) {
-      onSend(message, selectedImages);
-      setInput('');
-      setSelectedImages([]);
-    }
-  };
+  const handleSend = useCallback(
+    (text?: string) => {
+      const message = text ?? input;
+      if (message.trim() !== '' || selectedImages.length > 0) {
+        setInput('');
+        setSelectedImages([]);
+        onSend(message, selectedImages);
+      }
+    },
+    [input, selectedImages, onSend],
+  );
 
-  const handleKeyPress = (event: React.KeyboardEvent) => {
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault();
-      event.stopPropagation();
-      handleSend();
-    }
-  };
+  const handleKeyPress = useCallback(
+    (event: React.KeyboardEvent) => {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (isSending.current) return;
+        isSending.current = true;
+        setInput('');
+        setSelectedImages([]);
+        handleSend();
+        setTimeout(() => {
+          isSending.current = false;
+        }, 0);
+      }
+    },
+    [handleSend],
+  );
 
   return (
     <div
       className={cn(
-        'w-full flex flex-col items-center relative z-30 bg-transparent',
+        'w-full flex flex-col items-center relative z-10 bg-transparent',
       )}
     >
       {/* Suggestions Layer */}

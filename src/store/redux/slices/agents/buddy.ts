@@ -113,7 +113,10 @@ const BuddyAgentApi = createApi({
         params: {
           session_id: session_id,
         },
+        keepUnusedDataFor: 0,
       }),
+      providesTags: (result) =>
+        result ? [{ type: 'Submission', id: result.data.id }] : ['Submission'],
     }),
 
     getInitialSuggestions: builder.query<

@@ -25,7 +25,6 @@ interface BuddyResponseProps {
   reasoning: string;
   displayText: string;
   messages: MessagesProps[];
-  threadId: string;
   isLoading: boolean;
   isMobile?: boolean;
   ref?: React.RefObject<HTMLDivElement | null>;
@@ -61,7 +60,6 @@ const LoadingSkeletion = () => {
 
 const BuddyResponse: React.FC<BuddyResponseProps> = ({
   setInput,
-  threadId,
   messages,
   displayText,
   isLoading,
@@ -76,15 +74,13 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
 
   const handleShare = useCallback(() => {
     if (navigator.clipboard && typeof window !== 'undefined') {
-      navigator.clipboard.writeText(
-        window.location.href + `?threadId=${threadId}`,
-      );
+      navigator.clipboard.writeText(window.location.href);
       setIsShared(true);
       setTimeout(() => {
         setIsShared(false);
       }, 3000);
     }
-  }, [threadId]);
+  }, []);
 
   const handleCopy = useCallback(() => {
     if (
