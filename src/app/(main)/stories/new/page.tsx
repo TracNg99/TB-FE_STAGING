@@ -114,8 +114,8 @@ const NewStoryPage = () => {
               },
               bucket_name: 'story',
             };
-            const { url } = await uploadImageCloudRun(payload).unwrap();
-            return url;
+            const { url, id } = await uploadImageCloudRun(payload).unwrap();
+            return { url, id };
           } catch (error) {
             console.error('Error uploading image:', error);
             notifications.show({
@@ -128,7 +128,7 @@ const NewStoryPage = () => {
           }
         }),
       )
-    ).filter((url) => url !== null) as string[];
+    ).filter((item) => item !== null) as { url: string; id: string }[];
 
     if (mediaUrls.length === 0) {
       notifications.show({
@@ -146,7 +146,7 @@ const NewStoryPage = () => {
         experience_id: matchedExperience?.id || matchExperienceId,
         // reporter_id: reporterId,
         notes: userInputs.notes || '',
-        media: mediaUrls,
+        media: mediaUrls.map((item) => item.id),
         // channel_type_list: 'travel_buddy',
       };
       const result = await uploadStory({ payload }).unwrap();

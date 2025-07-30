@@ -19,6 +19,7 @@ interface CloudRunSupabaseStorageReq {
 interface CloudRunSupabaseStorageRes {
   url: string;
   path: string;
+  id: string;
 }
 
 interface VideoReq {

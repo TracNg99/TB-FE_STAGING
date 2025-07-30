@@ -126,7 +126,7 @@ const InputLayer: React.FC<{
             className="flex-grow h-full bg-transparent border-none outline-none text-lg placeholder-gray-400 px-2 py-1 resize-none focus:ring-0 placeholder-gray-600"
             placeholder="Ask anything..."
             value={input}
-            onChange={(e) => onInputChange(e.target.value)}
+            onChange={(e) => onInputChange(e.currentTarget.value)}
             onKeyDown={onKeyPress}
             ref={textAreaRef}
             style={{ minHeight: '60px', maxHeight: '100%', overflow: 'auto' }}

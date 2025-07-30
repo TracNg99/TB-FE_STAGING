@@ -511,12 +511,12 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
     }
   }, [resetFromContext]);
 
-  const togglePin = () => {
+  const togglePin = useCallback(() => {
     setIsPinned((prev) => !prev);
     if (!isPinned) {
       setIsSidebarOpen(true);
     }
-  };
+  }, [isPinned, setIsPinned, setIsSidebarOpen]);
 
   const handleReset = useCallback(() => {
     if (
@@ -723,33 +723,6 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
       );
     }
   }, [threadId, threadData, activeThread, messages]);
-
-  // useEffect(() => {
-  //   if (threadId
-  //     && threadId !== ''
-  //     && historyData
-  //     && historyData.data
-  //   ) {
-  //     setUnfoldingTexts('');
-  //     setCharIndex(0);
-  //     const matchedThread = historyData.data.find((thread) => thread.id === threadId);
-  //     if(matchedThread){
-  //       setMessages(
-  //         matchedThread.chat_messages.map((item) => ({
-  //           from: item.role,
-  //           text: item.content,
-  //           tag: item.role === 'user' ? 'user' : 'assistant',
-  //           images: item.metadata?.images || [],
-  //           sources: item.metadata?.sources || [],
-  //           suggestions:
-  //             item.metadata?.suggestions ||
-  //             item.metadata?.follow_up_questions ||
-  //             [],
-  //         })),
-  //       );
-  //     }
-  //   }
-  // }, [threadId, historyData, activeThread, messages]);
 
   useEffect(() => {
     if (
