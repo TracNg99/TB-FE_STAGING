@@ -531,6 +531,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
     setExperienceId(null);
     setResetState(true);
     setActiveThread(null);
+    setIsDefault(true);
     chatSessionId.current = null;
     concatenateStreamingMessage.current = '';
     setMessages([]);
