@@ -189,7 +189,7 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                               />
                             </div>
                           ))}
-                        <div className="text-gray-700 text-pretty whitespace-normal">
+                        <div className="text-gray-700 text-pretty whitespace-pre-line">
                           <ReactMarkdown
                             // remarkPlugins={[remarkGfm]}
                             components={{

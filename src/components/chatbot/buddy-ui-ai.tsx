@@ -446,20 +446,6 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
     }
   }, [params.experienceId, searchParams.get('experienceId')]);
 
-  const handleFollowUpTitle = useCallback(() => {
-    if (experienceId && typeof window !== 'undefined') {
-      const storedInput = sessionStorage.getItem('chat-input');
-      if (storedInput && storedInput !== '' && messages.length === 0) {
-        setIsDefault(false);
-        handleSend(storedInput);
-      }
-    }
-  }, [experienceId, messages.length]);
-
-  useEffect(() => {
-    handleFollowUpTitle();
-  }, [experienceId, handleFollowUpTitle]);
-
   useEffect(() => {
     if (
       fetchedInitialSuggestions &&
@@ -607,6 +593,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
       }
 
       if (chunk.event === 'complete') {
+        setIsLoading(false);
         setMessages((prevMessages) => {
           const truncateLastMessage = prevMessages.slice(
             0,
@@ -614,10 +601,16 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
           );
           const lastMessage = prevMessages[prevMessages.length - 1];
           return [
-            ...truncateLastMessage,
+            ...(lastMessage?.from === 'assistant'
+              ? truncateLastMessage
+              : prevMessages),
             {
-              ...lastMessage,
+              ...(lastMessage?.from === 'assistant' ? lastMessage : {}),
               from: 'assistant',
+              tag: chunk.event,
+              text: chunk.data?.response
+                ? base64ToUnicode(chunk.data?.response)
+                : '',
               images: chunk.data?.images || [],
               sources: chunk.data?.sources || [],
               suggestions: chunk.data?.suggestions || [],
@@ -625,10 +618,13 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
           ];
         });
         chatSessionId.current = chunk.data?.session_id;
-        router.replace(`/?threadId=${chunk.data?.session_id}`);
+        sessionStorage.removeItem('chat-input');
+        router.replace(
+          `/?${experienceId ? `&experienceId=${experienceId}&` : ''}threadId=${chunk.data?.session_id}`,
+        );
       }
     },
-    [router],
+    [router, experienceId],
   );
 
   const handleSend = useCallback(
@@ -687,6 +683,20 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
       handleOnChunkAvailable,
     ],
   );
+
+  const handleFollowUpTitle = useCallback(() => {
+    if (experienceId && typeof window !== 'undefined') {
+      const storedInput = sessionStorage.getItem('chat-input');
+      if (storedInput && storedInput !== '' && messages.length === 0) {
+        setIsDefault(false);
+        handleSend(storedInput);
+      }
+    }
+  }, [experienceId, messages.length, handleSend, setIsDefault]);
+
+  useEffect(() => {
+    handleFollowUpTitle();
+  }, [experienceId, handleFollowUpTitle]);
 
   const handleSidebarLeave = useCallback(() => {
     if (!isPinned) {
@@ -805,7 +815,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                   messages.length === 0 &&
                   !isMobile &&
                   'mb-0 grow h-[5dvh]',
-                !isMobile && 'mb-10 w-[80%] mx-auto',
+                !isMobile && 'mb-10 w-full mx-auto',
                 messages.length > 0 && isMobile && !isIOS && 'mb-[25vh]',
                 messages.length > 0 && isMobile && isIOS && 'mb-[22dvh]',
                 isMobile && 'w-full',
