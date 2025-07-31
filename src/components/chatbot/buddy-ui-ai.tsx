@@ -594,29 +594,29 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
 
       if (chunk.event === 'complete') {
         setIsLoading(false);
-        setMessages((prevMessages) => {
-          const truncateLastMessage = prevMessages.slice(
-            0,
-            prevMessages.length - 1,
-          );
-          const lastMessage = prevMessages[prevMessages.length - 1];
-          return [
-            ...(lastMessage?.from === 'assistant'
-              ? truncateLastMessage
-              : prevMessages),
-            {
-              ...(lastMessage?.from === 'assistant' ? lastMessage : {}),
-              from: 'assistant',
-              tag: chunk.event,
-              text: chunk.data?.response
-                ? base64ToUnicode(chunk.data?.response)
-                : '',
-              images: chunk.data?.images || [],
-              sources: chunk.data?.sources || [],
-              suggestions: chunk.data?.suggestions || [],
-            },
-          ];
-        });
+        // setMessages((prevMessages) => {
+        //   const truncateLastMessage = prevMessages.slice(
+        //     0,
+        //     prevMessages.length - 1,
+        //   );
+        //   const lastMessage = prevMessages[prevMessages.length - 1];
+        //   return [
+        //     ...(lastMessage?.from === 'assistant'
+        //       ? truncateLastMessage
+        //       : prevMessages),
+        //     {
+        //       ...(lastMessage?.from === 'assistant' ? lastMessage : {}),
+        //       from: 'assistant',
+        //       tag: chunk.event,
+        //       text: chunk.data?.response
+        //         ? base64ToUnicode(chunk.data?.response)
+        //         : '',
+        //       images: chunk.data?.images || [],
+        //       sources: chunk.data?.sources || [],
+        //       suggestions: chunk.data?.suggestions || [],
+        //     },
+        //   ];
+        // });
         chatSessionId.current = chunk.data?.session_id;
         sessionStorage.removeItem('chat-input');
         router.replace(

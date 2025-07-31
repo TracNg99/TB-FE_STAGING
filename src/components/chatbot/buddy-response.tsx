@@ -211,7 +211,7 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                               ),
                               h1: ({ children, ...props }) => (
                                 <h1
-                                  className="text-2xl sm:text-3xl font-semibold text-gray-800"
+                                  className="text-md font-semibold text-gray-800"
                                   {...props}
                                 >
                                   {children}
@@ -219,7 +219,7 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                               ),
                               h2: ({ children, ...props }) => (
                                 <h2
-                                  className="text-xl sm:text-2xl font-semibold text-gray-800"
+                                  className="text-md font-semibold text-gray-800"
                                   {...props}
                                 >
                                   {children}
@@ -227,7 +227,7 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                               ),
                               h3: ({ children, ...props }) => (
                                 <h3
-                                  className="text-lg sm:text-xl font-semibold text-gray-800"
+                                  className="text-md font-semibold text-gray-800"
                                   {...props}
                                 >
                                   {children}
@@ -342,9 +342,63 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                               >
                                 {source.url}
                               </a>
-                              <p className="text-gray-600 mt-1">
+                              <ReactMarkdown
+                                // remarkPlugins={[remarkGfm]}
+                                components={{
+                                  ol: ({ children, ...props }) => (
+                                    <ol
+                                      className="list-decimal list-inside"
+                                      {...props}
+                                    >
+                                      {children}
+                                    </ol>
+                                  ),
+                                  ul: ({ children, ...props }) => (
+                                    <ul
+                                      className="list-disc list-inside"
+                                      {...props}
+                                    >
+                                      {children}
+                                    </ul>
+                                  ),
+                                  h1: ({ children, ...props }) => (
+                                    <h1
+                                      className="text-md font-semibold text-gray-800"
+                                      {...props}
+                                    >
+                                      {children}
+                                    </h1>
+                                  ),
+                                  h2: ({ children, ...props }) => (
+                                    <h2
+                                      className="text-md font-semibold text-gray-800"
+                                      {...props}
+                                    >
+                                      {children}
+                                    </h2>
+                                  ),
+                                  h3: ({ children, ...props }) => (
+                                    <h3
+                                      className="text-md font-semibold text-gray-800"
+                                      {...props}
+                                    >
+                                      {children}
+                                    </h3>
+                                  ),
+                                  a: ({ node: _, ...props }) => (
+                                    <a
+                                      style={{
+                                        color: '#0066cc',
+                                        textDecoration: 'underline',
+                                        textUnderlineOffset: '2px',
+                                      }}
+                                      {...props}
+                                    />
+                                  ),
+                                }}
+                              >
                                 {source.snippet}
-                              </p>
+                              </ReactMarkdown>
                             </div>
                           ))}
                         </div>
