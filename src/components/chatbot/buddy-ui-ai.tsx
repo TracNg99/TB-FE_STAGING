@@ -343,6 +343,8 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
   const [initialSuggestions, setInitialSuggestions] =
     useState<string[]>(suggestionChips);
 
+  const isSent = useRef<boolean>(false);
+
   const concatenateStreamingMessage = useRef<string>('');
 
   const [threadsList, setThreadsList] = useState<
@@ -594,29 +596,24 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
 
       if (chunk.event === 'complete') {
         setIsLoading(false);
-        // setMessages((prevMessages) => {
-        //   const truncateLastMessage = prevMessages.slice(
-        //     0,
-        //     prevMessages.length - 1,
-        //   );
-        //   const lastMessage = prevMessages[prevMessages.length - 1];
-        //   return [
-        //     ...(lastMessage?.from === 'assistant'
-        //       ? truncateLastMessage
-        //       : prevMessages),
-        //     {
-        //       ...(lastMessage?.from === 'assistant' ? lastMessage : {}),
-        //       from: 'assistant',
-        //       tag: chunk.event,
-        //       text: chunk.data?.response
-        //         ? base64ToUnicode(chunk.data?.response)
-        //         : '',
-        //       images: chunk.data?.images || [],
-        //       sources: chunk.data?.sources || [],
-        //       suggestions: chunk.data?.suggestions || [],
-        //     },
-        //   ];
-        // });
+        setMessages((prevMessages) => {
+          const truncateLastMessage = prevMessages.slice(
+            0,
+            prevMessages.length - 1,
+          );
+          const lastMessage = prevMessages[prevMessages.length - 1];
+          return [
+            ...truncateLastMessage,
+            {
+              ...lastMessage,
+              from: 'assistant',
+              tag: chunk.event,
+              images: chunk.data?.images || [],
+              sources: chunk.data?.sources || [],
+              suggestions: chunk.data?.suggestions || [],
+            },
+          ];
+        });
         chatSessionId.current = chunk.data?.session_id;
         sessionStorage.removeItem('chat-input');
         router.replace(
@@ -653,6 +650,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
         },
       ]);
       // sessionStorage.removeItem('chat-input');
+      isSent.current = true;
       try {
         await buddyStreamMutation({
           body: {
@@ -684,19 +682,21 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
     ],
   );
 
-  const handleFollowUpTitle = useCallback(() => {
-    if (experienceId && typeof window !== 'undefined') {
+  useEffect(() => {
+    if (experienceId) {
+      setIsDefault(false);
+      console.log('Sent: ', isSent.current);
       const storedInput = sessionStorage.getItem('chat-input');
-      if (storedInput && storedInput !== '' && messages.length === 0) {
-        setIsDefault(false);
+      if (
+        storedInput &&
+        storedInput !== '' &&
+        messages.length === 0 &&
+        !isSent.current
+      ) {
         handleSend(storedInput);
       }
     }
-  }, [experienceId, messages.length, handleSend, setIsDefault]);
-
-  useEffect(() => {
-    handleFollowUpTitle();
-  }, [experienceId, handleFollowUpTitle]);
+  }, [experienceId, handleSend, setIsDefault, messages.length]);
 
   const handleSidebarLeave = useCallback(() => {
     if (!isPinned) {

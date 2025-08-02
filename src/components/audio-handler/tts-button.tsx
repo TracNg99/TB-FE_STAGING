@@ -279,6 +279,7 @@ const TTSPlayer: React.FC<TTSPlayerProps> = ({
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isSessionStart, setIsSessionStart] = useState(false);
   const [isAudioReady, setIsAudioReady] = useState(false);
+  const [currentLanguage, setCurrentLanguage] = useState(language);
 
   const isMobile = useMediaQuery('(max-width: 768px)');
 
@@ -298,10 +299,14 @@ const TTSPlayer: React.FC<TTSPlayerProps> = ({
   // Initialize session
   const initializeSession = useCallback(
     async (languageUpdate?: string) => {
+      console.log('Language Update:', languageUpdate);
+      console.log('Language:', currentLanguage);
       try {
         const session = await startSession({
           content_id: contentId,
-          language: (languageUpdate ?? language !== '') ? language : 'en-US',
+          language:
+            languageUpdate ??
+            (currentLanguage !== '' ? currentLanguage : 'en-US'),
         }).unwrap();
 
         setSessionId(session.session_id);
@@ -384,14 +389,23 @@ const TTSPlayer: React.FC<TTSPlayerProps> = ({
     [audioRef, isPlaying, updateSessionState],
   );
 
-  const handleLanguageChange = (chosenLanguage: string) => {
-    if (sessionId) {
-      updateSession({ sessionId, language: chosenLanguage });
-    }
-    setPosition(0);
-    setIsAudioReady(false);
-    initializeSession(chosenLanguage);
-  };
+  const handleLanguageChange = useCallback(
+    (chosenLanguage: string) => {
+      setCurrentLanguage(chosenLanguage);
+      if (sessionId) {
+        updateSession({
+          sessionId,
+          language: chosenLanguage,
+          position: 0,
+          is_playing: false,
+        });
+      }
+      setPosition(0);
+      setIsAudioReady(false);
+      initializeSession(chosenLanguage);
+    },
+    [sessionId, updateSession, setPosition, setIsAudioReady, initializeSession],
+  );
 
   // Handle audio pop over
   const handleAudioPopOver = useCallback(() => {
@@ -426,7 +440,7 @@ const TTSPlayer: React.FC<TTSPlayerProps> = ({
         <AudioPlayer
           isMobile={isMobile || false}
           modalClassName={modalClassName}
-          language={language}
+          language={currentLanguage}
           onLanguageChange={handleLanguageChange}
           position={position}
           setPosition={setPosition}

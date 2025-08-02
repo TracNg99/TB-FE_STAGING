@@ -260,7 +260,11 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Show a loading state while checking authentication
   if (isCheckingAuth) {
-    return null; // Optionally, replace with a loader component
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full border-b-2 border-gray-900 h-5 w-5"></div>
+      </div>
+    );
   }
 
   return (
