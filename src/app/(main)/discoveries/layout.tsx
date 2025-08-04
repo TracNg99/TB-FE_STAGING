@@ -60,7 +60,7 @@ export default function DiscoveriesLayout({
   };
 
   return (
-    <div className="flex flex-row h-full w-full bg-gray-50 overflow-hidden">
+    <div className="flex flex-row h-full w-full bg-gray-50">
       {/* Collapsible Sub-sidebar for Discoveries */}
       <aside
         onMouseLeave={() => {

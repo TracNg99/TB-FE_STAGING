@@ -13,7 +13,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <SidebarProvider>
       {/* Mobile Pattern (< 1024px) */}
-      <div className="flex relative flex-col lg:hidden h-[100dvh] overflow-hidden">
+      <div className="flex relative flex-col md:hidden h-[100dvh]">
         {/* Mobile header - currently handled by MobileNavbar component */}
         {/* Scrollable content */}
         <main className="flex-1 overflow-y-auto">
@@ -35,22 +35,22 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
         </main>
 
         {/* Bottom navigation */}
-        <nav className="lg:hidden flex-shrink-0">
+        <nav className="md:hidden flex-shrink-0">
           <MobileNavbar />
         </nav>
       </div>
 
       {/* Desktop Pattern (≥ 1024px) */}
-      <div className="hidden lg:flex lg:flex-row h-screen overflow-hidden">
+      <div className="hidden md:flex md:flex-row h-screen overflow-hidden">
         {/* Sidebar */}
-        <aside className="hidden lg:flex w-20 flex-shrink-0">
+        <aside className="hidden md:flex w-20 flex-shrink-0">
           <Navbar />
         </aside>
 
         {/* Main content area */}
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
           {/* Desktop header */}
-          <header className="hidden lg:flex flex-shrink-0">
+          <header className="hidden md:flex flex-shrink-0">
             {/* Desktop header content can be added here if needed */}
           </header>
 
@@ -66,7 +66,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
                   duration: 0.2,
                   ease: 'easeInOut',
                 }}
-                className="h-full"
+                className="h-full relative"
               >
                 {children}
               </motion.div>

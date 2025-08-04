@@ -76,7 +76,7 @@ export default function ChatHistory({
 
   return (
     <div className="flex flex-col h-full p-4">
-      <div className="flex flex-row justify-between mb-10">
+      <div className="flex flex-row justify-between mb-5">
         <h2 className="text-2xl font-semibold">History</h2>
         <button
           className="flex flex-row items-center gap-2"
@@ -100,7 +100,7 @@ export default function ChatHistory({
         />
       )}
 
-      <div className="flex flex-col gap-5 overflow-y-auto max-h-[calc(100vh-200px)]">
+      <div className="flex flex-col gap-5 overflow-y-auto">
         {isLoading ? (
           <div className="flex flex-col gap-5">
             <Skeleton height={20} width="80%" />

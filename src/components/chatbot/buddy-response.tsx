@@ -26,7 +26,6 @@ interface BuddyResponseProps {
   displayText: string;
   messages: MessagesProps[];
   isLoading: boolean;
-  isMobile?: boolean;
   ref?: React.RefObject<HTMLDivElement | null>;
 }
 
@@ -64,7 +63,6 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
   displayText,
   isLoading,
   // reasoning,
-  isMobile,
   ref,
 }) => {
   const [activeTab, setActiveTab] = useState<'answer' | 'sources'>('answer');
@@ -107,8 +105,7 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
   return (
     <ScrollArea
       className={cn(
-        'w-full h-full overflow-y-auto justify-self-center items-start overscroll-none ',
-        { 'mt-5 mb-10': isMobile },
+        'w-full h-full overflow-y-auto justify-self-center items-start overscroll-none my-3',
       )}
     >
       {messages.map(

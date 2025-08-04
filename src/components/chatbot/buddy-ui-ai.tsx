@@ -253,7 +253,6 @@ const ContentLayer: React.FC<{
                 messages={messages}
                 reasoning={floatingTexts}
                 setInput={(text: string) => onSend(text, [])}
-                isMobile={isMobile}
                 ref={messagesEndRef}
               />
             </div>
@@ -738,7 +737,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
   ]); // messages
 
   return (
-    <div className="h-full w-full overflow-hidden">
+    <div className="h-full w-full">
       {/* Main flex-row container: [Sidebar][MainContentColumn] */}
       <div className="flex h-full flex-row w-full z-10">
         {/* Sidebar Layer - Fixed */}
