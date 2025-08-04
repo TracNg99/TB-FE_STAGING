@@ -1,6 +1,6 @@
 'use client';
 
-import { IconChevronRight } from '@tabler/icons-react';
+import { IconArrowUpRight } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 
 interface FollowUpQuestionsProps {
@@ -42,13 +42,11 @@ export default function FollowUpQuestions({
         {questions.map((question, idx) => (
           <button
             key={idx}
-            className="flex items-center justify-between py-4 px-0 text-base text-gray-800 hover:text-orange-500 transition font-medium text-left bg-transparent cursor-pointer"
-            style={{ outline: 'none', border: 'none' }}
             onClick={() => handleFollowUpClick(question)}
-            disabled={disabled}
+            className="w-full text-left flex justify-between items-center py-3 px-2 border-b border-gray-200 hover:bg-gray-50 cursor-pointer"
           >
-            <span>{question}</span>
-            <IconChevronRight className="w-5 h-5 text-gray-400" />
+            <span className="text-gray-700">{question}</span>
+            <IconArrowUpRight size={20} className="text-gray-400" />
           </button>
         ))}
       </div>

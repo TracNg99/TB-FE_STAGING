@@ -5,8 +5,10 @@ import { IconUpload } from '@tabler/icons-react';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
-import { Activity } from '@/store/redux/slices/business/activity';
-import { useUpdateActivityMutation } from '@/store/redux/slices/business/activity';
+import {
+  Activity,
+  useUpdateActivityMutation,
+} from '@/store/redux/slices/business/activity';
 
 type EditableActivityModalProps = {
   isOpen: boolean;

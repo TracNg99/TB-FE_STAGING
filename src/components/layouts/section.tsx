@@ -4,7 +4,7 @@ type SectionProps = React.ComponentProps<'section'>;
 
 const Section = ({ className, ...props }: SectionProps) => {
   return (
-    <section className={cn('px-4 max-w-pc mx-auto', className)} {...props} />
+    <section className={cn('flex flex-col gap-3', className)} {...props} />
   );
 };
 

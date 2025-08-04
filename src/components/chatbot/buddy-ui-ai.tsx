@@ -28,6 +28,7 @@ import {
 import { useGetExperiencePublicQuery } from '@/store/redux/slices/user/experience';
 import { cn } from '@/utils/class';
 
+import PageWrapper from '../layouts/PageWrapper';
 import BuddyResponse from './buddy-response';
 import { MessagesProps } from './types';
 
@@ -42,25 +43,17 @@ const suggestionChips = [
 // Layer 1: Background Layer (Fixed, Non-scrollable)
 const BackgroundLayer: React.FC<{
   isHome: boolean;
-  isMobile?: boolean;
   hasMessages: boolean;
   isInputActive: boolean;
-}> = ({ isHome, isMobile, hasMessages, isInputActive }) => {
+}> = ({ isHome, hasMessages, isInputActive }) => {
   return (
-    <div className="absolute inset-0 z-0 bg-[#FCFCF9]">
-      {isHome && (
-        <div
-          className={cn('absolute inset-0', {
-            [`bg-[url(https://kkhkvzjpcnivhhutxled.supabase.co/storage/v1/object/sign/chat/thumbnail/be9f7c75bbf9040889e91b5eae71b8b84d66f7d7.jpg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9jOWIwY2JhZC1hOTc4LTRkNDgtODQyYi0yOWE1OWViY2ViYTYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjaGF0L3RodW1ibmFpbC9iZTlmN2M3NWJiZjkwNDA4ODllOTFiNWVhZTcxYjhiODRkNjZmN2Q3LmpwZyIsImlhdCI6MTc1MzY3NjgyOSwiZXhwIjoyMDY5MDM2ODI5fQ.6eCc1euD2ToslJdXQZWuJwIBouliK3-9xR4dBUqDhsw)] bg-center ${!isMobile ? 'bg-auto' : 'bg-cover'}`]:
-              isHome && !hasMessages && !isInputActive,
-          })}
-        />
-      )}
-      {/* Default Background */}
-      {(!isHome || hasMessages || isInputActive) && (
-        <div className="absolute inset-0 bg-[#FCFCF9]" />
-      )}
-    </div>
+    <div
+      className={cn('absolute inset-0 w-full h-full z-0', {
+        [`bg-[url(https://kkhkvzjpcnivhhutxled.supabase.co/storage/v1/object/sign/chat/thumbnail/be9f7c75bbf9040889e91b5eae71b8b84d66f7d7.jpg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9jOWIwY2JhZC1hOTc4LTRkNDgtODQyYi0yOWE1OWViY2ViYTYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjaGF0L3RodW1ibmFpbC9iZTlmN2M3NWJiZjkwNDA4ODllOTFiNWVhZTcxYjhiODRkNjZmN2Q3LmpwZyIsImlhdCI6MTc1MzY3NjgyOSwiZXhwIjoyMDY5MDM2ODI5fQ.6eCc1euD2ToslJdXQZWuJwIBouliK3-9xR4dBUqDhsw)] bg-cover bg-center bg-no-repeat`]:
+          isHome && !hasMessages && !isInputActive,
+        'bg-[#FCFCF9]': !isHome || hasMessages || isInputActive,
+      })}
+    ></div>
   );
 };
 
@@ -100,7 +93,8 @@ const SidebarLayer: React.FC<{
     <aside
       onMouseLeave={onSidebarLeave}
       className={cn(
-        'relative left-0 top-0 h-full flex-col border-r border-gray-200 bg-white p-4 z-20 transition-all duration-300 ease-in-out flex overflow-hidden justify-items-between',
+        'relative left-0 top-0 h-full flex-col border-r border-gray-200 bg-white p-4 z-20 transition-all duration-300 ease-in-out flex overflow-hidden justify-items-between lg:flex flex-shrink-0',
+        'hidden', // Hide on mobile by default
         isSidebarOpen || isPinned ? 'w-[20%]' : 'w-0 p-0 border-none',
         !isPinned && 'absolute left-0 top-0',
       )}
@@ -204,89 +198,81 @@ const ContentLayer: React.FC<{
   isSessionActive,
 }) => {
   return (
-    <div
-      className={cn(
-        'relative w-full z-10 overflow-y-auto flex flex-col items-center',
-        {
-          'h-full': isHome,
-          'h-[40dvh]': isHome && !isMobile && messages.length === 0,
-          'h-[80%]': !isHome,
-          'pt-0': !isHome,
-        },
-      )}
-    >
-      <div className="w-full mx-auto flex flex-col items-center px-4">
-        {/* Experience Follow-up Card */}
-        {experienceData &&
-          messages.length !== 0 &&
-          experienceId &&
-          experienceId !== '' && (
-            <Link href={`/discoveries/${experienceData.id}`} className="w-full">
-              <Container
-                className={cn(
-                  'flex flex-col mt-5 mb-3 p-3 gap-2.5 shadow-md bg-[#FFF0E5] rounded-md hover:bg-gray-100 cursor-pointer w-full justify-between',
-                )}
+    <div className="w-full flex flex-col items-center">
+      {(experienceData || messages.length > 0) && (
+        <div className="w-full mx-auto flex flex-col items-center px-4 py-4">
+          {/* Experience Follow-up Card */}
+          {experienceData &&
+            messages.length !== 0 &&
+            experienceId &&
+            experienceId !== '' && (
+              <Link
+                href={`/discoveries/${experienceData.id}`}
+                className="w-full"
               >
-                <span className="flex flex-row items-center text-[14px] color-purple-200 text-purple-500 gap-2 w-full">
-                  <Image
-                    alt=""
-                    src="/assets/followup.svg"
-                    width={isMobile ? 12 : 16}
-                    height={isMobile ? 12 : 16}
-                    className="size-[24px]"
-                  />
-                  Follow up to
-                </span>
-                <div className="flex flex-row self-start items-center justify-between gap-2 w-full">
-                  <h2
-                    className={cn({
-                      'text-[16px]': isMobile,
-                      'text-display-[16px]': !isMobile,
-                    })}
-                  >
-                    {experienceData.name}
-                  </h2>
-                </div>
-              </Container>
-            </Link>
-          )}
+                <Container
+                  className={cn(
+                    'flex flex-col mt-5 mb-3 p-3 gap-2.5 shadow-md bg-[#FFF0E5] rounded-md hover:bg-gray-100 cursor-pointer w-full justify-between',
+                  )}
+                >
+                  <span className="flex flex-row items-center text-[14px] color-purple-200 text-purple-500 gap-2 w-full">
+                    <Image
+                      alt=""
+                      src="/assets/followup.svg"
+                      width={isMobile ? 12 : 16}
+                      height={isMobile ? 12 : 16}
+                      className="size-[24px]"
+                    />
+                    Follow up to
+                  </span>
+                  <div className="flex flex-row self-start items-center justify-between gap-2 w-full">
+                    <h2
+                      className={cn({
+                        'text-[16px]': isMobile,
+                        'text-display-[16px]': !isMobile,
+                      })}
+                    >
+                      {experienceData.name}
+                    </h2>
+                  </div>
+                </Container>
+              </Link>
+            )}
 
-        {/* Chat Messages */}
-        {(isThreadFetching || isThreadLoading) &&
-        (messages.length === 0 || !isSessionActive) ? (
-          <div className="w-full bg-[#FCFCF9]">
-            <ThreadLoading />
-          </div>
-        ) : (
-          <div className="w-full">
-            <BuddyResponse
-              isLoading={isLoading}
-              displayText={unfoldingTexts}
-              messages={messages}
-              reasoning={floatingTexts}
-              setInput={(text: string) => onSend(text, [])}
-              isMobile={isMobile}
-              ref={messagesEndRef}
-            />
-          </div>
-        )}
-      </div>
+          {/* Chat Messages */}
+          {(isThreadFetching || isThreadLoading) &&
+          (messages.length === 0 || !isSessionActive) ? (
+            <div className="w-full bg-[#FCFCF9]">
+              <ThreadLoading />
+            </div>
+          ) : (
+            <div className="w-full">
+              <BuddyResponse
+                isLoading={isLoading}
+                displayText={unfoldingTexts}
+                messages={messages}
+                reasoning={floatingTexts}
+                setInput={(text: string) => onSend(text, [])}
+                isMobile={isMobile}
+                ref={messagesEndRef}
+              />
+            </div>
+          )}
+        </div>
+      )}
       {messages.length === 0 &&
         !isThreadFetching &&
         !isThreadLoading &&
         !isSessionActive && (
           <div
-            className={cn(
-              'flex flex-col h-full place-self-center justify-center',
-              {
-                'justify-end': isHome && !isMobile,
-              },
-            )}
+            className={cn('flex flex-col place-self-center h-[80px]', {
+              'justify-baseline': isHome && !isMobile,
+            })}
           >
             <h2
               className={cn('text-white font-semibold', {
                 'text-[24px]': isMobile,
-                'text-[40px] mt-30': !isMobile,
+                'text-[40px]': !isMobile,
               })}
             >
               Welcome to Travel Buddy!
@@ -365,12 +351,6 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
   );
 
   const isMobile = useMediaQuery('(max-width: 768px)');
-  const [isIOS, setIsIOS] = useState(false);
-
-  useEffect(() => {
-    const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
-    setIsIOS(isIOS);
-  }, []);
 
   const { data: resetData } = useResetChatMemoryQuery(
     {
@@ -760,8 +740,8 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
   return (
     <div className="h-full w-full overflow-hidden">
       {/* Main flex-row container: [Sidebar][MainContentColumn] */}
-      <div className="flex flex-row h-screen w-full z-10">
-        {/* Sidebar Layer */}
+      <div className="flex h-full flex-row w-full z-10">
+        {/* Sidebar Layer - Fixed */}
         <SidebarLayer
           isHome={isHome}
           isSidebarOpen={isSidebarOpen}
@@ -778,58 +758,68 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
         />
 
         {/* MainContentColumn: flex-col [ScrollableContent][Chatbox] */}
-        <div className="flex pt-18 md:pt-2 grow flex-col min-w-0 z-10">
+        <div className="flex pt-18 md:pt-2 grow flex-col min-w-0 z-10 relative h-full overflow-hidden">
           <BackgroundLayer
             isHome={isHome}
-            isMobile={isMobile}
             hasMessages={messages.length > 0}
             isInputActive={isInputActive || isThreadFetching || isThreadLoading}
           />
-          <div className="flex grow h-[100dvh] flex-col overflow-hidden mx-auto w-[90%] md:w-[70%] z-10">
-            {/* Scrollable content area (only this should scroll) */}
-            <div className="relative flex-1 overscroll-none overflow-y-auto z-10">
-              <ContentLayer
-                isHome={isHome}
-                isMobile={isMobile}
-                experienceId={experienceId}
-                experienceData={experienceData}
-                isThreadFetching={isThreadFetching}
-                isThreadLoading={isThreadLoading}
-                messages={messages}
-                isLoading={isLoading}
-                unfoldingTexts={unfoldingTexts}
-                floatingTexts={floatingTexts}
-                onSend={handleSend}
-                messagesEndRef={messagesEndRef}
-                isSessionActive={
-                  !!activeThread && activeThread !== null && activeThread !== ''
-                }
-                threadId={activeThread || ''}
-              />
-            </div>
-            {/* Chatbox always visible at the bottom except in home page with no messages */}
+          {/* <ChatWrapper className='bg-transparent'> */}
+          {/* Main content container with proper flex layout */}
+          <div
+            className={cn('flex flex-col h-full w-full z-10 gap-0', {
+              'justify-center': messages.length === 0 && !isMobile,
+            })}
+          >
+            {/* Scrollable content area - takes remaining space */}
             <div
-              className={cn(
-                'shrink min-w-0 mb-40',
-                isHome &&
-                  messages.length === 0 &&
-                  !isMobile &&
-                  'mb-0 grow h-[5dvh]',
-                !isMobile && 'mb-10 w-full mx-auto',
-                messages.length > 0 && isMobile && !isIOS && 'mb-[25vh]',
-                messages.length > 0 && isMobile && isIOS && 'mb-[22dvh]',
-                isMobile && 'w-full',
-              )}
+              className={cn('overflow-y-auto overscroll-none min-h-0', {
+                'flex-1': messages.length > 0 || isMobile,
+              })}
             >
-              <Chatbox
-                isHome={isHome}
-                isMobile={isMobile}
-                onSend={handleSend}
-                initialSuggestions={initialSuggestions}
-                hasMessages={messages.length > 0}
-              />
+              <PageWrapper className="bg-transparent">
+                <div
+                  className={cn('flex flex-col h-full w-full', {
+                    'justify-center': messages.length === 0 && isMobile,
+                  })}
+                >
+                  <ContentLayer
+                    isHome={isHome}
+                    isMobile={isMobile}
+                    experienceId={experienceId}
+                    experienceData={experienceData}
+                    isThreadFetching={isThreadFetching}
+                    isThreadLoading={isThreadLoading}
+                    messages={messages}
+                    isLoading={isLoading}
+                    unfoldingTexts={unfoldingTexts}
+                    floatingTexts={floatingTexts}
+                    onSend={handleSend}
+                    messagesEndRef={messagesEndRef}
+                    isSessionActive={
+                      !!activeThread &&
+                      activeThread !== null &&
+                      activeThread !== ''
+                    }
+                    threadId={activeThread || ''}
+                  />
+                </div>
+              </PageWrapper>
+            </div>
+            {/* Fixed chatbox at bottom */}
+            <div className="flex-shrink-0 pb-4 sticky bottom-0">
+              <PageWrapper className="bg-transparent">
+                <Chatbox
+                  isHome={isHome}
+                  isMobile={isMobile}
+                  onSend={handleSend}
+                  initialSuggestions={initialSuggestions}
+                  hasMessages={messages.length > 0}
+                />
+              </PageWrapper>
             </div>
           </div>
+          {/* </ChatWrapper> */}
         </div>
       </div>
     </div>

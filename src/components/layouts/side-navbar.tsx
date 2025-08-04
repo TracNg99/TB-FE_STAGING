@@ -106,7 +106,7 @@ const Navbar = () => {
     <aside
       onMouseEnter={() => setIsSidebarOpen(true)}
       // onMouseLeave={() => setIsSidebarOpen(false)}
-      className="fixed left-0 top-0 h-screen w-24 flex flex-col items-center border-r border-gray-200 bg-white py-4 z-20"
+      className="h-full w-20 flex flex-col items-center border-r border-gray-200 bg-white py-4 overflow-visible"
     >
       <Link href="/" onClick={triggerReset}>
         <Image
@@ -116,7 +116,7 @@ const Navbar = () => {
           height={56}
         />
       </Link>
-      <nav className="mt-10 flex flex-grow flex-col items-center gap-4">
+      <nav className="mt-6 flex flex-grow flex-col items-center gap-3">
         {navbarLinks.map((link, index) => (
           <UnstyledButton
             onClick={() =>
@@ -125,48 +125,36 @@ const Navbar = () => {
                 : handleTabChange(link.href ?? '/')
             }
             className={cn(
-              'flex flex-col items-center gap-1 rounded-lg p-2',
+              'flex flex-col items-center justify-center gap-1.5 rounded-lg p-2 w-14 h-14 transition-all duration-200 hover:bg-gray-50',
               activeTab === link.href && 'bg-[#FFF2E5]',
               activeTab !== link.href && 'bg-transparent text-gray-500',
             )}
             key={index}
           >
             {link.title !== 'Stories' && (
-              // <Image
-              //   src={link.icon}
-              //   alt={link.title}
-              //   width={32}
-              //   height={32}
-              //   className={cn(
-              //     activeTab === link.href && 'text-black',
-              //     activeTab !== link.href && 'text-red-500',
-              //     'size-[32px]',
-              //   )}
-              // />
-              <IconHandler
-                IconComponent={link.icon}
-                className={cn('size-[30px]')}
-              />
+              <div className="flex items-center justify-center w-full">
+                <IconHandler
+                  IconComponent={link.icon}
+                  className={cn('size-[30px]')}
+                />
+              </div>
             )}
             {link.title === 'Stories' && (
-              <div
-                className={cn(
-                  activeTab === '/stories/new' && 'bg-[#FFF2E5]',
-                  'grayscale',
-                )}
-              >
+              <div className="flex items-center justify-center w-full">
                 <AiButton
                   className="flex cursor-pointer"
                   altIcon={
                     <IconHandler
                       IconComponent={link.icon}
-                      className={cn('text-[48px]')}
+                      className={cn('size-6 text-gray-700')}
                     />
                   }
                 />
               </div>
             )}
-            <span className="text-xs font-medium">{link.title}</span>
+            <span className="text-[10px] font-medium leading-tight text-center">
+              {link.title}
+            </span>
           </UnstyledButton>
         ))}
       </nav>

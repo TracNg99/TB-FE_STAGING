@@ -6,14 +6,12 @@ import { useCallback, useRef, useState } from 'react';
 import { FaPlay } from 'react-icons/fa';
 import { FaPause } from 'react-icons/fa6';
 import { IoPlayBack, IoPlayForward } from 'react-icons/io5';
-import { PiDotsThreeVerticalBold } from 'react-icons/pi';
-import { PiWaveformBold } from 'react-icons/pi';
+import { PiDotsThreeVerticalBold, PiWaveformBold } from 'react-icons/pi';
 import { RiArrowGoBackLine, RiArrowGoForwardLine } from 'react-icons/ri';
 
 import {
   useStartSessionMutation,
   useUpdateSessionMutation,
-  // useLazyGetSessionQuery
 } from '@/store/redux/slices/agents/text-to-speech';
 import { cn } from '@/utils/class';
 
@@ -428,10 +426,10 @@ const TTSPlayer: React.FC<TTSPlayerProps> = ({
   }, [audioRef, updateSessionState]);
 
   return (
-    <div className={className ?? 'rounded-lg py-4 bg-transparent'}>
+    <div className={className ?? 'h-full flex-col rounded-lg bg-transparent'}>
       {!isSessionStart ? (
         <button
-          className={buttonClassName ?? 'py-2 rounded-lg cursor-pointer'}
+          className={buttonClassName ?? 'rounded-lg cursor-pointer'}
           onClick={handleAudioPopOver}
         >
           <PiWaveformBold className="text-3xl text-black" />

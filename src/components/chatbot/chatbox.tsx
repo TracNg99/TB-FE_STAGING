@@ -119,14 +119,14 @@ const InputLayer: React.FC<{
 
         <div
           className={cn(
-            'w-full flex flex-row items-center bg-white mx-1 h-full gap-2 bg-transparent',
+            'w-full flex flex-row items-center mx-1 h-full gap-2 bg-transparent',
           )}
         >
           <textarea
             className="flex-grow h-full bg-transparent border-none outline-none text-lg placeholder-gray-400 px-2 py-1 resize-none focus:ring-0 placeholder-gray-600"
             placeholder="Ask anything..."
             value={input}
-            onChange={(e) => onInputChange(e.currentTarget.value)}
+            onChange={(e) => onInputChange(e.target.value)}
             onKeyDown={onKeyPress}
             ref={textAreaRef}
             style={{ minHeight: '60px', maxHeight: '100%', overflow: 'auto' }}
@@ -252,7 +252,7 @@ const Chatbox: React.FC<ChatboxProps> = ({
   return (
     <div
       className={cn(
-        'w-full flex flex-col items-center relative z-10 bg-transparent',
+        'w-full flex flex-col items-center relative z-30 bg-transparent',
       )}
     >
       {/* Suggestions Layer */}

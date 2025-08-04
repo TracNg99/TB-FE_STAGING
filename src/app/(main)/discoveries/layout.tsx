@@ -4,6 +4,7 @@ import { IconPin, IconPinFilled } from '@tabler/icons-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useMemo, useState } from 'react';
 
+import PageWrapper from '@/components/layouts/PageWrapper';
 import { useSidebar } from '@/contexts/sidebar-provider';
 import { useGetAddressExperienceMapByCompanyIdQuery } from '@/store/redux/slices/user/experience';
 import { cn } from '@/utils/class';
@@ -59,7 +60,7 @@ export default function DiscoveriesLayout({
   };
 
   return (
-    <div className="relative flex flex-row md:h-screen w-full bg-gray-50">
+    <div className="flex flex-row h-full w-full bg-gray-50 overflow-hidden">
       {/* Collapsible Sub-sidebar for Discoveries */}
       <aside
         onMouseLeave={() => {
@@ -68,14 +69,15 @@ export default function DiscoveriesLayout({
           }
         }}
         className={cn(
-          ' h-full flex-col bg-white z-50 transition-all duration-300 ease-in-out flex overflow-hidden',
+          'h-full flex-col bg-white z-50 transition-all duration-300 ease-in-out flex overflow-hidden lg:flex flex-shrink-0',
+          'hidden', // Hide on mobile by default
           isSidebarOpen || isPinned
             ? 'w-64 border-r border-gray-200'
             : 'w-0 p-0 border-none',
           !isPinned && 'absolute left-0 top-0',
         )}
       >
-        <div className="p-4 flex justify-between items-center">
+        <div className="p-4 flex justify-between items-center flex-shrink-0">
           <h2 className="text-lg font-semibold">Discover</h2>
           <button
             onClick={togglePin}
@@ -105,8 +107,8 @@ export default function DiscoveriesLayout({
       </aside>
 
       {/* Main Content Area with proper spacing */}
-      <main className="flex-1 h-full overflow-y-auto">
-        <div className="max-w-5xl mx-auto px-3 md:px-8">{children}</div>
+      <main className="flex-1 overflow-y-auto">
+        <PageWrapper>{children}</PageWrapper>
       </main>
     </div>
   );

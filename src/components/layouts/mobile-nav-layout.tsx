@@ -41,7 +41,7 @@ const navbarLinks = [
   },
 ];
 
-const Navbar = ({ isMobile }: { isMobile?: boolean }) => {
+const Navbar = () => {
   const { user, logout, isDefault } = useAuth();
   const { triggerReset } = useChat();
   const router = useRouter();
@@ -105,119 +105,114 @@ const Navbar = ({ isMobile }: { isMobile?: boolean }) => {
 
   return (
     <>
-      {pathname === '/' && isMobile && (
-        <div className={cn('fixed top-[2dvh] left-[2dvh] flex flex-row z-30')}>
-          {user ? (
-            <Popover position="top-end" withArrow>
-              <Popover.Target>
-                <UnstyledButton
-                  onClick={() => handleTabChange('/profile')}
-                  className={cn(
-                    'flex flex-col items-center gap-1 rounded-lg p-2',
-                    activeTab === '/profile' && 'bg-orange-100/50',
-                    'bg-transparent rounded-full',
-                  )}
-                >
-                  <div className="bg-transparent text-white rounded-full p-0">
-                    <Avatar
-                      className="bg-white"
-                      src={user.media_assets?.url ?? null}
-                      name={user.username}
-                      radius="xl"
-                    />
-                  </div>
-                  {/* <span className="text-xs font-medium text-orange-500">
+      {pathname === '/' && (
+        <div className="absolute top-[2dvh] left-0 right-0 flex justify-between items-center z-30 px-4">
+          {/* Profile icon on the left */}
+          <div className="flex items-center">
+            {user ? (
+              <Popover position="top-end" withArrow>
+                <Popover.Target>
+                  <UnstyledButton
+                    onClick={() => handleTabChange('/profile')}
+                    className={cn(
+                      'flex flex-col items-center gap-1 rounded-lg p-2',
+                      activeTab === '/profile' && 'bg-orange-100/50',
+                      'bg-transparent rounded-full',
+                    )}
+                  >
+                    <div className="bg-transparent text-white rounded-full p-0">
+                      <Avatar
+                        className="bg-white"
+                        src={user.media_assets?.url ?? null}
+                        name={user.username}
+                        radius="xl"
+                      />
+                    </div>
+                  </UnstyledButton>
+                </Popover.Target>
+                <Popover.Dropdown className="flex flex-col gap-2 bg-white/50">
+                  <Button
+                    className="flex bg-orange-500 text-white"
+                    fullWidth
+                    variant="subtle"
+                    onClick={() => router.push('/profile')}
+                  >
+                    <IconUserCircle className="mr-2" color="white" />
                     Profile
-                  </span> */}
-                </UnstyledButton>
-              </Popover.Target>
-              <Popover.Dropdown className="flex flex-col gap-2 bg-white/50">
-                <Button
-                  className="flex bg-orange-500 text-white"
-                  fullWidth
-                  variant="subtle"
-                  onClick={() => router.push('/profile')}
-                >
-                  <IconUserCircle className="mr-2" color="white" />
-                  Profile
-                </Button>
-                <Button
-                  className="flex bg-red-500 text-white"
-                  fullWidth
-                  variant="subtle"
-                  color="red"
-                  onClick={logout}
-                >
-                  <IconDoorExit className="mr-2" color="white" />
-                  Logout
-                </Button>
-              </Popover.Dropdown>
-            </Popover>
-          ) : (
-            <div
-              // href="/auth/login"
-              className="flex flex-col items-center gap-1 rounded-full p-4 bg-transparent"
-              onClick={logout}
-            >
-              <BsPersonCircle
-                color={pathname === '/' && isDefault ? '#FFF' : '#FB5607'}
-                size={32}
-              />
-              {/* <span className="text-xs font-medium text-orange-500">Login</span> */}
-            </div>
-          )}
-          <Link
-            href="/"
-            className="fixed top-[2dvh] left-[50%] translate-x-[-50%] p-1 bg-transparent rounded-xl"
-            onClick={triggerReset}
-          >
-            <Image
-              src="/assets/travelbuddy_logo_icon.svg"
-              alt="Logo"
-              width={56}
-              height={56}
-            />
-          </Link>
-        </div>
-      )}
-      {isMobile && (
-        <footer
-          className={`
-        fixed bottom-0 left-0 right-0 
-        z-30 flex h-16 w-full items-center 
-        justify-around border-t border-gray-200 
-        bg-white md:hidden
-      `}
-        >
-          {navbarLinks.map((link, index) => (
-            <UnstyledButton
-              onClick={() =>
-                link.title === 'Stories'
-                  ? handleAiButtonClicked()
-                  : handleTabChange(link.href)
-              }
-              className={cn(
-                'flex flex-col items-center justify-center gap-1 rounded-lg p-2 size-[50px]',
-                {
-                  'flex bg-[#FFF2E5]':
-                    activeTab === link.href && !isOAuthCallback,
-                },
-              )}
-              key={index}
-              disabled={isOAuthCallback}
+                  </Button>
+                  <Button
+                    className="flex bg-red-500 text-white"
+                    fullWidth
+                    variant="subtle"
+                    color="red"
+                    onClick={logout}
+                  >
+                    <IconDoorExit className="mr-2" color="white" />
+                    Logout
+                  </Button>
+                </Popover.Dropdown>
+              </Popover>
+            ) : (
+              <div
+                className="flex flex-col items-center gap-1 rounded-full p-4 bg-transparent"
+                onClick={logout}
+              >
+                <BsPersonCircle
+                  color={pathname === '/' && isDefault ? '#FFF' : '#FB5607'}
+                  size={32}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Logo centered */}
+          <div className="absolute left-1/2 transform -translate-x-1/2">
+            <Link
+              href="/"
+              className="p-1 bg-transparent rounded-xl"
+              onClick={triggerReset}
             >
               <Image
-                className="grayscale"
-                src={link.icon}
-                alt="Home"
-                width={28}
-                height={28}
+                src="/assets/travelbuddy_logo_icon.svg"
+                alt="Logo"
+                width={56}
+                height={56}
               />
-              {/* <span className="text-[10px] font-medium">{link.title}</span> */}
-            </UnstyledButton>
-          ))}
-        </footer>
+            </Link>
+          </div>
+
+          {/* Empty div for balance */}
+          <div className="w-12"></div>
+        </div>
       )}
+      <nav className="flex h-16 w-full items-center justify-around border-t border-gray-200 bg-white">
+        {navbarLinks.map((link, index) => (
+          <UnstyledButton
+            onClick={() =>
+              link.title === 'Stories'
+                ? handleAiButtonClicked()
+                : handleTabChange(link.href)
+            }
+            className={cn(
+              'flex flex-col items-center justify-center gap-1 rounded-lg p-2 size-[50px]',
+              {
+                'flex bg-[#FFF2E5]':
+                  activeTab === link.href && !isOAuthCallback,
+              },
+            )}
+            key={index}
+            disabled={isOAuthCallback}
+          >
+            <Image
+              className="text-gray-700"
+              src={link.icon}
+              alt="Home"
+              width={28}
+              height={28}
+            />
+          </UnstyledButton>
+        ))}
+      </nav>
     </>
   );
 };

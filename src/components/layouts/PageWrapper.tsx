@@ -1,23 +1,34 @@
 import React from 'react';
 
-import { cn } from '@/utils/class';
-
 interface PageWrapperProps {
   children: React.ReactNode;
   className?: string;
 }
 
-export default function PageWrapper({
+const PageWrapper: React.FC<PageWrapperProps> = ({
   children,
   className = '',
-}: PageWrapperProps) {
+}) => {
   return (
     <div
-      className={cn('w-full px-2 md:px-4 bg-gray-50 min-h-screen', className)}
+      className={`h-full w-full bg-gray-50 container mx-auto px-4 ${className}`}
     >
-      <div className={cn('mx-auto max-w-4xl flex flex-col gap-4 pb-12')}>
-        {children}
+      <div className="h-full w-full grid grid-cols-12 gap-x-6">
+        {/* Left spacing - hidden on mobile, 1 column on desktop */}
+        <div className="hidden md:block md:col-span-1"></div>
+
+        {/* Main content - full width on mobile, 10 columns on desktop */}
+        <main className="col-span-12 md:col-span-10 lg:col-span-10">
+          <div className="flex flex-col h-full max-w-2xl mx-auto gap-6">
+            {children}
+          </div>
+        </main>
+
+        {/* Right spacing - hidden on mobile, 1 column on desktop */}
+        <div className="hidden md:block md:col-span-1"></div>
       </div>
     </div>
   );
-}
+};
+
+export default PageWrapper;

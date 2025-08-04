@@ -2,8 +2,7 @@ import { ColorSchemeScript, MantineProvider, createTheme } from '@mantine/core';
 import { ModalsProvider } from '@mantine/modals';
 import { Notifications } from '@mantine/notifications';
 import clsx from 'clsx';
-import type { Metadata } from 'next';
-import type { Viewport } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Oswald, Roboto } from 'next/font/google';
 
 import AuthProvider from '@/contexts/auth-provider';

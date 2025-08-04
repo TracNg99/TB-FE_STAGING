@@ -115,7 +115,7 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
         (msg, i) =>
           msg.text && (
             <div key={i} className={`flex flex-col w-full`} ref={ref}>
-              <div className={`sm:p-6 bg-[#FCFCF9] w-full`}>
+              <div className={`md:px-6 bg-[#FCFCF9] w-full`}>
                 {msg.from === 'user' && (
                   <h1 className="text-2xl sm:text-3xl font-semibold text-gray-800">
                     {msg.text}
@@ -256,7 +256,7 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                         <div
                           className={`flex items-center gap-4 ${i !== messages.length - 1 ? 'border-b border-gray-300' : ''}`}
                         >
-                          <div className="mt-6 mb-10">
+                          <div className="my-3">
                             <button
                               onClick={handleShare}
                               className="flex items-center gap-2 text-gray-600 hover:text-gray-900 cursor-pointer"
@@ -273,7 +273,7 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                               </span>
                             </button>
                           </div>
-                          <div className="mt-6 mb-10">
+                          <div className="my-3">
                             <button
                               onClick={handleCopy}
                               className="flex items-center gap-2 text-gray-600 hover:text-gray-900 cursor-pointer"
@@ -294,7 +294,7 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                         {msg.suggestions &&
                           msg.suggestions.length > 0 &&
                           i === messages.length - 1 && (
-                            <div className="mt-8">
+                            <div className="mt-5">
                               <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-800 mb-3">
                                 <IconHelpCircle
                                   size={32}

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 
+import PageWrapper from '@/components/layouts/PageWrapper';
 import { useAuth } from '@/contexts/auth-provider';
 import {
   StoryProps,
@@ -50,7 +51,7 @@ export default function StoriesPage() {
   const userStories = stories.filter((story) => story.user_id === user?.userid);
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
+    <PageWrapper>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">My Travel Stories</h1>
         <Link
@@ -137,6 +138,6 @@ export default function StoriesPage() {
           ))}
         </div>
       )}
-    </div>
+    </PageWrapper>
   );
 }

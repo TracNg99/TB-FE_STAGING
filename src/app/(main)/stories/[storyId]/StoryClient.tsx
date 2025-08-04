@@ -497,7 +497,7 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
 
   return (
     <PageWrapper>
-      <div className="w-full flex flex-col gap-2 pt-4 pb-24 md:pb-4">
+      <div className="h-full w-full flex flex-col gap-2 py-4">
         {/* Archived Badge */}
         {isArchived && isStoryOwner && (
           <div className="mb-4">
@@ -855,17 +855,6 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
                 disabled={editMode}
               />
             )}
-            {/* Sticky Chatbox at the bottom */}
-            {!editMode && (
-              <StickyChatbox
-                isHome={false}
-                isMobile={isMobile}
-                hasMessages={false}
-                initialSuggestions={[]}
-                onSend={handleChatSend}
-                disabled={editMode}
-              />
-            )}
             {/* Photo Modal */}
             {iconicPhotos.length > 0 && (
               <IconicPhotoModal
@@ -912,6 +901,18 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
           </div>
         )}
       </div>
+      {/* Sticky Chatbox at the bottom */}
+      {!editMode && (
+        <StickyChatbox
+          className="bg-gray-50"
+          isHome={false}
+          isMobile={isMobile}
+          hasMessages={false}
+          initialSuggestions={[]}
+          onSend={handleChatSend}
+          disabled={editMode}
+        />
+      )}
     </PageWrapper>
   );
 }
