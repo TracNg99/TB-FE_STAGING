@@ -213,7 +213,9 @@ const ExperienceDetailPage = () => {
         </div>
         <div className="relative w-full">
           <NewCarousel
-            items={activities}
+            items={[...activities].sort(
+              (a, b) => a.order_of_appearance - b.order_of_appearance,
+            )}
             renderItem={(activity) => (
               <div
                 className="min-w-[240px] max-w-[260px] h-full border border-gray-200 rounded-md bg-white overflow-hidden flex-shrink-0 flex flex-col justify-between p-0 cursor-pointer"
