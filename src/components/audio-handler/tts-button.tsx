@@ -2,11 +2,12 @@
 
 import { Loader, Popover } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
+import Image from 'next/image';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { FaPlay } from 'react-icons/fa';
 import { FaPause } from 'react-icons/fa6';
 import { IoPlayBack, IoPlayForward } from 'react-icons/io5';
-import { PiDotsThreeVerticalBold, PiWaveformBold } from 'react-icons/pi';
+import { PiDotsThreeVerticalBold } from 'react-icons/pi';
 import { RiArrowGoBackLine, RiArrowGoForwardLine } from 'react-icons/ri';
 
 import {
@@ -283,7 +284,6 @@ const TTSPlayer: React.FC<TTSPlayerProps> = ({
 
   // RTK Query hooks
   const [startSession] = useStartSessionMutation();
-  // const [getSession] = useLazyGetSessionQuery();
   const [updateSession] = useUpdateSessionMutation();
 
   const throttledUpdateSession = useRef(
@@ -438,7 +438,13 @@ const TTSPlayer: React.FC<TTSPlayerProps> = ({
           className={buttonClassName ?? 'rounded-lg cursor-pointer'}
           onClick={handleAudioPopOver}
         >
-          <PiWaveformBold className="text-3xl text-black" />
+          <Image
+            src="/assets/welcome_modal_welcome.png"
+            alt="headphone"
+            width={35}
+            height={35}
+            unoptimized
+          />
         </button>
       ) : (
         <AudioPlayer

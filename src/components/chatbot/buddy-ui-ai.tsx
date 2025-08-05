@@ -492,9 +492,6 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
     ) {
       refetchHistoryData();
     }
-    sessionStorage.removeItem('chat-input');
-    sessionStorage.removeItem('experience_id');
-    sessionStorage.removeItem('company_id');
     setExperienceId(null);
     setResetState(true);
     setActiveThread(null);
@@ -506,6 +503,9 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
     setCharIndex(0);
     setFloatingTexts('');
     setIsLoading(false);
+    sessionStorage.removeItem('chat-input');
+    sessionStorage.removeItem('experience_id');
+    sessionStorage.removeItem('company_id');
     router.replace('/');
   }, [activeThread, refetchHistoryData, threadsList, user, router]);
 
@@ -628,7 +628,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
           images: images.map((image) => image.image || ''),
         },
       ]);
-      sessionStorage.removeItem('chat-input');
+      // sessionStorage.removeItem('chat-input');
       setIsSent(true);
       try {
         await buddyStreamMutation({
@@ -664,20 +664,22 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
   );
 
   useEffect(() => {
-    if (experienceId) {
+    if (experienceId && !isSent) {
       setIsDefault(false);
-      console.log('Sent: ', isSent);
+      // console.log('Sent: ', isSent);
       const storedInput = sessionStorage.getItem('chat-input');
-      if (
-        storedInput &&
-        storedInput !== '' &&
-        messages.length === 0 &&
-        !isSent
-      ) {
+      if (storedInput && storedInput !== '' && messages.length === 0) {
         handleSend(storedInput);
       }
     }
-  }, [experienceId, handleSend, setIsDefault, messages.length, isSent]);
+  }, [
+    experienceId,
+    handleSend,
+    setIsDefault,
+    messages.length,
+    isSent,
+    handleReset,
+  ]);
 
   const handleSidebarLeave = useCallback(() => {
     if (!isPinned) {
@@ -731,12 +733,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
 
       return () => clearTimeout(timer);
     }
-  }, [
-    charIndex,
-    unfoldingTexts,
-    messages,
-    concatenateStreamingMessage.current,
-  ]); // messages
+  }, [charIndex, unfoldingTexts, messages]); // messages
 
   return (
     <div className="h-full w-full">
