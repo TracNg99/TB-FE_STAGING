@@ -4,6 +4,7 @@
 @import 'tailwindcss/preflight.css' layer(base);
 @import 'tailwindcss/utilities.css' layer(utilities);
 @import '@mantine/core/styles.layer.css' layer(mantine);
+@import '@mantine/tiptap/styles.layer.css' layer(mantine);
 @import '@mantine/charts/styles.layer.css' layer(mantine);
 @import '@mantine/notifications/styles.layer.css' layer(mantine);
 @import '@mantine/dropzone/styles.layer.css' layer(mantine);

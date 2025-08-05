@@ -3,7 +3,7 @@ import { ModalsProvider } from '@mantine/modals';
 import { Notifications } from '@mantine/notifications';
 import clsx from 'clsx';
 import type { Metadata, Viewport } from 'next';
-import { Oswald, Roboto } from 'next/font/google';
+import { Oswald, Poppins, Roboto } from 'next/font/google';
 
 import AuthProvider from '@/contexts/auth-provider';
 import { ChatProvider } from '@/contexts/chat-provider';
@@ -11,11 +11,11 @@ import ReduxProvider from '@/contexts/redux-provider';
 
 import './globals.css';
 
-// const poppins = Poppins({
-//   subsets: ['latin'],
-//   weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
-//   variable: '--font-poppins',
-// });
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
+  variable: '--font-poppins',
+});
 
 const oswald = Oswald({
   variable: '--font-oswald',
@@ -82,7 +82,12 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={clsx(roboto.className, roboto.variable, oswald.variable)}
+        className={clsx(
+          roboto.className,
+          roboto.variable,
+          oswald.variable,
+          poppins.variable,
+        )}
       >
         <ReduxProvider>
           <AuthProvider>

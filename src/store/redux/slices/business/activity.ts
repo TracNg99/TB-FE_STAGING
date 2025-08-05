@@ -19,6 +19,7 @@ export interface Activity {
   thumbnail_description?: string;
   activity_info?: ActivityInfo[];
   order_of_appearance?: number;
+  highlights?: string;
 }
 
 interface ActivityResponse {
@@ -43,6 +44,7 @@ const ActivityBusinessApi = createApi({
         description,
         description_thumbnail,
         order_of_appearance = -1,
+        highlights,
       }) => ({
         url: `/activities`,
         method: 'POST',
@@ -56,6 +58,7 @@ const ActivityBusinessApi = createApi({
           description,
           description_thumbnail,
           order_of_appearance,
+          highlights,
         },
       }),
     }),

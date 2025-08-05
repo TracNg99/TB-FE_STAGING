@@ -2,7 +2,7 @@
 
 import { Loader, Popover } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { FaPlay } from 'react-icons/fa';
 import { FaPause } from 'react-icons/fa6';
 import { IoPlayBack, IoPlayForward } from 'react-icons/io5';
@@ -277,7 +277,7 @@ const TTSPlayer: React.FC<TTSPlayerProps> = ({
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isSessionStart, setIsSessionStart] = useState(false);
   const [isAudioReady, setIsAudioReady] = useState(false);
-  const [currentLanguage, setCurrentLanguage] = useState(language);
+  const [currentLanguage, setCurrentLanguage] = useState<string | null>(null);
 
   const isMobile = useMediaQuery('(max-width: 768px)');
 
@@ -294,6 +294,12 @@ const TTSPlayer: React.FC<TTSPlayerProps> = ({
     }, 5000),
   ).current;
 
+  useEffect(() => {
+    if (language) {
+      setCurrentLanguage(language);
+    }
+  }, [language]);
+
   // Initialize session
   const initializeSession = useCallback(
     async (languageUpdate?: string) => {
@@ -304,7 +310,7 @@ const TTSPlayer: React.FC<TTSPlayerProps> = ({
           content_id: contentId,
           language:
             languageUpdate ??
-            (currentLanguage !== '' ? currentLanguage : 'en-US'),
+            (currentLanguage !== null ? currentLanguage : 'en-US'),
         }).unwrap();
 
         setSessionId(session.session_id);
@@ -322,7 +328,7 @@ const TTSPlayer: React.FC<TTSPlayerProps> = ({
         console.error('Failed to start session:', error);
       }
     },
-    [contentId, language, startSession],
+    [contentId, startSession, currentLanguage],
   );
 
   // Update session state
@@ -438,7 +444,7 @@ const TTSPlayer: React.FC<TTSPlayerProps> = ({
         <AudioPlayer
           isMobile={isMobile || false}
           modalClassName={modalClassName}
-          language={currentLanguage}
+          language={currentLanguage || 'en-US'}
           onLanguageChange={handleLanguageChange}
           position={position}
           setPosition={setPosition}

@@ -328,7 +328,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
   const [initialSuggestions, setInitialSuggestions] =
     useState<string[]>(suggestionChips);
 
-  const isSent = useRef<boolean>(false);
+  const [isSent, setIsSent] = useState<boolean>(false);
 
   const concatenateStreamingMessage = useRef<string>('');
 
@@ -628,8 +628,8 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
           images: images.map((image) => image.image || ''),
         },
       ]);
-      // sessionStorage.removeItem('chat-input');
-      isSent.current = true;
+      sessionStorage.removeItem('chat-input');
+      setIsSent(true);
       try {
         await buddyStreamMutation({
           body: {
@@ -658,24 +658,26 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
       messages,
       router,
       handleOnChunkAvailable,
+      setIsDefault,
+      setIsSent,
     ],
   );
 
   useEffect(() => {
     if (experienceId) {
       setIsDefault(false);
-      console.log('Sent: ', isSent.current);
+      console.log('Sent: ', isSent);
       const storedInput = sessionStorage.getItem('chat-input');
       if (
         storedInput &&
         storedInput !== '' &&
         messages.length === 0 &&
-        !isSent.current
+        !isSent
       ) {
         handleSend(storedInput);
       }
     }
-  }, [experienceId, handleSend, setIsDefault, messages.length]);
+  }, [experienceId, handleSend, setIsDefault, messages.length, isSent]);
 
   const handleSidebarLeave = useCallback(() => {
     if (!isPinned) {

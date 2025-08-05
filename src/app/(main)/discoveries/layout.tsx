@@ -1,9 +1,11 @@
 'use client';
 
 import { IconPin, IconPinFilled } from '@tabler/icons-react';
+import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useMemo, useState } from 'react';
 
+import CreateExperienceCard from '@/components/admin/CreateCard';
 import PageWrapper from '@/components/layouts/PageWrapper';
 import { useSidebar } from '@/contexts/sidebar-provider';
 import { useGetAddressExperienceMapByCompanyIdQuery } from '@/store/redux/slices/user/experience';
@@ -18,11 +20,30 @@ const ADDRESS_LIST = [
   'Phan Thiet',
 ];
 
+const AddIcon: React.FC<{ className?: string; size?: number }> = ({
+  className,
+  size,
+}) => (
+  <Image
+    src="/assets/add.svg"
+    alt="Add"
+    width={size || 300}
+    height={size || 300}
+    className={className}
+    style={{
+      color: 'white',
+    }}
+    unoptimized
+  />
+);
+
 export default function DiscoveriesLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const role = localStorage.getItem('role') || '';
+  const [showCard, setShowCard] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const selectedAddress = searchParams.get('address') || ADDRESS_LIST[0];
@@ -79,17 +100,28 @@ export default function DiscoveriesLayout({
       >
         <div className="p-4 flex justify-between items-center flex-shrink-0">
           <h2 className="text-lg font-semibold">Discover</h2>
-          <button
-            onClick={togglePin}
-            className="p-1 rounded-full hover:bg-gray-100 transition-colors"
-            title={isPinned ? 'Unpin sidebar' : 'Pin sidebar'}
-          >
-            {isPinned ? (
-              <IconPinFilled className="size-4 text-orange-500" />
-            ) : (
-              <IconPin className="size-4 text-gray-400" />
-            )}
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={togglePin}
+              className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+              title={isPinned ? 'Unpin sidebar' : 'Pin sidebar'}
+            >
+              {isPinned ? (
+                <IconPinFilled className="size-4 text-orange-500" />
+              ) : (
+                <IconPin className="size-4 text-gray-400" />
+              )}
+            </button>
+            {role === 'business' ? (
+              <button
+                onClick={() => setShowCard(true)}
+                className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+                title="Add new address"
+              >
+                <AddIcon className="size-7" />
+              </button>
+            ) : null}
+          </div>
         </div>
 
         <ul className="flex-1 overflow-y-auto space-y-2 px-4 pb-4">
@@ -108,7 +140,18 @@ export default function DiscoveriesLayout({
 
       {/* Main Content Area with proper spacing */}
       <main className="flex-1 overflow-y-auto">
-        <PageWrapper>{children}</PageWrapper>
+        <PageWrapper>
+          {/* Render the card at the top when needed */}
+          {showCard && (
+            <div className="mb-6">
+              <CreateExperienceCard
+                onClose={() => setShowCard(false)}
+                opened={showCard}
+              />
+            </div>
+          )}
+          {children}
+        </PageWrapper>
       </main>
     </div>
   );
