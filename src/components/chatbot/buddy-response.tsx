@@ -26,6 +26,7 @@ interface BuddyResponseProps {
   displayText: string;
   messages: MessagesProps[];
   isLoading: boolean;
+  isMobile?: boolean;
   ref?: React.RefObject<HTMLDivElement | null>;
 }
 
