@@ -435,7 +435,7 @@ const TTSPlayer: React.FC<TTSPlayerProps> = ({
     <div className={className ?? 'h-full flex-col rounded-lg bg-transparent'}>
       {!isSessionStart ? (
         <button
-          className={buttonClassName ?? 'rounded-lg cursor-pointer'}
+          className={buttonClassName ?? 'relative rounded-lg cursor-pointer'}
           onClick={handleAudioPopOver}
         >
           <Image
@@ -443,7 +443,7 @@ const TTSPlayer: React.FC<TTSPlayerProps> = ({
             alt="headphone"
             width={35}
             height={35}
-            unoptimized
+            objectFit="contain"
           />
         </button>
       ) : (

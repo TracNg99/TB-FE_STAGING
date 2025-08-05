@@ -146,7 +146,7 @@ const ExperienceDetailPage = () => {
         />
         {/* Title and QR icon */}
         <div className="mb-2">
-          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-3">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center md:flex-wrap gap-2 md:gap-3">
             <h1 className="text-[32px] font-semibold text-gray-900 leading-tight">
               {experience.name}
             </h1>
@@ -168,7 +168,7 @@ const ExperienceDetailPage = () => {
               <TTSButton
                 contentId={experienceId as string}
                 language={language}
-                buttonClassName="rounded-lg cursor-pointer flex items-center justify-center"
+                buttonClassName="rounded-lg cursor-pointer relative flex items-center justify-center"
               />
             </div>
           </div>
