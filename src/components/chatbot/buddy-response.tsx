@@ -3,13 +3,13 @@
 import { Modal, ScrollArea, Skeleton } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { IconArrowUpRight, IconCopy } from '@tabler/icons-react';
-import Image from 'next/image';
 import React, { useCallback, useState } from 'react';
 import { BsCheckLg } from 'react-icons/bs';
 import { IoHelpCircle as IconHelpCircle } from 'react-icons/io5';
 import { PiShareFat } from 'react-icons/pi';
 import ReactMarkdown from 'react-markdown';
 
+import ImageHandler from '@/components/image-uploader/image-handler';
 // import TextUnfolder from '@/components/chatbot/text-unfolding';
 import NewCarousel from '@/components/new-carousel';
 // import FeatureCarousel from '@/components/feature-carousel';
@@ -166,8 +166,8 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                         {msg.images && msg.images.length > 0 && (
                           <div
                             className={cn(
-                              'mb-4 w-[60dvw] overflow-hidden place-self-center justify-self-center justify-center',
-                              isMobile ? 'w-[80dvw]' : 'w-[35dvw]',
+                              'mb-4 overflow-hidden place-self-center justify-self-center justify-center',
+                              isMobile ? 'w-[80dvw]' : 'w-[38dvw]',
                             )}
                           >
                             <NewCarousel
@@ -183,30 +183,21 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                                   onClick={() => handleSelectImage(item)}
                                   disabled={imageErrorIndex === index}
                                 >
-                                  <Image
-                                    src={
-                                      imageErrorIndex === index
-                                        ? '/assets/placeholder.jpg'
-                                        : item
-                                    }
+                                  <ImageHandler
+                                    src={item}
                                     alt={`Response image ${index}`}
                                     width={200}
                                     height={150}
                                     className={cn(
                                       'rounded-lg object-fit w-[200px] h-[150px]',
                                     )}
-                                    onError={() => {
-                                      setImageErrorIndex(index);
-                                    }}
-                                    unoptimized
+                                    onError={() => setImageErrorIndex(index)}
                                   />
                                 </button>
                               )}
                               className={cn(
-                                'flex overflow-hidden',
-                                isMobile ? 'w-[80dvw]' : 'w-[35dvw]',
+                                'relative flex overflow-hidden w-full',
                               )}
-                              // enableInfiniteLoop
                             />
                           </div>
                         )}
@@ -222,7 +213,9 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                               <img
                                 src={selectedImage}
                                 alt="Response image"
-                                className="rounded-lg"
+                                className="rounded-lg object-contain"
+                                width={600}
+                                height={400}
                               />
                             </Modal>
                           </div>
