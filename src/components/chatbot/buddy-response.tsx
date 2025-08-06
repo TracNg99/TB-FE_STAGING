@@ -1,6 +1,7 @@
 'use client';
 
 import { Modal, ScrollArea, Skeleton } from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
 import { IconArrowUpRight, IconCopy } from '@tabler/icons-react';
 import Image from 'next/image';
 import React, { useCallback, useState } from 'react';
@@ -9,10 +10,9 @@ import { IoHelpCircle as IconHelpCircle } from 'react-icons/io5';
 import { PiShareFat } from 'react-icons/pi';
 import ReactMarkdown from 'react-markdown';
 
-// import { useMediaQuery } from '@mantine/hooks';
-
 // import TextUnfolder from '@/components/chatbot/text-unfolding';
-import FeatureCarousel from '@/components/feature-carousel';
+import NewCarousel from '@/components/new-carousel';
+// import FeatureCarousel from '@/components/feature-carousel';
 import { cn } from '@/utils/class';
 
 // import TextCarousel from '@/components/text-carousel';
@@ -74,6 +74,7 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState('');
   const [imageErrorIndex, setImageErrorIndex] = useState<number | null>(null);
+  const isMobile = useMediaQuery('(max-width: 640px)');
 
   const handleSelectImage = (img: string) => {
     setSelectedImage(img);
@@ -163,8 +164,13 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                     {activeTab === 'answer' || i !== currentMessage ? (
                       <div className="prose prose-lg w-full text-wrap overflow-hidden">
                         {msg.images && msg.images.length > 0 && (
-                          <div className="mb-4 w-[55dvw] overflow-hidden">
-                            <FeatureCarousel
+                          <div
+                            className={cn(
+                              'mb-4 w-[60dvw] overflow-hidden place-self-center justify-self-center',
+                              isMobile ? 'w-[80dvw]' : 'w-[60dvw]',
+                            )}
+                          >
+                            <NewCarousel
                               items={msg.images}
                               renderItem={(item: string, index: number) => (
                                 <button
@@ -197,16 +203,6 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                                 </button>
                               )}
                               className="flex flex-row overflow-hidden"
-                              classNames={{
-                                controls: 'hidden lg:flex',
-                              }}
-                              slideSize={{
-                                base: 33.33,
-                                sm: 5,
-                                md: 10,
-                              }}
-                              slideGap={16}
-                              paginationType="none"
                             />
                           </div>
                         )}
