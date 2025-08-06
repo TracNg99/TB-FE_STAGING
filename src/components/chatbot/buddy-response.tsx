@@ -1,6 +1,6 @@
 'use client';
 
-import { ScrollArea, Skeleton } from '@mantine/core';
+import { Modal, ScrollArea, Skeleton } from '@mantine/core';
 import { IconArrowUpRight, IconCopy } from '@tabler/icons-react';
 import Image from 'next/image';
 import React, { useCallback, useState } from 'react';
@@ -8,8 +8,6 @@ import { BsCheckLg } from 'react-icons/bs';
 import { IoHelpCircle as IconHelpCircle } from 'react-icons/io5';
 import { PiShareFat } from 'react-icons/pi';
 import ReactMarkdown from 'react-markdown';
-
-// import remarkGfm from 'remark-gfm';
 
 // import { useMediaQuery } from '@mantine/hooks';
 
@@ -30,7 +28,10 @@ interface BuddyResponseProps {
   ref?: React.RefObject<HTMLDivElement | null>;
 }
 
-const mockImages: string[] = [];
+// const mockImages: string[] = [];
+//   'https://kkhkvzjpcnivhhutxled.supabase.co/storage/v1/object/sign/story/1f763404-81be-4163-89d5-3f6e0dad45cc/df573be5-1fe9-4e11-b477-fb98cc7bc65a.octet-stream?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9jOWIwY2JhZC1hOTc4LTRkNDgtODQyYi0yOWE1OWViY2ViYTYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJzdG9yeS8xZjc2MzQwNC04MWJlLTQxNjMtODlkNS0zZjZlMGRhZDQ1Y2MvZGY1NzNiZTUtMWZlOS00ZTExLWI0NzctZmI5OGNjN2JjNjVhLm9jdGV0LXN0cmVhbSIsImlhdCI6MTc1MDkzNTg2NSwiZXhwIjoyMDY2Mjk1ODY1fQ.gqLGY5-wE65Do8S8UhORnEonL-RdsfX3YOv6pdLDa3Y',
+//   'https://kkhkvzjpcnivhhutxled.supabase.co/storage/v1/object/sign/story/1f763404-81be-4163-89d5-3f6e0dad45cc/df573be5-1fe9-4e11-b477-fb98cc7bc65a.octet-stream?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9jOWIwY2JhZC1hOTc4LTRkNDgtODQyYi0yOWE1OWViY2ViYTYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJzdG9yeS8xZjc2MzQwNC04MWJlLTQxNjMtODlkNS0zZjZlMGRhZDQ1Y2MvZGY1NzNiZTUtMWZlOS00ZTExLWI0NzctZmI5OGNjN2JjNjVhLm9jdGV0LXN0cmVhbSIsImlhdCI6MTc1MDkzNTg2NSwiZXhwIjoyMDY2Mjk1ODY1fQ.gqLGY5-wE65Do8S8UhORnEonL-RdsfX3YOv6pdLDa3Y',
+//   'https://kkhkvzjpcnivhhutxled.supabase.co/storage/v1/object/sign/story/1f763404-81be-4163-89d5-3f6e0dad45cc/df573be5-1fe9-4e11-b477-fb98cc7bc65a.octet-stream?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9jOWIwY2JhZC1hOTc4LTRkNDgtODQyYi0yOWE1OWViY2ViYTYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJzdG9yeS8xZjc2MzQwNC04MWJlLTQxNjMtODlkNS0zZjZlMGRhZDQ1Y2MvZGY1NzNiZTUtMWZlOS00ZTExLWI0NzctZmI5OGNjN2JjNjVhLm9jdGV0LXN0cmVhbSIsImlhdCI6MTc1MDkzNTg2NSwiZXhwIjoyMDY2Mjk1ODY1fQ.gqLGY5-wE65Do8S8UhORnEonL-RdsfX3YOv6pdLDa3Y',
 //   'https://kkhkvzjpcnivhhutxled.supabase.co/storage/v1/object/sign/story/1f763404-81be-4163-89d5-3f6e0dad45cc/df573be5-1fe9-4e11-b477-fb98cc7bc65a.octet-stream?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9jOWIwY2JhZC1hOTc4LTRkNDgtODQyYi0yOWE1OWViY2ViYTYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJzdG9yeS8xZjc2MzQwNC04MWJlLTQxNjMtODlkNS0zZjZlMGRhZDQ1Y2MvZGY1NzNiZTUtMWZlOS00ZTExLWI0NzctZmI5OGNjN2JjNjVhLm9jdGV0LXN0cmVhbSIsImlhdCI6MTc1MDkzNTg2NSwiZXhwIjoyMDY2Mjk1ODY1fQ.gqLGY5-wE65Do8S8UhORnEonL-RdsfX3YOv6pdLDa3Y',
 //   'https://kkhkvzjpcnivhhutxled.supabase.co/storage/v1/object/sign/story/1f763404-81be-4163-89d5-3f6e0dad45cc/df573be5-1fe9-4e11-b477-fb98cc7bc65a.octet-stream?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9jOWIwY2JhZC1hOTc4LTRkNDgtODQyYi0yOWE1OWViY2ViYTYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJzdG9yeS8xZjc2MzQwNC04MWJlLTQxNjMtODlkNS0zZjZlMGRhZDQ1Y2MvZGY1NzNiZTUtMWZlOS00ZTExLWI0NzctZmI5OGNjN2JjNjVhLm9jdGV0LXN0cmVhbSIsImlhdCI6MTc1MDkzNTg2NSwiZXhwIjoyMDY2Mjk1ODY1fQ.gqLGY5-wE65Do8S8UhORnEonL-RdsfX3YOv6pdLDa3Y',
 //   'https://kkhkvzjpcnivhhutxled.supabase.co/storage/v1/object/sign/story/1f763404-81be-4163-89d5-3f6e0dad45cc/df573be5-1fe9-4e11-b477-fb98cc7bc65a.octet-stream?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9jOWIwY2JhZC1hOTc4LTRkNDgtODQyYi0yOWE1OWViY2ViYTYiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJzdG9yeS8xZjc2MzQwNC04MWJlLTQxNjMtODlkNS0zZjZlMGRhZDQ1Y2MvZGY1NzNiZTUtMWZlOS00ZTExLWI0NzctZmI5OGNjN2JjNjVhLm9jdGV0LXN0cmVhbSIsImlhdCI6MTc1MDkzNTg2NSwiZXhwIjoyMDY2Mjk1ODY1fQ.gqLGY5-wE65Do8S8UhORnEonL-RdsfX3YOv6pdLDa3Y',
@@ -70,6 +71,14 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
   const [isCopied, setIsCopied] = useState(false);
   const [isShared, setIsShared] = useState(false);
   const [currentMessage, setCurrentMessage] = useState(messages.length - 1);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState('');
+  const [imageErrorIndex, setImageErrorIndex] = useState<number | null>(null);
+
+  const handleSelectImage = (img: string) => {
+    setSelectedImage(img);
+    setIsModalOpen(true);
+  };
 
   const handleShare = useCallback(() => {
     if (navigator.clipboard && typeof window !== 'undefined') {
@@ -112,10 +121,10 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
       {messages.map(
         (msg, i) =>
           msg.text && (
-            <div key={i} className={`flex flex-col w-full`} ref={ref}>
+            <div key={i} className={`flex flex-col text-wrap w-full`} ref={ref}>
               <div className={`md:px-6 bg-[#FCFCF9] w-full`}>
                 {msg.from === 'user' && (
-                  <h1 className="text-2xl sm:text-3xl font-semibold text-gray-800">
+                  <h1 className="text-2xl sm:text-3xl font-semibold text-gray-800 mt-10 mb-2">
                     {msg.text}
                   </h1>
                 )}
@@ -126,7 +135,7 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                       <button
                         onClick={() => handleTabSelect(i, 'answer')}
                         className={cn(
-                          'py-2 px-4 text-md',
+                          'py-2 px-4 text-md cursor-pointer',
                           activeTab === 'answer' || i !== currentMessage
                             ? 'border-b-2 border-orange-500 text-orange-500'
                             : 'text-gray-500',
@@ -137,7 +146,7 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                       <button
                         onClick={() => handleTabSelect(i, 'sources')}
                         className={cn(
-                          'py-2 px-4 text-md',
+                          'py-2 px-4 text-md cursor-pointer',
                           msg.sources && msg.sources.length === 0 && 'hidden',
                           activeTab === 'sources' && i === currentMessage
                             ? 'border-b-2 border-orange-500 text-orange-500'
@@ -152,48 +161,76 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                       </button>
                     </div>
                     {activeTab === 'answer' || i !== currentMessage ? (
-                      <div className="prose prose-lg w-full text-wrap">
-                        {(msg.images && msg.images.length > 0) ||
-                          (mockImages.length > 0 && (
-                            <div className="mb-4">
-                              <FeatureCarousel
-                                items={
-                                  msg.images && msg.images.length > 0
-                                    ? msg.images
-                                    : mockImages
-                                }
-                                renderItem={(item) => (
-                                  <div className="w-[120px] h-[90px] relative">
-                                    <Image
-                                      src={item}
-                                      alt="Response image"
-                                      width={120}
-                                      height={90}
-                                      className="rounded-lg object-cover aspect-3/2 w-[120px] h-[90px]"
-                                    />
-                                  </div>
-                                )}
-                                className="flex flex-row overflow-hidden"
-                                classNames={{
-                                  controls: 'hidden lg:flex',
-                                }}
-                                slideSize={{
-                                  base: 33.33,
-                                  sm: 50,
-                                  md: 25,
-                                }}
-                                slideGap={16}
-                                paginationType="none"
-                              />
-                            </div>
-                          ))}
+                      <div className="prose prose-lg w-full text-wrap overflow-hidden">
+                        {msg.images && msg.images.length > 0 && (
+                          <div className="mb-4 w-[55dvw] overflow-hidden">
+                            <FeatureCarousel
+                              items={msg.images}
+                              renderItem={(item: string, index: number) => (
+                                <button
+                                  className={cn(
+                                    `w-[200px] h-[150px] relative`,
+                                    imageErrorIndex === index
+                                      ? 'cursor-not-allowed'
+                                      : 'cursor-pointer',
+                                  )}
+                                  onClick={() => handleSelectImage(item)}
+                                  disabled={imageErrorIndex === index}
+                                >
+                                  <Image
+                                    src={
+                                      imageErrorIndex === index
+                                        ? '/assets/placeholder.jpg'
+                                        : item
+                                    }
+                                    alt={`Response image ${index}`}
+                                    width={200}
+                                    height={150}
+                                    className={cn(
+                                      'rounded-lg object-fit w-[200px] h-[150px]',
+                                    )}
+                                    onError={() => {
+                                      setImageErrorIndex(index);
+                                    }}
+                                    unoptimized
+                                  />
+                                </button>
+                              )}
+                              className="flex flex-row overflow-hidden"
+                              classNames={{
+                                controls: 'hidden lg:flex',
+                              }}
+                              slideSize={{
+                                base: 33.33,
+                                sm: 5,
+                                md: 10,
+                              }}
+                              slideGap={16}
+                              paginationType="none"
+                            />
+                          </div>
+                        )}
                         <div className="text-gray-700 text-pretty whitespace-pre-line">
+                          <div className="flex flex-col justify-center items-center w-full h-full">
+                            <Modal
+                              opened={isModalOpen}
+                              onClose={() => setIsModalOpen(false)}
+                              size="auto"
+                              withCloseButton={false}
+                              yOffset="20vh"
+                            >
+                              <img
+                                src={selectedImage}
+                                alt="Response image"
+                                className="rounded-lg"
+                              />
+                            </Modal>
+                          </div>
                           <ReactMarkdown
-                            // remarkPlugins={[remarkGfm]}
                             components={{
                               ol: ({ children, ...props }) => (
                                 <ol
-                                  className="list-decimal list-inside"
+                                  className="list-decimal list-inside text-wrap wrap-break-word align-top whitespace-pre-wrap"
                                   {...props}
                                 >
                                   {children}
@@ -201,11 +238,19 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                               ),
                               ul: ({ children, ...props }) => (
                                 <ul
-                                  className="list-disc list-inside"
+                                  className="list-disc list-inside whitespace-nowrap text-wrap"
                                   {...props}
                                 >
                                   {children}
                                 </ul>
+                              ),
+                              li: ({ children, ...props }) => (
+                                <li
+                                  className="list-item text-wrap wrap-break-word align-top"
+                                  {...props}
+                                >
+                                  {children}
+                                </li>
                               ),
                               h1: ({ children, ...props }) => (
                                 <h1
@@ -323,20 +368,20 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                       </div>
                     ) : (
                       i === currentMessage && (
-                        <div>
+                        <div className="w-[50dvw] text-wrap overflow-hidden">
                           {(msg.sources && msg.sources.length > 0
                             ? msg.sources
                             : []
                           )?.map((source, index) => (
-                            <div key={index} className="mb-6 gap-4">
+                            <div key={index} className="mb-6 gap-4 text-wrap">
                               <p className="text-gray-600 font-bold mt-1">
-                                {`[${index + 1}]`}
+                                {`${index + 1}. ${source.title}`}
                               </p>
                               <a
                                 href={source.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-lg font-semibold text-blue-600 hover:underline"
+                                className="text-lg font-semibold text-blue-600 hover:underline max-w-full text-ellipsis"
                               >
                                 {source.url}
                               </a>
@@ -385,13 +430,17 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                                   ),
                                   a: ({ node: _, ...props }) => (
                                     <a
-                                      style={{
-                                        color: '#0066cc',
-                                        textDecoration: 'underline',
-                                        textUnderlineOffset: '2px',
-                                      }}
+                                      className="text-blue-600 hover:underline inline-block overflow-hidden text-wrap"
                                       {...props}
                                     />
+                                  ),
+                                  li: ({ children, ...props }) => (
+                                    <li
+                                      className="list-item text-wrap whitespace-nowrap"
+                                      {...props}
+                                    >
+                                      {children}
+                                    </li>
                                   ),
                                 }}
                               >

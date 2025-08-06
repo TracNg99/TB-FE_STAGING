@@ -203,7 +203,8 @@ const ExperienceDetailPage = () => {
             {experience.description && (
               <div
                 dangerouslySetInnerHTML={{
-                  __html: experience.description.replace(/\n/g, '<br />'),
+                  __html: experience.description,
+                  // .replace(/\n/g, '<br/>'),
                 }}
               />
             )}

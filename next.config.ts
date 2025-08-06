@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ['@mantine/core', '@mantine/hooks'],
   },
   images: {
-    domains: ['kkhkvzjpcnivhhutxled.supabase.co'],
+    // domains: ['*'],
     remotePatterns: [
       new URL('https://kkhkvzjpcnivhhutxled.supabase.co/**'),
       new URL('https://picsum.photos/**'),
@@ -18,36 +18,8 @@ const nextConfig: NextConfig = {
         'https://www.google.com/s2/favicons?domain=saigontourist.com&sz=256',
       ),
       new URL('https://www.google.com/s2/favicons?domain=vietravel.com&sz=256'),
-      // Placeholder image
-      {
-        hostname: 'picsum.photos',
-        protocol: 'https',
-        pathname: '/**',
-        port: '',
-        search: '',
-      },
-      {
-        hostname: 'kkhkvzjpcnivhhutxled.supabase.co',
-        protocol: 'https',
-        pathname: '/**',
-        port: '',
-        search: '',
-      },
-      {
-        hostname: 'via.placeholder.com',
-        protocol: 'https',
-        pathname: '/**',
-        port: '',
-        search: '',
-      },
-      {
-        hostname: 'www.google.com',
-        protocol: 'https',
-        pathname: '/**',
-        port: '',
-        search: '',
-      },
-      // Add more domain here
+      new URL('https://north-vietnam.com/**'),
+      new URL('https://www.vietnamairlines.com/**'),
     ],
   },
   webpack(config) {
