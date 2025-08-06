@@ -122,8 +122,12 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
       {messages.map(
         (msg, i) =>
           msg.text && (
-            <div key={i} className={`flex flex-col text-wrap w-full`} ref={ref}>
-              <div className={`md:px-6 bg-[#FCFCF9] w-full`}>
+            <div
+              key={i}
+              className={`flex flex-col text-wrap w-full overflow-x-hidden`}
+              ref={ref}
+            >
+              <div className={`px-6 bg-[#FCFCF9] w-full overflow-x-hidden`}>
                 {msg.from === 'user' && (
                   <h1 className="text-2xl sm:text-3xl font-semibold text-gray-800 mt-10 mb-2">
                     {msg.text}
@@ -361,12 +365,15 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                       </div>
                     ) : (
                       i === currentMessage && (
-                        <div className="w-[50dvw] text-wrap overflow-hidden">
+                        <div className="text-wrap overflow-x-hidden text-pretty">
                           {(msg.sources && msg.sources.length > 0
                             ? msg.sources
                             : []
                           )?.map((source, index) => (
-                            <div key={index} className="mb-6 gap-4 text-wrap">
+                            <div
+                              key={index}
+                              className="mb-6 gap-4 text-wrap overflow-x-hidden"
+                            >
                               <p className="text-gray-600 font-bold mt-1">
                                 {`${index + 1}. ${source.title}`}
                               </p>
@@ -374,7 +381,7 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                                 href={source.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-lg font-semibold text-blue-600 hover:underline max-w-full text-ellipsis"
+                                className="text-lg font-semibold text-blue-600 hover:underline max-w-full text-wrap"
                               >
                                 {source.url}
                               </a>
@@ -426,6 +433,14 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                                       className="text-blue-600 hover:underline inline-block overflow-hidden text-wrap"
                                       {...props}
                                     />
+                                  ),
+                                  p: ({ children, ...props }) => (
+                                    <p
+                                      className="text-wrap line-clamp-3 overflow-x-wrap wrap-anywhere"
+                                      {...props}
+                                    >
+                                      {children}
+                                    </p>
                                   ),
                                   li: ({ children, ...props }) => (
                                     <li

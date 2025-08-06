@@ -13,6 +13,9 @@ interface AuthReq {
 interface AuthRes {
   message?: string;
   access_token?: string;
+  refresh_token?: string;
+  expires_at?: string;
+  user_id?: string;
   userId?: string;
   error?: string;
 }
@@ -107,6 +110,14 @@ const UserAuthApi = createApi({
         body,
       }),
     }),
+
+    refreshSession: builder.mutation<AuthRes, { refreshToken: string }>({
+      query: ({ refreshToken }) => ({
+        url: '/auth/new-session',
+        method: 'GET',
+        params: { refresh_token: refreshToken },
+      }),
+    }),
   }),
 });
 
@@ -121,6 +132,7 @@ export const {
   useForgotPasswordMutation,
   useVerifyOTPMutation,
   useResetPasswordMutation,
+  useRefreshSessionMutation,
 } = UserAuthApi;
 
 export { UserAuthApi };

@@ -13,7 +13,10 @@ import {
 
 import { BusinessProfile } from '@/store/redux/slices/business/profile';
 // import { jwtDecode } from "jwt-decode";
-import { useLogOutMutation } from '@/store/redux/slices/user/auth';
+import {
+  useLogOutMutation,
+  useRefreshSessionMutation,
+} from '@/store/redux/slices/user/auth';
 import {
   Profile,
   useGetProfileAltQuery,
@@ -74,6 +77,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [roleTracker, setRoleTracker] = useState<string | null>();
   const isSessionExpired = useRef(false);
   const [logOut] = useLogOutMutation();
+  const [refreshSession] = useRefreshSessionMutation();
   const [isDefault, setIsDefault] = useState(true);
 
   useEffect(() => {
@@ -212,7 +216,34 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const jwt = localStorage.getItem('jwt') || '';
     const role = localStorage.getItem('role') || '';
+    const expiresAt = localStorage.getItem('expiresAt') || '';
+    const refreshToken = localStorage.getItem('refreshToken') || '';
     setRoleTracker(role);
+
+    const checkExpirationAndRefresh = async () => {
+      try {
+        const { access_token, refresh_token, expires_at, user_id } =
+          await refreshSession({
+            refreshToken,
+          }).unwrap();
+
+        if (access_token && refresh_token && expires_at && user_id) {
+          localStorage.setItem('jwt', access_token);
+          localStorage.setItem('refreshToken', refresh_token);
+          localStorage.setItem('expiresAt', expires_at);
+          localStorage.setItem('role', role);
+          localStorage.setItem('userId', user_id);
+        }
+      } catch (error) {
+        console.error('Error refreshing session:', error);
+      }
+    };
+
+    const isExpired = Date.now() > Number(expiresAt) - 60 * 5 * 1000;
+    if (isExpired) {
+      checkExpirationAndRefresh();
+    }
+
     const checkAuthValid = async () => {
       const isValid = await isAuthenticated(jwt);
       if (!isValid && !isSessionExpired.current) {
@@ -256,6 +287,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     refetch,
     roleTracker,
     router,
+    refreshSession,
   ]);
 
   // Show a loading state while checking authentication

@@ -64,6 +64,8 @@ export function LoginForm({ redirectUrl, onSuccess }: LoginFormProps) {
         setLoading(false);
       } else {
         localStorage.setItem('jwt', authData?.access_token ?? '');
+        localStorage.setItem('refreshToken', authData?.refresh_token ?? '');
+        localStorage.setItem('expiresAt', authData?.expires_at ?? '');
         localStorage.setItem('userId', authData?.userId ?? '');
         localStorage.setItem('role', 'user');
         if (redirectUrl) {

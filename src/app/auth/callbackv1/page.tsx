@@ -34,7 +34,7 @@ const OAuthCallback = () => {
     // }
 
     if (refresh) {
-      localStorage.setItem('refresh_token', refresh); // Store refresh token (if needed)
+      localStorage.setItem('refreshToken', refresh); // Store refresh token (if needed)
       setRefreshToken(refresh);
     }
   }, [router, accessToken, refreshToken, hash]);
@@ -48,8 +48,9 @@ const OAuthCallback = () => {
   useEffect(() => {
     if (data) {
       // Set user data in the global context
-      const { user } = data;
+      const { user, expires_at } = data;
       localStorage.setItem(authKey, JSON.stringify(user));
+      localStorage.setItem('expiresAt', expires_at);
       localStorage.removeItem('hash');
 
       const currentPath = sessionStorage.getItem('currentPath') || '';

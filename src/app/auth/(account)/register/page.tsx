@@ -72,6 +72,8 @@ const RegisterPage = () => {
           position: 'top-center',
         });
         localStorage.setItem('jwt', signUpData?.access_token || '');
+        localStorage.setItem('refreshToken', signUpData?.refresh_token || '');
+        localStorage.setItem('expiresAt', signUpData?.expires_at || '');
         localStorage.setItem('userId', signUpData?.userId || '');
         localStorage.setItem('role', 'user');
       }
