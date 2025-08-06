@@ -166,8 +166,8 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                         {msg.images && msg.images.length > 0 && (
                           <div
                             className={cn(
-                              'mb-4 w-[60dvw] overflow-hidden place-self-center justify-self-center',
-                              isMobile ? 'w-[80dvw]' : 'w-[60dvw]',
+                              'mb-4 w-[60dvw] overflow-hidden place-self-center justify-self-center justify-center',
+                              isMobile ? 'w-[80dvw]' : 'w-[35dvw]',
                             )}
                           >
                             <NewCarousel
@@ -202,7 +202,11 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                                   />
                                 </button>
                               )}
-                              className="flex flex-row overflow-hidden"
+                              className={cn(
+                                'flex overflow-hidden',
+                                isMobile ? 'w-[80dvw]' : 'w-[35dvw]',
+                              )}
+                              // enableInfiniteLoop
                             />
                           </div>
                         )}
