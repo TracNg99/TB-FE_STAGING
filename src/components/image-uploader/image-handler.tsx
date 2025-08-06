@@ -18,7 +18,7 @@ const ImageHandler: React.FC<{
 
   return (
     <Image
-      src={ImageError ? '/placeholder.png' : src}
+      src={ImageError ? '/placeholder.jpg' : src}
       alt={alt || 'Image'}
       onError={handleImageError}
       className={className}
