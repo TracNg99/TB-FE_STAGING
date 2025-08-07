@@ -199,6 +199,11 @@ const ContentLayer: React.FC<{
 }) => {
   return (
     <div className="w-full flex flex-col items-center">
+      {(isThreadFetching || isThreadLoading || !isSessionActive) && (
+        <div className="w-full bg-[#FCFCF9] mx-auto my-10">
+          <ThreadLoading />
+        </div>
+      )}
       {(experienceData || messages.length > 0) && (
         <div className="w-full mx-auto flex flex-col items-center px-4 py-4">
           {/* Experience Follow-up Card */}
@@ -238,14 +243,8 @@ const ContentLayer: React.FC<{
                 </Container>
               </Link>
             )}
-
           {/* Chat Messages */}
-          {(isThreadFetching || isThreadLoading) &&
-          (messages.length === 0 || !isSessionActive) ? (
-            <div className="w-full bg-[#FCFCF9]">
-              <ThreadLoading />
-            </div>
-          ) : (
+          {!isThreadFetching && !isThreadLoading && isSessionActive && (
             <div className="w-full">
               <BuddyResponse
                 isLoading={isLoading}
@@ -284,7 +283,7 @@ const ContentLayer: React.FC<{
 
 // Move ThreadLoading to top-level
 const ThreadLoading = () => (
-  <div className="flex flex-col items-start justify-center gap-2 z-0 mt-5 bg-[#FCFCF9]">
+  <div className="flex flex-col items-start justify-center gap-2 z-100 mt-5 bg-[#FCFCF9]">
     <Skeleton height={25} width="40%" />
     <Skeleton height={20} width="100%" />
     <Skeleton height={20} width="100%" />
@@ -812,7 +811,10 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                   isMobile={isMobile}
                   onSend={handleSend}
                   initialSuggestions={initialSuggestions}
-                  hasMessages={messages.length > 0}
+                  hasMessages={
+                    messages.length > 0 ||
+                    (!!activeThread && activeThread !== '')
+                  }
                 />
               </PageWrapper>
             </div>

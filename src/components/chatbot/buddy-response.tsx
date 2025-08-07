@@ -171,7 +171,7 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                           <div
                             className={cn(
                               'mb-4 overflow-hidden place-self-center justify-self-center justify-center',
-                              isMobile ? 'w-[80dvw]' : 'w-[38dvw]',
+                              isMobile ? 'w-[70dvw]' : 'w-[38dvw]',
                             )}
                           >
                             <NewCarousel
@@ -365,17 +365,23 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                       </div>
                     ) : (
                       i === currentMessage && (
-                        <div className="text-wrap overflow-x-hidden text-pretty">
+                        <div className="text-wrap text-pretty">
                           {(msg.sources && msg.sources.length > 0
                             ? msg.sources
                             : []
                           )?.map((source, index) => (
                             <div
                               key={index}
-                              className="mb-6 gap-4 text-wrap overflow-x-hidden"
+                              className={cn(
+                                'mb-6 gap-4 text-wrap overflow-x-hidden',
+                                {
+                                  'w-[38dvw]': !isMobile,
+                                  'w-[70dvw]': isMobile,
+                                },
+                              )}
                             >
                               <p className="text-gray-600 font-bold mt-1">
-                                {`${index + 1}. ${source.title}`}
+                                {`${index + 1}. ${source.title?.replaceAll(/\\u([0-9a-fA-F]{4})/g, (match) => String.fromCharCode(parseInt(match.slice(2), 16)))}`}
                               </p>
                               <a
                                 href={source.url}
@@ -390,7 +396,7 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                                 components={{
                                   ol: ({ children, ...props }) => (
                                     <ol
-                                      className="list-decimal list-inside"
+                                      className="list-decimal list-inside text-wrap"
                                       {...props}
                                     >
                                       {children}
@@ -398,11 +404,19 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                                   ),
                                   ul: ({ children, ...props }) => (
                                     <ul
-                                      className="list-disc list-inside"
+                                      className="list-disc list-inside text-wrap line-clamp-2"
                                       {...props}
                                     >
                                       {children}
                                     </ul>
+                                  ),
+                                  li: ({ children, ...props }) => (
+                                    <li
+                                      className="list-item text-wrap line-clamp-2"
+                                      {...props}
+                                    >
+                                      {children}
+                                    </li>
                                   ),
                                   h1: ({ children, ...props }) => (
                                     <h1
@@ -436,19 +450,11 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                                   ),
                                   p: ({ children, ...props }) => (
                                     <p
-                                      className="text-wrap line-clamp-3 overflow-x-wrap wrap-anywhere"
+                                      className="text-wrap line-clamp-3"
                                       {...props}
                                     >
                                       {children}
                                     </p>
-                                  ),
-                                  li: ({ children, ...props }) => (
-                                    <li
-                                      className="list-item text-wrap whitespace-nowrap"
-                                      {...props}
-                                    >
-                                      {children}
-                                    </li>
                                   ),
                                 }}
                               >
