@@ -199,11 +199,12 @@ const ContentLayer: React.FC<{
 }) => {
   return (
     <div className="w-full flex flex-col items-center">
-      {(isThreadFetching || isThreadLoading || !isSessionActive) && (
-        <div className="w-full bg-[#FCFCF9] mx-auto my-10">
-          <ThreadLoading />
-        </div>
-      )}
+      {(isThreadFetching || isThreadLoading) &&
+        (!isSessionActive || messages.length === 0) && (
+          <div className="w-full bg-[#FCFCF9] mx-auto my-10">
+            <ThreadLoading />
+          </div>
+        )}
       {(experienceData || messages.length > 0) && (
         <div className="w-full mx-auto flex flex-col items-center px-4 py-4">
           {/* Experience Follow-up Card */}
@@ -244,7 +245,8 @@ const ContentLayer: React.FC<{
               </Link>
             )}
           {/* Chat Messages */}
-          {!isThreadFetching && !isThreadLoading && isSessionActive && (
+          {((!isThreadFetching && !isThreadLoading) ||
+            (isSessionActive && messages.length !== 0)) && (
             <div className="w-full">
               <BuddyResponse
                 isLoading={isLoading}
