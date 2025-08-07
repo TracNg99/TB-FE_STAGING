@@ -239,8 +239,8 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     };
 
-    const isExpired = Date.now() > Number(expiresAt) - 60 * 5 * 1000;
-    if (isExpired) {
+    const isExpired = Date.now() > Number(expiresAt) * 1000 - 60 * 5 * 1000;
+    if (isExpired && !!expiresAt && expiresAt !== '0') {
       checkExpirationAndRefresh();
     }
 
