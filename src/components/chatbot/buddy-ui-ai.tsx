@@ -206,7 +206,7 @@ const ContentLayer: React.FC<{
           </div>
         )}
       {(experienceData || messages.length > 0) && (
-        <div className="w-full mx-auto flex flex-col items-center px-4 py-4">
+        <div className="w-full mx-auto flex flex-col items-center pb-4">
           {/* Experience Follow-up Card */}
           {experienceData &&
             messages.length !== 0 &&

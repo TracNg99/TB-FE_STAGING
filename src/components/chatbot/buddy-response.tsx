@@ -7,7 +7,6 @@ import React, { useCallback, useState } from 'react';
 import { BsCheckLg } from 'react-icons/bs';
 import { IoHelpCircle as IconHelpCircle } from 'react-icons/io5';
 import { PiShareFat } from 'react-icons/pi';
-import ReactMarkdown from 'react-markdown';
 
 import ImageHandler from '@/components/image-uploader/image-handler';
 // import TextUnfolder from '@/components/chatbot/text-unfolding';
@@ -16,6 +15,7 @@ import NewCarousel from '@/components/new-carousel';
 import { cn } from '@/utils/class';
 
 // import TextCarousel from '@/components/text-carousel';
+import MarkdownViewer from './markdown-viewer';
 import { MessagesProps } from './types';
 
 interface BuddyResponseProps {
@@ -127,9 +127,9 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
               className={`flex flex-col text-wrap w-full overflow-x-hidden`}
               ref={ref}
             >
-              <div className={`px-6 bg-[#FCFCF9] w-full overflow-x-hidden`}>
+              <div className={`md:px-2 bg-[#FCFCF9] w-full overflow-x-hidden`}>
                 {msg.from === 'user' && (
-                  <h1 className="text-2xl sm:text-3xl font-semibold text-gray-800 mt-10 mb-2">
+                  <h1 className="text-2xl sm:text-3xl font-semibold text-gray-800 mt-5 mb-2">
                     {msg.text}
                   </h1>
                 )}
@@ -166,7 +166,7 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                       </button>
                     </div>
                     {activeTab === 'answer' || i !== currentMessage ? (
-                      <div className="prose prose-lg w-full text-wrap overflow-hidden">
+                      <div className="prose prose-lg w-full text-wrap">
                         {msg.images && msg.images.length > 0 && (
                           <div
                             className={cn(
@@ -205,7 +205,7 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                             />
                           </div>
                         )}
-                        <div className="text-gray-700 text-pretty whitespace-pre-line">
+                        <div className="text-gray-700 text-pretty">
                           <div className="flex flex-col justify-center items-center w-full h-full">
                             <Modal
                               opened={isModalOpen}
@@ -223,75 +223,16 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                               />
                             </Modal>
                           </div>
-                          <ReactMarkdown
-                            components={{
-                              ol: ({ children, ...props }) => (
-                                <ol
-                                  className="list-decimal list-inside text-wrap wrap-break-word align-top whitespace-pre-wrap"
-                                  {...props}
-                                >
-                                  {children}
-                                </ol>
-                              ),
-                              ul: ({ children, ...props }) => (
-                                <ul
-                                  className="list-disc list-inside whitespace-nowrap text-wrap"
-                                  {...props}
-                                >
-                                  {children}
-                                </ul>
-                              ),
-                              li: ({ children, ...props }) => (
-                                <li
-                                  className="list-item text-wrap wrap-break-word align-top"
-                                  {...props}
-                                >
-                                  {children}
-                                </li>
-                              ),
-                              h1: ({ children, ...props }) => (
-                                <h1
-                                  className="text-md font-semibold text-gray-800"
-                                  {...props}
-                                >
-                                  {children}
-                                </h1>
-                              ),
-                              h2: ({ children, ...props }) => (
-                                <h2
-                                  className="text-md font-semibold text-gray-800"
-                                  {...props}
-                                >
-                                  {children}
-                                </h2>
-                              ),
-                              h3: ({ children, ...props }) => (
-                                <h3
-                                  className="text-md font-semibold text-gray-800"
-                                  {...props}
-                                >
-                                  {children}
-                                </h3>
-                              ),
-                              a: ({ node: _, ...props }) => (
-                                <a
-                                  style={{
-                                    color: '#0066cc',
-                                    textDecoration: 'underline',
-                                    textUnderlineOffset: '2px',
-                                  }}
-                                  {...props}
-                                />
-                              ),
-                            }}
-                          >
-                            {msg.from === 'assistant' &&
-                            i === messages.length - 1 &&
-                            displayText &&
-                            displayText !== ''
-                              ? displayText
-                              : msg.text}
-                          </ReactMarkdown>
+                          <MarkdownViewer
+                            content={
+                              msg.from === 'assistant' &&
+                                i === messages.length - 1 &&
+                                displayText &&
+                                displayText !== ''
+                                ? displayText
+                                : msg.text
+                            }
+                          />
                         </div>
                         <div
                           className={`flex items-center gap-4 ${i !== messages.length - 1 ? 'border-b border-gray-300' : ''}`}
@@ -391,75 +332,16 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                               >
                                 {source.url}
                               </a>
-                              <ReactMarkdown
-                                // remarkPlugins={[remarkGfm]}
-                                components={{
-                                  ol: ({ children, ...props }) => (
-                                    <ol
-                                      className="list-decimal list-inside text-wrap"
-                                      {...props}
-                                    >
-                                      {children}
-                                    </ol>
-                                  ),
-                                  ul: ({ children, ...props }) => (
-                                    <ul
-                                      className="list-disc list-inside text-wrap line-clamp-2"
-                                      {...props}
-                                    >
-                                      {children}
-                                    </ul>
-                                  ),
-                                  li: ({ children, ...props }) => (
-                                    <li
-                                      className="list-item text-wrap line-clamp-2"
-                                      {...props}
-                                    >
-                                      {children}
-                                    </li>
-                                  ),
-                                  h1: ({ children, ...props }) => (
-                                    <h1
-                                      className="text-md font-semibold text-gray-800"
-                                      {...props}
-                                    >
-                                      {children}
-                                    </h1>
-                                  ),
-                                  h2: ({ children, ...props }) => (
-                                    <h2
-                                      className="text-md font-semibold text-gray-800"
-                                      {...props}
-                                    >
-                                      {children}
-                                    </h2>
-                                  ),
-                                  h3: ({ children, ...props }) => (
-                                    <h3
-                                      className="text-md font-semibold text-gray-800"
-                                      {...props}
-                                    >
-                                      {children}
-                                    </h3>
-                                  ),
-                                  a: ({ node: _, ...props }) => (
-                                    <a
-                                      className="text-blue-600 hover:underline inline-block overflow-hidden text-wrap"
-                                      {...props}
-                                    />
-                                  ),
-                                  p: ({ children, ...props }) => (
-                                    <p
-                                      className="text-wrap line-clamp-3"
-                                      {...props}
-                                    >
-                                      {children}
-                                    </p>
-                                  ),
-                                }}
-                              >
-                                {source.snippet}
-                              </ReactMarkdown>
+                              <MarkdownViewer
+                                content={
+                                  msg.from === 'assistant' &&
+                                    i === messages.length - 1 &&
+                                    displayText &&
+                                    displayText !== ''
+                                    ? displayText
+                                    : msg.text
+                                }
+                              />
                             </div>
                           ))}
                         </div>

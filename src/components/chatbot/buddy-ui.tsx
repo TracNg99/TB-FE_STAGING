@@ -6,13 +6,11 @@ import { notifications } from '@mantine/notifications';
 import Image from 'next/image';
 import React, { useEffect, useRef, useState } from 'react';
 // import { IoCameraOutline } from "react-icons/io5";
-import { FaMicrophone } from 'react-icons/fa';
-import { FaRegImage } from 'react-icons/fa';
+import { FaMicrophone, FaRegImage } from 'react-icons/fa';
 // import { IconArrowDown } from '@tabler/icons-react';
 import { IoIosClose } from 'react-icons/io';
 import { MdArrowForwardIos } from 'react-icons/md';
 import { RiResetLeftFill } from 'react-icons/ri';
-import ReactMarkdown from 'react-markdown';
 
 // import remarkGfm from 'remark-gfm';
 
@@ -28,8 +26,9 @@ import {
   // useCallBuddyAgentMutation,
   // usePostStreamMutation,
   useResetChatMemoryQuery,
-  // usePostStreamNativeMutation
 } from '@/store/redux/slices/agents/buddy';
+
+import MarkdownViewer from './markdown-viewer';
 
 const InactiveSvgList = [
   {
@@ -474,25 +473,13 @@ const BuddyUI = ({ context }: { context?: { [key: string]: string } }) => {
                             msg.from === 'user' ? 0 : undefined,
                         }}
                       >
-                        <ReactMarkdown
-                          // remarkPlugins={[remarkGfm]}
-                          components={{
-                            a: ({ node: _, ...props }) => (
-                              <a
-                                style={{
-                                  color: '#0066cc',
-                                  textDecoration: 'underline',
-                                  textUnderlineOffset: '2px',
-                                }}
-                                {...props}
-                              />
-                            ),
-                          }}
-                        >
-                          {msg.from === 'bot' && i === messages.length - 1
-                            ? displayedText
-                            : msg.text}
-                        </ReactMarkdown>
+                        <MarkdownViewer
+                          content={
+                            msg.from === 'bot' && i === messages.length - 1
+                              ? displayedText
+                              : msg.text
+                          }
+                        />
                       </div>
                     </div>
                     {msg.images && msg.images.length > 0 && (
