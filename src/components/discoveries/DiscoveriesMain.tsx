@@ -9,6 +9,8 @@ import QRModal from '@/components/qr-code/qr-modal';
 import { Experience } from '@/store/redux/slices/business/experience';
 import { useGetAddressExperienceMapByCompanyIdQuery } from '@/store/redux/slices/user/experience';
 
+import EditExperienceCard from '../admin/EditCard';
+
 const ADDRESS_LIST = [
   'For you',
   'Danang',
@@ -39,6 +41,9 @@ const DiscoveriesMain: React.FC = () => {
     id: string;
     name: string;
   } | null>(null);
+
+  const [showCard, setShowCard] = useState(false);
+  const [experience, setExperience] = useState<Experience | null>(null);
 
   const experiences = useMemo(() => {
     let experiences: Experience[] = [];
@@ -124,12 +129,27 @@ const DiscoveriesMain: React.FC = () => {
                       router.push(`/discoveries/${experiences[0].id}`)
                     }
                   >
-                    <div className="aspect-[16/7] overflow-hidden">
+                    <div className="aspect-[16/7] overflow-hidden relative">
                       <img
                         src={experiences[0].primary_photo || ''}
                         alt={experiences[0].name || ''}
                         className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                       />
+                      <button
+                        className="absolute bottom-3 right-3 p-2 rounded-full hover:bg-gray-100 transition-colors focus:outline-none"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          console.log('Edit button clicked');
+                          setShowCard(true);
+                          setExperience(experiences[0]);
+                        }}
+                      >
+                        <img
+                          src="/assets/edit.svg"
+                          alt="Edit"
+                          className="w-10 h-10"
+                        />
+                      </button>
                     </div>
                     <div className="p-6">
                       <div className="flex items-center gap-2 mb-3">
@@ -176,12 +196,27 @@ const DiscoveriesMain: React.FC = () => {
                           exp.id && router.push(`/discoveries/${exp.id}`)
                         }
                       >
-                        <div className="aspect-[4/3] overflow-hidden">
+                        <div className="aspect-[4/3] overflow-hidden relative">
                           <img
                             src={exp.primary_photo || ''}
                             alt={exp.name || ''}
                             className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                           />
+                          <button
+                            className="absolute bottom-3 right-3 p-2 rounded-full hover:bg-gray-100 transition-colors focus:outline-none"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              console.log('Edit button clicked');
+                              setShowCard(true);
+                              setExperience(exp);
+                            }}
+                          >
+                            <img
+                              src="/assets/edit.svg"
+                              alt="Edit"
+                              className="w-10 h-10"
+                            />
+                          </button>
                         </div>
                         <div className="p-4">
                           <div className="flex items-center gap-2 mb-2">
@@ -225,6 +260,14 @@ const DiscoveriesMain: React.FC = () => {
             onClose={() => setQrModal(null)}
             contentId={qrModal.id}
             displayText={qrModal.name}
+          />
+        )}
+        {/* Edit Experience Card */}
+        {showCard && experience && (
+          <EditExperienceCard
+            opened={showCard}
+            onClose={() => setShowCard(false)}
+            experience={experience}
           />
         )}
       </div>

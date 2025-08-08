@@ -19,25 +19,37 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import IconicPhotoDisplay from '@/components/admin/IconicPhotoDisplay';
 import ImageUploader from '@/components/image-uploader/image-picker';
-import { useCreateActivityMutation } from '@/store/redux/slices/business/activity';
-import { useCreateExperienceMutation } from '@/store/redux/slices/business/experience';
-import { useCreateExperienceDetailsMutation } from '@/store/redux/slices/business/experience';
+import {
+  useCreateActivityMutation,
+  useUpdateActivityMutation,
+} from '@/store/redux/slices/business/activity';
+import {
+  useCreateExperienceDetailsMutation,
+  useDeleteExperienceDetailsMutation,
+  useUpdateExperienceMutation,
+} from '@/store/redux/slices/business/experience';
 import {
   useCreateMediaAssetMutation,
   useUploadImageCloudRunMutation,
 } from '@/store/redux/slices/storage/upload';
+import { useGetActivitiesInExperiencePublicQuery } from '@/store/redux/slices/user/activity';
 import { Activity } from '@/store/redux/slices/user/experience';
+import { useGetExperiencePublicQuery } from '@/store/redux/slices/user/experience';
+import { useGetIconicPhotosPublicQuery } from '@/store/redux/slices/user/experience';
 
 import styles from './CreateCard.module.css';
 
-interface CreateExperienceCardProps {
+interface EditExperienceCardProps {
   opened: boolean;
   onClose: () => void;
+  experience: any;
 }
 
 // Experience schema (Step 1)
 const experienceSchema = z.object({
+  experience_id: z.string(),
   experience_title: z.string().min(1, 'Experience title is required'),
   experience_description: z.string().min(1, 'Description is required'),
   experience_thumbnail_description: z
@@ -48,16 +60,24 @@ const experienceSchema = z.object({
     image: z.string(),
     name: z.string(),
   }),
+  experience_thumbnail_url: z.string(),
   iconic_photos: z.array(
     z.object({
       image: z.string(),
       name: z.string(),
     }),
   ),
+  new_iconic_photos: z.array(
+    z.object({
+      iconicPhotoUrl: z.string(),
+      iconicPhotoId: z.string(),
+    }),
+  ),
 });
 
 // Activity schema (Step 2)
 const activitySchema = z.object({
+  activity_id: z.string(),
   activity_title: z.string().min(1, 'Activity title is required'),
   activity_thumbnail_description: z
     .string()
@@ -75,6 +95,12 @@ const activitySchema = z.object({
       name: z.string(),
     }),
   ),
+  new_activity_iconic_photos: z.array(
+    z.object({
+      iconicPhotoUrl: z.string(),
+      iconicPhotoId: z.string(),
+    }),
+  ),
   activity_highlights: z.array(z.string()),
 });
 
@@ -83,9 +109,10 @@ type ActivityFormData = z.infer<typeof activitySchema>;
 
 const CITIES = ['Danang', 'Hanoi', 'Saigon', 'Mekong Delta', 'Phan Thiet'];
 
-const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
+const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
   opened = false,
   onClose,
+  experience,
 }) => {
   const [currentStep, setCurrentStep] = useState<'experience' | 'activity'>(
     'experience',
@@ -93,40 +120,77 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
   const [createdExperienceId, setCreatedExperienceId] = useState<string | null>(
     null,
   );
-  const [activities, setActivities] = useState<any[]>([]);
   const [formKey, setFormKey] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activityAddState, setActivityAddState] = useState(false);
+
+  const [currentAddress, setCurrentAddress] = useState<string>('');
 
   const [uploadImageCloudRun] = useUploadImageCloudRunMutation();
   const [createMediaAsset] = useCreateMediaAssetMutation();
-  const [createExperience] = useCreateExperienceMutation();
+  const [updateExperience] = useUpdateExperienceMutation();
   const [createExperienceDetails] = useCreateExperienceDetailsMutation();
   const [createActivity] = useCreateActivityMutation();
+  const [updateActivity] = useUpdateActivityMutation();
+  const [deleteExperienceDetails] = useDeleteExperienceDetailsMutation();
+  console.log('Opened', opened);
 
-  console.log('Card opened:', opened);
+  // Fetch activities for this experience
+  const { data: experienceFull } = useGetExperiencePublicQuery({
+    id: experience.id,
+  });
+
+  let { data: iconicPhotos = [] } = useGetIconicPhotosPublicQuery({
+    id: experience.id,
+  });
+  let iconicPhotoUrls = iconicPhotos.map((photo) => photo.url);
 
   // Experience form (Step 1)
   const experienceForm = useForm<ExperienceFormData>({
     resolver: zodResolver(experienceSchema),
     mode: 'onChange',
     defaultValues: {
-      experience_title: '',
-      experience_description: '',
-      experience_thumbnail_description: '',
-      address: '',
+      experience_id: experienceFull?.id || '',
+      experience_title: experience?.name || '',
+      experience_description: experience?.description || '',
+      experience_thumbnail_description: experience?.thumbnail_description || '',
+      address: experienceFull?.address || '',
       experience_thumbnail_image: {
-        image: '',
+        image: experience?.primary_photo || '',
         name: '',
       },
-      iconic_photos: [],
+      experience_thumbnail_url: experience?.primary_photo || '',
+      iconic_photos:
+        iconicPhotos.map((photo) => ({
+          image: photo.url,
+          name: photo.name,
+        })) || [],
+      new_iconic_photos: [],
     },
   });
+
+  useEffect(() => {
+    setCurrentAddress(experienceFull?.address || '');
+    experienceForm.setValue('experience_id', experienceFull?.id || '');
+    experienceForm.setValue('address', experienceFull?.address || '');
+    experienceForm.setValue(
+      'experience_thumbnail_url',
+      experience?.primary_photo || '',
+    );
+  }, [experienceFull]);
+
+  // Fetch activities for this experience
+  const { data: activitiesCurrent = [] } =
+    useGetActivitiesInExperiencePublicQuery({
+      experience_id: experience.id,
+    });
 
   // Activity form (Step 2)
   const activityForm = useForm<ActivityFormData>({
     resolver: zodResolver(activitySchema),
     mode: 'onChange',
     defaultValues: {
+      activity_id: '',
       activity_title: '',
       activity_thumbnail_description: '',
       activity_description: '',
@@ -137,6 +201,12 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
       activity_visiting_time: '',
       activity_address: '',
       activity_iconic_photos: [],
+      new_activity_iconic_photos: [
+        {
+          iconicPhotoUrl: '',
+          iconicPhotoId: '',
+        },
+      ],
       activity_highlights: [],
     },
   });
@@ -169,7 +239,7 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
       Underline,
     ],
     content: experienceForm.watch('experience_description') || '',
-    onUpdate: ({ editor }: { editor: Editor }) => {
+    onUpdate: ({ editor }) => {
       experienceForm.setValue('experience_description', editor.getHTML(), {
         shouldValidate: true,
       });
@@ -196,7 +266,7 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
       Underline,
     ],
     content: activityForm.watch('activity_description') || '',
-    onUpdate: ({ editor }: { editor: Editor }) => {
+    onUpdate: ({ editor }) => {
       activityForm.setValue('activity_description', editor.getHTML(), {
         shouldValidate: true,
       });
@@ -232,7 +302,7 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
           Underline,
         ],
         content: activityForm.watch('activity_description') || '',
-        onUpdate: ({ editor }: { editor: Editor }) => {
+        onUpdate: ({ editor }) => {
           activityForm.setValue('activity_description', editor.getHTML(), {
             shouldValidate: true,
           });
@@ -244,44 +314,73 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
 
   // 3. When adding a new activity
   const handleAddActivity = () => {
+    activityForm.reset({
+      activity_id: '',
+      activity_title: '',
+      activity_thumbnail_description: '',
+      activity_description: '',
+      activity_thumbnail_image: { image: '', name: '' },
+      activity_visiting_time: '',
+      activity_address: '',
+      activity_iconic_photos: [],
+      activity_highlights: [],
+    });
     const newActivityId = `activity-${Date.now()}`;
     setCurrentActivityId(newActivityId);
-    // Create editor for new activity
-    getActivityEditor(newActivityId);
-    // Rest of your add activity logic
+    // Create a new editor instance with empty content
+    const newEditor = getActivityEditor(newActivityId);
+    newEditor.commands.setContent(''); // Explicitly clear the editor content
+
+    // Set the current step to activity
+    setActivityAddState(true);
+    setCurrentStep('activity');
   };
 
-  // 4. When switching activities
-  const handleSelectActivity = (activityId: string) => {
-    const editor = activityEditors.current[activityId];
-    if (editor) {
-      // Update form with selected activity's content
-      activityForm.setValue('activity_description', editor.getHTML());
-    }
+  const mapActivityToForm = (activity: Activity): ActivityFormData => {
+    return {
+      activity_id: activity.id,
+      activity_title: activity.title || '',
+      activity_thumbnail_description: activity.description_thumbnail || '',
+      activity_description: activity.description || '',
+      activity_thumbnail_image: {
+        image: activity.primary_photo || '',
+        name: activity.title || 'activity-image',
+      },
+      activity_visiting_time: activity.hours || '',
+      activity_address: activity.address || '',
+      activity_highlights: activity.highlights || [],
+      activity_iconic_photos:
+        activity.photos.map((photo) => ({
+          image: photo,
+          name: activity.title || 'activity-image',
+        })) || [],
+      new_activity_iconic_photos: [],
+    };
   };
 
   const handleEditActivity = (activity: Activity) => {
+    setActivityAddState(false);
     setCurrentActivityId(activity.id);
-    activityForm.reset();
-    // Initialize editor if it doesn't exist
-    if (!activityEditors.current[activity.id]) {
-      getActivityEditor(activity.id);
-    }
-    activityForm.setValue('activity_description', activity.description);
+    activityForm.reset(mapActivityToForm(activity));
+    const editor = getActivityEditor(activity.id);
+    // Set the editor content to the activity's description
+    editor.commands.setContent(activity.description || '');
+
+    setCurrentStep('activity');
   };
 
-  useEffect(() => {
-    console.log('Activity Editor State:', {
-      currentActivityId,
-      hasEditor: Boolean(
-        currentActivityId && activityEditors.current[currentActivityId],
-      ),
-      editorContent: currentActivityId
-        ? activityEditors.current[currentActivityId]?.getHTML()
-        : 'No editor',
-      allEditorIds: Object.keys(activityEditors.current),
-    });
-  }, [currentActivityId]); // Re-run when currentActivityId changes
+  const handleDeleteIconicPhoto = (index: number) => {
+    // const updatedIconicPhotos = iconicPhotos.filter((_, i) => i !== index);
+    // const updatedIconicPhotosUrls = iconicPhotoUrls.filter((_, i) => i !== index);
+    // iconicPhotos = updatedIconicPhotos;
+    // iconicPhotoUrls = updatedIconicPhotosUrls;
+
+    iconicPhotos = iconicPhotos.filter((_, i) => i !== index);
+    iconicPhotoUrls = iconicPhotoUrls.filter((_, i) => i !== index);
+
+    const deletedPhotoId = iconicPhotos[index].id;
+    deleteExperienceDetails({ dd_id: deletedPhotoId });
+  };
 
   const TagsInput = ({
     value = [],
@@ -427,7 +526,6 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
                      VALUES ('${mockActivityId}', '${createdExperienceId}', '${data.activity_title}', 
                             '${data.activity_thumbnail_description}', '${data.activity_description}')`);
 
-    setActivities((prev) => [...prev, newActivity]);
     // Reset the activity form state completely
     activityForm.reset({
       activity_title: '',
@@ -437,9 +535,90 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
     setCurrentStep('experience'); // Return to experience step
   };
 
-  useEffect(() => {
-    console.log('isSubmitting changed to:', isSubmitting);
-  }, [isSubmitting]);
+  const uploadImageToSupabase = async (
+    new_image: string,
+  ): Promise<{ thumbnailUrl: string; image_id: string }> => {
+    let thumbnailUrl: string | null = null;
+    try {
+      const payload = {
+        media: {
+          mimeType: 'image/jpeg',
+          body: new_image,
+        },
+        bucket_name: 'destination',
+      };
+      const { url } = await uploadImageCloudRun(payload).unwrap();
+      thumbnailUrl = url;
+    } catch (error) {
+      console.error('Error uploading thumbnail image:', error);
+    }
+
+    if (!thumbnailUrl) {
+      console.error('Error uploading thumbnail image');
+      setIsSubmitting(false);
+      return { thumbnailUrl: '', image_id: '' };
+    }
+
+    const mediaAssetResponse = await createMediaAsset({
+      signedUrl: thumbnailUrl,
+      mimeType: 'image',
+      usage: 'thumbnail',
+    }).unwrap();
+
+    if (!mediaAssetResponse) {
+      console.error('Error creating media asset');
+      setIsSubmitting(false);
+      return { thumbnailUrl, image_id: '' };
+    }
+
+    const image_id = mediaAssetResponse.data.id || '';
+    return { thumbnailUrl, image_id };
+  };
+
+  const uploadIconicPhotosToSupabase = async (
+    new_images: string[],
+  ): Promise<{ iconicPhotoUrl: string; iconicPhotoId: string }[]> => {
+    const result: { iconicPhotoUrl: string; iconicPhotoId: string }[] = [];
+    const uploadedUrls = (
+      await Promise.all(
+        new_images.map(async (photo) => {
+          try {
+            const payload = {
+              media: {
+                mimeType: 'image/jpeg',
+                body: photo,
+              },
+              bucket_name: 'destination',
+            };
+            const { url } = await uploadImageCloudRun(payload).unwrap();
+            return url;
+          } catch (error) {
+            console.error('Error uploading iconic photo:', error);
+            return null;
+          }
+        }),
+      )
+    ).filter((url) => url !== null) as string[];
+
+    if (uploadedUrls.length === 0 && iconicPhotos.length > 0) {
+      setIsSubmitting(false);
+    }
+
+    // Create media assets for uploaded URLs
+    for (const imageUrl of uploadedUrls) {
+      const mediaAssetResponse = await createMediaAsset({
+        signedUrl: imageUrl,
+        mimeType: 'image',
+        usage: 'iconic_photo',
+      }).unwrap();
+
+      const imageId = mediaAssetResponse.data.id;
+      if (imageId && imageUrl) {
+        result.push({ iconicPhotoUrl: imageUrl, iconicPhotoId: imageId });
+      }
+    }
+    return result;
+  };
 
   // Publish final experience
   const publishExperience = async () => {
@@ -452,6 +631,8 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
       const isFormValid = await experienceForm.trigger();
       if (!isFormValid) {
         console.log('❌ Experience form has validation errors, cannot publish');
+        console.log('Form errors:', experienceForm.formState.errors);
+        console.log('Form values:', experienceForm.getValues());
         setIsSubmitting(false);
         return;
       }
@@ -461,20 +642,6 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
 
       console.log('🚀 FINAL STEP: Publishing experience...');
       console.log('📊 Experience ID:', createdExperienceId);
-      console.log('📋 Updated experience data:', currentExperienceData);
-      console.log('🎯 Total activities:', activities.length);
-      console.log('📝 Activities:', activities);
-
-      // Update the experience with current form values AND publish
-      console.log('🗄️ SQL would update experience with latest data:');
-      console.log(`UPDATE experiences SET 
-                        title = '${currentExperienceData.experience_title}',
-                        description = '${currentExperienceData.experience_description}',
-                        thumbnail_description = '${currentExperienceData.experience_thumbnail_description}',
-                        address = '${currentExperienceData.address}',
-                        status = 'published',
-                        updated_at = NOW()
-                        WHERE id = '${createdExperienceId}'`);
 
       console.log('✅ Experience published with latest data!');
       console.log('📊 Final payload that would be sent to API:', {
@@ -483,118 +650,36 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
           ...currentExperienceData,
           status: 'published',
         },
-        activities: activities,
       });
 
-      let thumbnailUrl = '';
-      let image_id = '';
-      // Handle thumbnail image upload using the new pattern
-      if (
-        currentExperienceData.experience_thumbnail_image &&
-        !(currentExperienceData.experience_thumbnail_image instanceof File)
-      ) {
-        try {
-          const payload = {
-            media: {
-              mimeType: 'image/jpeg',
-              body: currentExperienceData.experience_thumbnail_image.image,
-            },
-            bucket_name: 'destination',
-          };
-          const { url } = await uploadImageCloudRun(payload).unwrap();
-          thumbnailUrl = url;
-        } catch (error) {
-          console.error('Error uploading thumbnail image:', error);
-        }
-
-        if (!thumbnailUrl) {
-          console.error('Error uploading thumbnail image');
-          setIsSubmitting(false);
-          return;
-        }
-
-        const mediaAssetResponse = await createMediaAsset({
-          signedUrl: thumbnailUrl,
-          mimeType: 'image',
-          usage: 'thumbnail',
-        }).unwrap();
-
-        if (!mediaAssetResponse) {
-          console.error('Error creating media asset');
-          setIsSubmitting(false);
-          return;
-        }
-
-        image_id = mediaAssetResponse.data.id || '';
-      }
-
-      const iconicPhotoUrls: string[] = [];
-      const iconicPhotoIds: string[] = [];
-
-      // Handle iconic photos upload using the new pattern
-      if (
-        Array.isArray(currentExperienceData.iconic_photos) &&
-        currentExperienceData.iconic_photos.length > 0
-      ) {
-        const uploadedUrls = (
-          await Promise.all(
-            currentExperienceData.iconic_photos.map(async (photo) => {
-              if (!photo || photo instanceof File) {
-                return null;
-              }
-
-              try {
-                const payload = {
-                  media: {
-                    mimeType: 'image/jpeg',
-                    body: photo.image,
-                  },
-                  bucket_name: 'destination',
-                };
-                const { url } = await uploadImageCloudRun(payload).unwrap();
-                return url;
-              } catch (error) {
-                console.error('Error uploading iconic photo:', error);
-                return null;
-              }
-            }),
-          )
-        ).filter((url) => url !== null) as string[];
-
-        if (
-          uploadedUrls.length === 0 &&
-          currentExperienceData.iconic_photos.length > 0
-        ) {
-          setIsSubmitting(false);
-          return;
-        }
-
-        // Create media assets for uploaded URLs
-        for (const imageUrl of uploadedUrls) {
-          const mediaAssetResponse = await createMediaAsset({
-            signedUrl: imageUrl,
-            mimeType: 'image',
-            usage: 'iconic_photo',
-          }).unwrap();
-
-          const imageId = mediaAssetResponse.data.id;
-          if (imageId && imageUrl) {
-            iconicPhotoUrls.push(imageUrl);
-            iconicPhotoIds.push(imageId);
-          }
-        }
-      }
-
-      const { data: newExperienceData, error: experienceError } =
-        await createExperience({
+      const { error: experienceError } = await updateExperience({
+        id: currentExperienceData.experience_id!,
+        data: {
           name: currentExperienceData.experience_title,
           description: currentExperienceData.experience_description,
           address: currentExperienceData.address || '',
           thumbnail_description:
             currentExperienceData.experience_thumbnail_description || '',
-          primary_photo: thumbnailUrl,
-          primary_photo_id: image_id,
-        });
+          primary_photo:
+            currentExperienceData.experience_thumbnail_url ||
+            currentExperienceData.experience_thumbnail_image.image ||
+            '',
+        },
+      });
+
+      const experienceId = currentExperienceData.experience_id;
+
+      if (experienceId && currentExperienceData.new_iconic_photos.length > 0) {
+        for (const photo of currentExperienceData.new_iconic_photos) {
+          await createExperienceDetails({
+            experience_id: experienceId,
+            type: 'iconic_photos',
+            name: 'placeholder name',
+            text: 'placeholder text',
+            media_id: photo.iconicPhotoId,
+          });
+        }
+      }
 
       if (experienceError) {
         console.error('Error creating experience:', experienceError);
@@ -602,62 +687,9 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
         return;
       }
 
-      const experienceId = newExperienceData?.data.id;
-
-      if (experienceId) {
-        for (const photoId of iconicPhotoIds) {
-          await createExperienceDetails({
-            experience_id: newExperienceData?.data.id,
-            type: 'iconic_photos',
-            name: 'placeholder name',
-            text: 'placeholder text',
-            media_id: photoId,
-          });
-        }
-      }
-
-      for (const activity of activities) {
-        let thumbnailUrl = '';
-        let image_id = '';
-        if (
-          activity.activity_thumbnail_image &&
-          !(activity.activity_thumbnail_image instanceof File)
-        ) {
-          const thumbnailResponse = await uploadImageCloudRun({
-            media: {
-              mimeType: 'image/jpeg',
-              body: activity.activity_thumbnail_image.image,
-            },
-            bucket_name: 'destination',
-          }).unwrap();
-          thumbnailUrl = thumbnailResponse.url || '';
-          const mediaAssetResponse = await createMediaAsset({
-            signedUrl: thumbnailUrl,
-            mimeType: 'image/jpeg',
-            usage: 'thumbnail',
-          }).unwrap();
-          image_id = mediaAssetResponse.data.id || '';
-        }
-
-        const { data: newActivityData } = await createActivity({
-          experience_id: experienceId!,
-          title: activity.activity_title,
-          address: activity.activity_address || '',
-          hours: activity.activity_hours || '',
-          description: activity.activity_description || '',
-          description_thumbnail: activity.activity_thumbnail_description || '',
-          primary_photo: thumbnailUrl,
-          primary_photo_id: image_id,
-          highlights: activity.activity_highlights || [],
-        });
-
-        console.log('New Activity', newActivityData);
-      }
-
       // Reset everything
       experienceForm.reset();
       activityForm.reset();
-      setActivities([]);
       setCreatedExperienceId(null);
       setCurrentStep('experience');
       onClose();
@@ -666,6 +698,52 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
       console.error('Error publishing experience:', error);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleConfirmActivity = async () => {
+    if (activityAddState) {
+      const currentExperienceData = experienceForm.getValues();
+      const activityData = activityForm.getValues();
+      const newPhotos = activityData.new_activity_iconic_photos;
+      await createActivity({
+        experience_id: currentExperienceData.experience_id!,
+        title: activityData.activity_title,
+        address: activityData.activity_address || '',
+        hours: activityData.activity_visiting_time || '',
+        description: activityData.activity_description || '',
+        description_thumbnail:
+          activityData.activity_thumbnail_description || '',
+        primary_photo: activityData.activity_thumbnail_image?.image || '',
+        highlights: activityData.activity_highlights || [],
+        photos: newPhotos?.map((photo) => photo.iconicPhotoUrl) || [],
+      });
+      activityForm.reset();
+      setCurrentStep('experience');
+    } else {
+      const activityData = activityForm.getValues();
+      const activity_id = activityData.activity_id;
+      const newPhotos = activityData.new_activity_iconic_photos;
+      await updateActivity({
+        id: activity_id,
+        data: {
+          title: activityData.activity_title,
+          description: activityData.activity_description,
+          description_thumbnail: activityData.activity_thumbnail_description,
+          primary_photo: activityData.activity_thumbnail_image?.image || '',
+          photos: [
+            ...(activityData.activity_iconic_photos?.map(
+              (photo) => photo.image,
+            ) || []),
+            ...(newPhotos?.map((photo) => photo.iconicPhotoUrl) || []),
+          ],
+          hours: activityData.activity_visiting_time,
+          address: activityData.activity_address,
+          highlights: activityData.activity_highlights || [],
+        },
+      });
+      activityForm.reset();
+      setCurrentStep('experience');
     }
   };
 
@@ -689,7 +767,6 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
     // Reset everything
     experienceForm.reset();
     activityForm.reset();
-    setActivities([]);
     setCreatedExperienceId(null);
     setCurrentStep('experience');
     onClose();
@@ -703,7 +780,7 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
 
   // Experience form errors
   const expErrors = experienceForm.formState.errors;
-  const expIsValid = experienceForm.formState.isValid;
+  // const expIsValid = experienceForm.formState.isValid;
 
   // Activity form errors
   const actErrors = activityForm.formState.errors;
@@ -723,7 +800,7 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
           {currentStep === 'experience' ? (
             <div className="flex pb-6 items-start justify-between">
               <Title order={2} className={styles.formTitle}>
-                Create an Experience
+                Edit Experience
               </Title>
               <div className="flex gap-2">
                 <Button
@@ -745,7 +822,7 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
                 <Button
                   color="orange"
                   onClick={publishExperience}
-                  disabled={activities.length === 0 || !expIsValid}
+                  // disabled={activities.length === 0 || !expIsValid}
                   loading={isSubmitting}
                   className={styles.buttonText}
                 >
@@ -756,7 +833,7 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
           ) : (
             <div className="flex pb-6 items-start justify-between">
               <Title order={2} className={styles.formTitle}>
-                Create an Activity
+                {activityAddState ? 'Add New Activity' : 'Edit Activity'}
               </Title>
               <div className="flex gap-2">
                 <Button
@@ -766,6 +843,15 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
                   className={styles.buttonText}
                 >
                   Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  color="orange"
+                  // disabled={!actIsValid}
+                  onClick={handleConfirmActivity}
+                  className={styles.buttonText}
+                >
+                  Confirm
                 </Button>
               </div>
             </div>
@@ -798,9 +884,10 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
                     placeholder="Select a city"
                     required
                     data={CITIES}
-                    value={experienceForm.watch('address')}
+                    value={currentAddress}
                     onChange={(value) => {
                       console.log('🏙️ City selected:', value);
+                      setCurrentAddress(value || '');
                       experienceForm.setValue('address', value || '', {
                         shouldValidate: true,
                       });
@@ -852,21 +939,21 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
                           'experience_thumbnail_image.image',
                         )
                           ? {
-                            fetchImages: [
-                              {
-                                image: experienceForm.watch(
-                                  'experience_thumbnail_image.image',
-                                ),
-                                name:
-                                  experienceForm.watch(
-                                    'experience_thumbnail_image.name',
-                                  ) || 'Thumbnail',
-                                isExisting: true,
-                              },
-                            ],
-                          }
+                              fetchImages: [
+                                {
+                                  image: experienceForm.watch(
+                                    'experience_thumbnail_image.image',
+                                  ),
+                                  name:
+                                    experienceForm.watch(
+                                      'experience_thumbnail_image.name',
+                                    ) || 'Thumbnail',
+                                  isExisting: true,
+                                },
+                              ],
+                            }
                           : {})}
-                        onImageUpload={(fileArray) => {
+                        onImageUpload={async (fileArray) => {
                           const file = fileArray[0];
                           if (file && file.image && file.name) {
                             experienceForm.setValue(
@@ -875,6 +962,12 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
                                 image: file.image!,
                                 name: file.name!,
                               },
+                            );
+                            const { thumbnailUrl } =
+                              await uploadImageToSupabase(file.image);
+                            experienceForm.setValue(
+                              'experience_thumbnail_url',
+                              thumbnailUrl,
                             );
                           } else {
                             experienceForm.setValue(
@@ -941,18 +1034,17 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
                 <div className="w-full h-px bg-black mt-4 mb-4"></div>
                 <div className="flex items-center justify-between">
                   <Text className={styles.formLabel}>
-                    Activities ({activities.length})
+                    Activities ({activitiesCurrent.length})
                   </Text>
                 </div>
 
                 {/* Existing Activities */}
-                {activities && activities.length > 0 && (
+                {activitiesCurrent && activitiesCurrent.length > 0 && (
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {activities.map((activity) => (
+                    {activitiesCurrent.map((activity) => (
                       <div
                         key={activity.id}
                         onClick={() => {
-                          handleSelectActivity(activity.id);
                           handleEditActivity(activity);
                           setCurrentStep('activity'); // Navigate to edit mode
                         }}
@@ -960,19 +1052,19 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
                       >
                         <div className="relative aspect-square">
                           <Image
-                            src={activity.activity_thumbnail_image.image}
-                            alt={activity.activity_title}
+                            src={activity.primary_photo}
+                            alt={activity.title}
                             fill
                             className="object-cover"
                           />
                           {/* Action Buttons */}
                           <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button
-                              className="bg-white/90 p-1.5 rounded-md shadow-sm hover:bg-white transition-colors"
+                              className="hover:bg-white transition-colors"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                // TODO: Handle edit
-                                console.log('Edit:', activity.id);
+                                handleEditActivity(activity);
+                                setCurrentStep('activity');
                               }}
                               title="Edit activity"
                             >
@@ -983,13 +1075,13 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
                               />
                             </button>
                             <button
-                              className="bg-white/90 p-1.5 rounded-md shadow-sm hover:bg-white transition-colors"
+                              className="hover:bg-white transition-colors"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 // TODO: Handle view photo
                                 console.log(
                                   'Move activity around:',
-                                  activity.activity_thumbnail_image.image,
+                                  activity.primary_photo,
                                 );
                               }}
                               title="Move activity around"
@@ -1005,9 +1097,9 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
                         <div className="p-2">
                           <h3
                             className="text-sm font-medium text-gray-900 line-clamp-2"
-                            title={activity.activity_title}
+                            title={activity.title}
                           >
-                            {activity.activity_title}
+                            {activity.title}
                           </h3>
                           {activity.status === 'inactive' && (
                             <span className="inline-block mt-1 text-[10px] px-1.5 py-0.5 bg-yellow-100 text-yellow-800 rounded-full">
@@ -1041,42 +1133,41 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
                 <div className="w-full h-px bg-black mt-4 mb-4"></div>
                 <div className="space-y-3">
                   <InputWrapper
-                    label="Iconic Photos"
                     classNames={{
                       label: styles.formLabel,
                     }}
                   >
+                    <IconicPhotoDisplay
+                      photos={iconicPhotoUrls}
+                      onDelete={(index) => handleDeleteIconicPhoto(index)}
+                    />
                     <div
                       className="
-                                        [&_.mantine-Dropzone-root]:h-[200px] 
-                                        [&_.mantine-Dropzone-root]:flex 
-                                        [&_.mantine-Dropzone-root]:items-center 
-                                        [&_.mantine-Dropzone-root]:justify-center
-                                        [&_.image-display-container]:max-h-[180px]
-                                    "
+                                            [&_.mantine-Dropzone-root]:h-[200px] 
+                                            [&_.mantine-Dropzone-root]:flex 
+                                            [&_.mantine-Dropzone-root]:items-center 
+                                            [&_.mantine-Dropzone-root]:justify-center
+                                            [&_.image-display-container]:max-h-[180px]
+                                            mt-10
+                                            "
                     >
                       <ImageUploader
-                        onImageUpload={(fileArray) => {
+                        onImageUpload={async (fileArray) => {
                           if (fileArray && fileArray.length > 0) {
                             const images = fileArray
                               .filter((file) => file && file.image && file.name)
-                              .map((file) => ({
-                                image: file.image!,
-                                name: file.name!,
-                              }));
-                            console.log(
-                              '🔍 Setting iconic_photos value:',
-                              images,
+                              .map((file) => file.image!);
+                            const iconicPhotos =
+                              await uploadIconicPhotosToSupabase(images);
+                            experienceForm.setValue(
+                              'new_iconic_photos',
+                              iconicPhotos,
                             );
-                            experienceForm.setValue('iconic_photos', images);
-                          } else {
-                            console.log('🔍 Clearing iconic_photos value');
-                            experienceForm.setValue('iconic_photos', []);
                           }
                         }}
                         isStandalone={true}
                         allowMultiple={true}
-                      // withResize={true}
+                        // withResize={true}
                       />
                     </div>
                   </InputWrapper>
@@ -1146,19 +1237,19 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
                           'activity_thumbnail_image.image',
                         )
                           ? {
-                            fetchImages: [
-                              {
-                                image: activityForm.watch(
-                                  'activity_thumbnail_image.image',
-                                ),
-                                name:
-                                  activityForm.watch(
-                                    'activity_thumbnail_image.name',
-                                  ) || 'Thumbnail',
-                                isExisting: true,
-                              },
-                            ],
-                          }
+                              fetchImages: [
+                                {
+                                  image: activityForm.watch(
+                                    'activity_thumbnail_image.image',
+                                  ),
+                                  name:
+                                    activityForm.watch(
+                                      'activity_thumbnail_image.name',
+                                    ) || 'Thumbnail',
+                                  isExisting: true,
+                                },
+                              ],
+                            }
                           : {})}
                         onImageUpload={(fileArray) => {
                           const file = fileArray[0];
@@ -1291,45 +1382,53 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
                 <div className="w-full h-px bg-black mt-4 mb-4"></div>
                 <div className="space-y-3">
                   <InputWrapper
-                    label="Iconic Photos"
+                    label="More Photos"
                     classNames={{
                       label: styles.formLabel,
                     }}
                   >
+                    <IconicPhotoDisplay
+                      photos={activityForm
+                        .watch('activity_iconic_photos')
+                        .map((photo) => photo.image)}
+                      onDelete={(index) => {
+                        const updatedPhotos = [
+                          ...activityForm.watch('activity_iconic_photos'),
+                        ];
+                        updatedPhotos.splice(index, 1);
+                        activityForm.setValue(
+                          'activity_iconic_photos',
+                          updatedPhotos,
+                        );
+                      }}
+                    />
                     <div
                       className="
-                                        [&_.mantine-Dropzone-root]:h-[200px] 
-                                        [&_.mantine-Dropzone-root]:flex 
-                                        [&_.mantine-Dropzone-root]:items-center 
-                                        [&_.mantine-Dropzone-root]:justify-center
-                                        [&_.image-display-container]:max-h-[180px]
-                                    "
+                                                [&_.mantine-Dropzone-root]:h-[200px] 
+                                                [&_.mantine-Dropzone-root]:flex 
+                                                [&_.mantine-Dropzone-root]:items-center 
+                                                [&_.mantine-Dropzone-root]:justify-center
+                                                [&_.image-display-container]:max-h-[180px]
+                                                mt-10
+                                            "
                     >
                       <ImageUploader
-                        onImageUpload={(fileArray) => {
+                        onImageUpload={async (fileArray) => {
                           if (fileArray && fileArray.length > 0) {
                             const images = fileArray
                               .filter((file) => file && file.image && file.name)
-                              .map((file) => ({
-                                image: file.image!,
-                                name: file.name!,
-                              }));
-                            console.log(
-                              '🔍 Setting iconic_photos value:',
-                              images,
-                            );
+                              .map((file) => file.image!);
+                            const iconicPhotos =
+                              await uploadIconicPhotosToSupabase(images);
                             activityForm.setValue(
-                              'activity_iconic_photos',
-                              images,
+                              'new_activity_iconic_photos',
+                              iconicPhotos,
                             );
-                          } else {
-                            console.log('🔍 Clearing iconic_photos value');
-                            activityForm.setValue('activity_iconic_photos', []);
                           }
                         }}
                         isStandalone={true}
                         allowMultiple={true}
-                      // withResize={true}
+                        // withResize={true}
                       />
                     </div>
                   </InputWrapper>
@@ -1340,36 +1439,6 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
                   <Button variant="outline" onClick={goBackToExperience}>
                     ← Back to Experience
                   </Button>
-
-                  <div className="flex space-x-3">
-                    <Button variant="outline" onClick={handleCancel}>
-                      Cancel
-                    </Button>
-                    <Button
-                      type="submit"
-                      color="blue"
-                      // disabled={!actIsValid}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        // 1. Save current activity data
-                        const formData = activityForm.getValues();
-                        // 2. Add to activities list
-                        setActivities((prev) => [
-                          ...prev,
-                          {
-                            id: currentActivityId!,
-                            ...formData,
-                          },
-                        ]);
-                        // 3. Reset form
-                        activityForm.reset();
-                        // 4. Go back to experience
-                        setCurrentStep('experience');
-                      }}
-                    >
-                      Add Activity
-                    </Button>
-                  </div>
                 </div>
               </div>
             </form>
@@ -1380,4 +1449,4 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
   );
 };
 
-export default CreateExperienceCard;
+export default EditExperienceCard;

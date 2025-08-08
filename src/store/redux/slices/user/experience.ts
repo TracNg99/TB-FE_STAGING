@@ -57,6 +57,7 @@ export interface Activity {
   description: string;
   description_thumbnail: string;
   order_of_appearance: number;
+  highlights?: string[];
 }
 
 interface LocationResponseList {

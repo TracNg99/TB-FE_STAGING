@@ -19,7 +19,7 @@ export interface Activity {
   thumbnail_description?: string;
   activity_info?: ActivityInfo[];
   order_of_appearance?: number;
-  highlights?: string;
+  highlights?: string[];
 }
 
 interface ActivityResponse {
