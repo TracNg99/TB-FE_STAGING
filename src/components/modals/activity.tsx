@@ -120,7 +120,8 @@ const ActivityModal = ({
               alt={activity.title}
               fill
               className="object-cover"
-              priority
+              // priority
+              unoptimized
             />
 
             <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-black/60" />

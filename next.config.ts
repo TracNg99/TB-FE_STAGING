@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ['@mantine/core', '@mantine/hooks'],
   },
   images: {
-    // domains: ['*'],
+    domains: ['*'],
     remotePatterns: [
       new URL('https://kkhkvzjpcnivhhutxled.supabase.co/**'),
       new URL('https://picsum.photos/**'),
@@ -21,6 +21,7 @@ const nextConfig: NextConfig = {
       new URL('https://north-vietnam.com/**'),
       new URL('https://www.vietnamairlines.com/**'),
     ],
+    unoptimized: true,
   },
   webpack(config) {
     // Grab the existing rule that handles SVG imports

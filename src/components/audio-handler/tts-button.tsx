@@ -444,6 +444,7 @@ const TTSPlayer: React.FC<TTSPlayerProps> = ({
             width={35}
             height={35}
             objectFit="contain"
+            unoptimized
           />
         </button>
       ) : (
