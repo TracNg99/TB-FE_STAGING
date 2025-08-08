@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from 'framer-motion';
 import { usePathname } from 'next/navigation';
+import React, { useMemo } from 'react';
 
 import MobileNavbar from '@/components/layouts/mobile-nav-layout';
 import Navbar from '@/components/layouts/side-navbar';
@@ -9,6 +10,14 @@ import { SidebarProvider } from '@/contexts/sidebar-provider';
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
+  const transitionKey = useMemo(() => {
+    if (!pathname) return 'root';
+    // Group stories list and create pages to avoid transition animation between them
+    if (pathname === '/stories' || pathname.startsWith('/stories/new')) {
+      return '/stories-group';
+    }
+    return pathname;
+  }, [pathname]);
 
   return (
     <SidebarProvider>
@@ -19,8 +28,8 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
         <main className="flex-1 overflow-y-auto">
           <AnimatePresence mode="wait">
             <motion.div
-              key={pathname}
-              initial={{ opacity: 0 }}
+              key={transitionKey}
+              initial={false}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{
@@ -58,8 +67,8 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
           <main className="flex-1 overflow-y-auto">
             <AnimatePresence mode="wait">
               <motion.div
-                key={pathname}
-                initial={{ opacity: 0 }}
+                key={transitionKey}
+                initial={false}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{

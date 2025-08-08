@@ -852,19 +852,19 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
                           'experience_thumbnail_image.image',
                         )
                           ? {
-                            fetchImages: [
-                              {
-                                image: experienceForm.watch(
-                                  'experience_thumbnail_image.image',
-                                ),
-                                name:
-                                  experienceForm.watch(
-                                    'experience_thumbnail_image.name',
-                                  ) || 'Thumbnail',
-                                isExisting: true,
-                              },
-                            ],
-                          }
+                              fetchImages: [
+                                {
+                                  image: experienceForm.watch(
+                                    'experience_thumbnail_image.image',
+                                  ),
+                                  name:
+                                    experienceForm.watch(
+                                      'experience_thumbnail_image.name',
+                                    ) || 'Thumbnail',
+                                  isExisting: true,
+                                },
+                              ],
+                            }
                           : {})}
                         onImageUpload={(fileArray) => {
                           const file = fileArray[0];
@@ -1076,7 +1076,7 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
                         }}
                         isStandalone={true}
                         allowMultiple={true}
-                      // withResize={true}
+                        // withResize={true}
                       />
                     </div>
                   </InputWrapper>
@@ -1146,19 +1146,19 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
                           'activity_thumbnail_image.image',
                         )
                           ? {
-                            fetchImages: [
-                              {
-                                image: activityForm.watch(
-                                  'activity_thumbnail_image.image',
-                                ),
-                                name:
-                                  activityForm.watch(
-                                    'activity_thumbnail_image.name',
-                                  ) || 'Thumbnail',
-                                isExisting: true,
-                              },
-                            ],
-                          }
+                              fetchImages: [
+                                {
+                                  image: activityForm.watch(
+                                    'activity_thumbnail_image.image',
+                                  ),
+                                  name:
+                                    activityForm.watch(
+                                      'activity_thumbnail_image.name',
+                                    ) || 'Thumbnail',
+                                  isExisting: true,
+                                },
+                              ],
+                            }
                           : {})}
                         onImageUpload={(fileArray) => {
                           const file = fileArray[0];
@@ -1329,7 +1329,7 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
                         }}
                         isStandalone={true}
                         allowMultiple={true}
-                      // withResize={true}
+                        // withResize={true}
                       />
                     </div>
                   </InputWrapper>

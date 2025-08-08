@@ -19,7 +19,7 @@ const PageWrapper: React.FC<PageWrapperProps> = ({
 
         {/* Main content - full width on mobile, 10 columns on desktop */}
         <main className="col-span-12 md:col-span-10 lg:col-span-10">
-          <div className="flex flex-col h-full max-w-2xl mx-auto gap-6">
+          <div className="flex flex-col h-full max-w-3xl mx-auto gap-6">
             {children}
           </div>
         </main>

@@ -226,9 +226,9 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                           <MarkdownViewer
                             content={
                               msg.from === 'assistant' &&
-                                i === messages.length - 1 &&
-                                displayText &&
-                                displayText !== ''
+                              i === messages.length - 1 &&
+                              displayText &&
+                              displayText !== ''
                                 ? displayText
                                 : msg.text
                             }
@@ -335,9 +335,9 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                               <MarkdownViewer
                                 content={
                                   msg.from === 'assistant' &&
-                                    i === messages.length - 1 &&
-                                    displayText &&
-                                    displayText !== ''
+                                  i === messages.length - 1 &&
+                                  displayText &&
+                                  displayText !== ''
                                     ? displayText
                                     : msg.text
                                 }

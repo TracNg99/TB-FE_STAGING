@@ -87,8 +87,8 @@ const Navbar = () => {
     router.replace(href === '/' ? href : `/${href}`);
   };
 
-  const handleAiButtonClicked = () => {
-    setActiveTab('/stories/new');
+  const handleStoriesClicked = () => {
+    setActiveTab('/stories');
     if (!user) {
       notifications.show({
         title: 'Member-only feature',
@@ -100,7 +100,7 @@ const Navbar = () => {
       return;
     }
 
-    router.push('/stories/new');
+    router.push('/stories');
   };
 
   return (
@@ -113,7 +113,7 @@ const Navbar = () => {
               <Popover position="top-end" withArrow>
                 <Popover.Target>
                   <UnstyledButton
-                    onClick={() => handleTabChange('/profile')}
+                    onClick={() => handleTabChange('profile')}
                     className={cn(
                       'flex flex-col items-center gap-1 rounded-lg p-2',
                       activeTab === '/profile' && 'bg-orange-100/50',
@@ -190,7 +190,7 @@ const Navbar = () => {
           <UnstyledButton
             onClick={() =>
               link.title === 'Stories'
-                ? handleAiButtonClicked()
+                ? handleStoriesClicked()
                 : handleTabChange(link.href)
             }
             className={cn(

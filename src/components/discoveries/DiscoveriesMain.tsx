@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useMemo, useState } from 'react';
 
 import QRModal from '@/components/qr-code/qr-modal';
+import StickyTitleChipsHeader from '@/components/sharing/StickyTitleChipsHeader';
 import { Experience } from '@/store/redux/slices/business/experience';
 import { useGetAddressExperienceMapByCompanyIdQuery } from '@/store/redux/slices/user/experience';
 
@@ -64,37 +65,21 @@ const DiscoveriesMain: React.FC = () => {
   }, [addressMap]);
 
   return (
-    <div className="h-full flex flex-col mb-20">
+    <div className="h-full relative flex flex-col mb-20">
       {/* Sticky Header and Chips */}
-      <div className="sticky top-0 z-30 bg-gray-50 px-4 py-2 border-b border-gray-200">
-        <h1
-          className="text-2xl md:text-3xl font-bold my-2"
-          style={{ color: '#333333' }}
-        >
-          Hop on these cool adventures!
-        </h1>
-        <div className="flex px-1 gap-3 flex-nowrap overflow-x-auto scrollbar-hide">
-          {actualAddresses.map((address) => (
-            <button
-              key={address}
-              className={`px-4 py-2 rounded-full text-md font-medium transition-all border-2 cursor-pointer hover:shadow-sm whitespace-nowrap flex-shrink-0 ${
-                selectedAddress === address
-                  ? 'bg-orange-50 text-black border-orange-500'
-                  : 'bg-orange-50 text-black border-transparent hover:bg-orange-100'
-              }`}
-              onClick={() => {
-                const params = new URLSearchParams(
-                  Array.from(searchParams.entries()),
-                );
-                params.set('address', address);
-                router.push(`/discoveries?${params.toString()}`);
-              }}
-            >
-              {address}
-            </button>
-          ))}
-        </div>
-      </div>
+      <StickyTitleChipsHeader
+        title="Hop on these cool adventures!"
+        filters={actualAddresses}
+        selected={selectedAddress}
+        onSelect={(address) => {
+          const params = new URLSearchParams(
+            Array.from(searchParams.entries()),
+          );
+          params.set('address', address);
+          router.push(`/discoveries?${params.toString()}`);
+        }}
+        className="sticky top-0"
+      />
 
       {/* Scrollable Content Area */}
       <div className="flex-1 py-3 overflow-y-auto bg-gray-50">
@@ -153,10 +138,7 @@ const DiscoveriesMain: React.FC = () => {
                     </div>
                     <div className="p-6">
                       <div className="flex items-center gap-2 mb-3">
-                        <h2
-                          className="text-xl font-bold flex-1 break-words"
-                          style={{ color: '#333333' }}
-                        >
+                        <h2 className="text-xl font-bold flex-1 break-words text-black ">
                           {experiences[0].name}
                         </h2>
                         {/* QR Icon Button (moved next to title) */}
@@ -174,10 +156,7 @@ const DiscoveriesMain: React.FC = () => {
                           <IconQrcode className="w-5 h-5" />
                         </button>
                       </div>
-                      <p
-                        className="text-md leading-relaxed"
-                        style={{ color: '#333333' }}
-                      >
+                      <p className="text-md leading-relaxed text-black ">
                         {experiences[0].thumbnail_description ||
                           experiences[0].description ||
                           ''}
@@ -220,10 +199,7 @@ const DiscoveriesMain: React.FC = () => {
                         </div>
                         <div className="p-4">
                           <div className="flex items-center gap-2 mb-2">
-                            <h3
-                              className="text-base font-bold flex-1 break-words"
-                              style={{ color: '#333333' }}
-                            >
+                            <h3 className="text-base font-bold flex-1 break-words text-black ">
                               {exp.name}
                             </h3>
                             {/* QR Icon Button */}
@@ -241,7 +217,7 @@ const DiscoveriesMain: React.FC = () => {
                               <IconQrcode className="w-5 h-5" />
                             </button>
                           </div>
-                          <p className="text-sm" style={{ color: '#333333' }}>
+                          <p className="text-sm text-black line-clamp-3">
                             {exp.thumbnail_description || exp.description || ''}
                           </p>
                         </div>

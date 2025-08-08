@@ -1,12 +1,12 @@
 'use client';
 
-import { IconPin, IconPinFilled } from '@tabler/icons-react';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useMemo, useState } from 'react';
 
 import CreateExperienceCard from '@/components/admin/CreateCard';
 import PageWrapper from '@/components/layouts/PageWrapper';
+import SubSidebar from '@/components/layouts/SubSidebar';
 import { useSidebar } from '@/contexts/sidebar-provider';
 import { useGetAddressExperienceMapByCompanyIdQuery } from '@/store/redux/slices/user/experience';
 import { cn } from '@/utils/class';
@@ -83,52 +83,34 @@ export default function DiscoveriesLayout({
   return (
     <div className="flex flex-row h-full w-full bg-gray-50">
       {/* Collapsible Sub-sidebar for Discoveries */}
-      <aside
-        onMouseLeave={() => {
-          if (!isPinned) {
-            setIsSidebarOpen(false);
-          }
+      <SubSidebar
+        title="Discover"
+        isSidebarOpen={isSidebarOpen}
+        isPinned={isPinned}
+        onSidebarLeave={() => {
+          if (!isPinned) setIsSidebarOpen(false);
         }}
-        className={cn(
-          'h-full flex-col bg-white z-50 transition-all duration-300 ease-in-out flex overflow-hidden lg:flex flex-shrink-0',
-          'hidden', // Hide on mobile by default
-          isSidebarOpen || isPinned
-            ? 'w-64 border-r border-gray-200'
-            : 'w-0 p-0 border-none',
-          !isPinned && 'absolute left-0 top-0',
-        )}
-      >
-        <div className="p-4 flex justify-between items-center flex-shrink-0">
-          <h2 className="text-lg font-semibold">Discover</h2>
-          <div className="flex items-center gap-1">
+        onTogglePin={togglePin}
+        headerActions={
+          role === 'business' ? (
             <button
-              onClick={togglePin}
+              onClick={() => setShowCard(true)}
               className="p-1 rounded-full hover:bg-gray-100 transition-colors"
-              title={isPinned ? 'Unpin sidebar' : 'Pin sidebar'}
+              title="Add new address"
             >
-              {isPinned ? (
-                <IconPinFilled className="size-4 text-orange-500" />
-              ) : (
-                <IconPin className="size-4 text-gray-400" />
-              )}
+              <AddIcon className="size-7" />
             </button>
-            {role === 'business' ? (
-              <button
-                onClick={() => setShowCard(true)}
-                className="p-1 rounded-full hover:bg-gray-100 transition-colors"
-                title="Add new address"
-              >
-                <AddIcon className="size-7" />
-              </button>
-            ) : null}
-          </div>
-        </div>
-
-        <ul className="flex-1 overflow-y-auto space-y-2 px-4 pb-4">
+          ) : null
+        }
+      >
+        <ul className="px-0 pb-0 space-y-2">
           {actualAddresses.map((address) => (
             <li key={address}>
               <button
-                className={`w-full text-left px-4 py-2 rounded-lg font-medium transition-colors ${selectedAddress === address ? 'bg-orange-100 text-orange-700' : 'hover:bg-gray-100'}`}
+                className={cn(
+                  'w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors rounded-md',
+                  selectedAddress === address && 'bg-[#FFF2E5] text-black',
+                )}
                 onClick={() => handleSelect(address)}
               >
                 {address}
@@ -136,7 +118,7 @@ export default function DiscoveriesLayout({
             </li>
           ))}
         </ul>
-      </aside>
+      </SubSidebar>
 
       {/* Main Content Area with proper spacing */}
       <main className="flex-1 overflow-y-auto">

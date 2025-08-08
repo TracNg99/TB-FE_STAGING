@@ -67,6 +67,11 @@ const Navbar = () => {
         setActiveTab(link.href);
       }
     }
+
+    // Highlight stories for all /stories/* pages including /stories/new
+    if (currentPath.startsWith('stories')) {
+      setActiveTab('stories');
+    }
   }, [pathname]);
 
   const handleTabChange = (href: string) => {
@@ -88,7 +93,7 @@ const Navbar = () => {
     router.replace(href === '/' ? href : `/${href}`);
   };
 
-  const handleAiButtonClicked = () => {
+  const handleStoriesClicked = () => {
     if (!user) {
       notifications.show({
         title: 'Member-only feature',
@@ -98,8 +103,9 @@ const Navbar = () => {
       router.push('/auth/login');
       return;
     }
-    setActiveTab('/stories/new');
+    setActiveTab('stories');
     router.push('/stories/new');
+    setIsSidebarOpen(true);
   };
 
   return (
@@ -121,7 +127,7 @@ const Navbar = () => {
           <UnstyledButton
             onClick={() =>
               link.title === 'Stories'
-                ? handleAiButtonClicked()
+                ? handleStoriesClicked()
                 : handleTabChange(link.href ?? '/')
             }
             className={cn(

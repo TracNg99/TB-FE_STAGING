@@ -209,7 +209,7 @@ const NewStoryPage = () => {
   return (
     <form className="pt-8" onSubmit={form.handleSubmit(handleInputsUpload)}>
       <Section className="flex flex-col gap-x-8 gap-y-4 lg:gap-y-8 max-w-5xl mx-auto px-4 mb-8">
-        <p className="text-base-black font-semibold text-display-sm">
+        <p className=" hidden md:block text-base-black font-semibold text-display-sm">
           Share your travel story
         </p>
         <Controller

@@ -2,6 +2,7 @@
 
 import { Avatar, Popover, UnstyledButton } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
+import { IconChevronLeft } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -13,7 +14,7 @@ import { TypingText } from '@/components/animate-ui/text/typing';
 import FollowUpQuestions from '@/components/chatbot/follow-up-questions';
 import StickyChatbox from '@/components/chatbot/sticky-chatbox';
 import ImageUploader from '@/components/image-uploader/image-picker';
-import PageWrapper from '@/components/layouts/PageWrapper';
+import Section from '@/components/layouts/section';
 import IconicPhotoModal from '@/components/modals/IconicPhotoModal';
 import NewCarousel from '@/components/new-carousel';
 import { useAuth } from '@/contexts/auth-provider';
@@ -496,8 +497,8 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
   ]);
 
   return (
-    <PageWrapper>
-      <div className="h-full w-full flex flex-col gap-2 py-4">
+    <>
+      <div className="h-full w-full flex flex-col gap-4 py-6 md-py-8">
         {/* Archived Badge */}
         {isArchived && isStoryOwner && (
           <div className="mb-4">
@@ -571,46 +572,60 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
         {/* Normal Story Content (only show if not archived for guests) */}
         {(!isArchived || isStoryOwner) && (
           <>
-            {/* Title and Share */}
-            <div>
-              {/* Mobile: Buttons above title */}
-              <div className="flex mx-2 gap-2 justify-end md:hidden">
-                {isStoryOwner && !editMode && (
-                  <EditDeleteMenu
-                    onEdit={() => {
-                      if (isArchived) {
-                        notifications.show({
-                          title: 'Cannot Edit',
-                          message: 'Archived stories cannot be edited',
-                          color: 'yellow',
-                        });
-                        return;
-                      }
-                      setEditMode(true);
-                      setOriginal({ title, body, images: editImages });
-                    }}
-                    onDelete={() => {
-                      if (isArchived) {
-                        notifications.show({
-                          title: 'Cannot Delete',
-                          message: 'Archived stories cannot be deleted',
-                          color: 'yellow',
-                        });
-                        return;
-                      }
-                      setShowDelete(true);
-                    }}
-                  />
-                )}
-
-                {!editMode && (
+            {/* Title and Share Section */}
+            <section>
+              {/* Mobile: Back and action buttons on one row above title */}
+              <div className="flex gap-2 items-center justify-between md:hidden">
+                {isStoryOwner ? (
                   <button
-                    onClick={handleShare}
-                    className="flex items-center gap-2 text-gray-600 hover:text-gray-900 cursor-pointer"
+                    type="button"
+                    onClick={() => router.replace('/stories')}
+                    className="flex items-center gap-2 py-2 text-gray-800"
                   >
-                    <PiShareFat size={20} />
+                    <IconChevronLeft className="size-5" />
+                    <span className="text-base">Stories</span>
                   </button>
+                ) : (
+                  <div />
                 )}
+                <div className="flex gap-3">
+                  {isStoryOwner && !editMode && (
+                    <EditDeleteMenu
+                      onEdit={() => {
+                        if (isArchived) {
+                          notifications.show({
+                            title: 'Cannot Edit',
+                            message: 'Archived stories cannot be edited',
+                            color: 'yellow',
+                          });
+                          return;
+                        }
+                        setEditMode(true);
+                        setOriginal({ title, body, images: editImages });
+                      }}
+                      onDelete={() => {
+                        if (isArchived) {
+                          notifications.show({
+                            title: 'Cannot Delete',
+                            message: 'Archived stories cannot be deleted',
+                            color: 'yellow',
+                          });
+                          return;
+                        }
+                        setShowDelete(true);
+                      }}
+                    />
+                  )}
+
+                  {!editMode && (
+                    <button
+                      onClick={handleShare}
+                      className="flex items-center gap-2 text-gray-600 hover:text-gray-900 cursor-pointer"
+                    >
+                      <PiShareFat size={20} />
+                    </button>
+                  )}
+                </div>
               </div>
 
               <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-3">
@@ -664,133 +679,142 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
                   )}
                 </div>
               </div>
-            </div>
-            {/* Author and Date Info */}
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0">
-                <Avatar
-                  src={userImageSrc}
-                  size="md"
-                  radius="xl"
-                  color="orange"
-                  name={storyAuthor}
-                  alt={`${storyAuthor}'s avatar`}
-                />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm text-gray-600 mb-1">
-                  <span className="font-medium text-gray-900">
-                    {storyAuthor}
-                  </span>
-                  <span className="mx-2">•</span>
-                  <span>{storyDate}</span>
-                </div>
-                <div className="text-sm">
-                  {editMode ? (
-                    <span className="text-blue-400 cursor-not-allowed">
-                      {storyExperience}
-                    </span>
-                  ) : (
-                    <a
-                      href={`/discoveries/${experience_id}`}
-                      className="text-gray-500 hover:text-blue-800 hover:underline flex items-center gap-1 transition-colors duration-200"
-                    >
-                      {storyExperience}
-                      <HiExternalLink size={14} className="inline" />
-                    </a>
-                  )}
-                </div>
-              </div>
-            </div>{' '}
-            {/* Photo Grid or Carousel */}
-            {editMode ? (
-              <div className="mb-4">
-                <h4 className="text-sm font-medium text-gray-700 mb-2">
-                  Story Images:
-                </h4>
-                <ImageUploader
-                  onImageUpload={(files) => {
-                    // Handle both adding new images and removing existing ones
-                    setEditImages((prev) => {
-                      // If files array is smaller than prev, it means images were removed
-                      if (files.length < prev.length) {
-                        // Find which images were removed by comparing names
-                        const remainingNames = files
-                          .map((f) => f.name)
-                          .filter(Boolean);
-                        return prev.filter((img) => {
-                          // Keep existing images that are still in the files array
-                          if (img.isExisting) {
-                            return (
-                              img.name && remainingNames.includes(img.name)
-                            );
-                          }
-                          // Keep new images that are still in the files array
-                          return img.name && remainingNames.includes(img.name);
-                        });
-                      } else {
-                        // Adding new images - apply deduplication
-                        const existingNames = prev
-                          .map((img) => img.name)
-                          .filter(Boolean);
+            </section>
 
-                        // Filter out files that already exist based on name
-                        const newFiles = files.filter((file) => {
-                          if (!file.name) return true; // Allow files without names
-                          return !existingNames.includes(file.name);
-                        });
-
-                        // Add only new, non-duplicate files
-                        return [
-                          ...prev,
-                          ...newFiles.map((f) => ({
-                            image: f.image || '',
-                            name: f.name,
-                            isExisting: false, // Mark new images
-                          })),
-                        ];
-                      }
-                    });
-                  }}
-                  allowMultiple={true}
-                  isStandalone={true}
-                  className="mt-2"
-                  // Pass existing images to show them in the uploader
-                  fetchImages={editImages.map((img) => ({
-                    image: img.image || '',
-                    name: img.name || '',
-                    isExisting: img.isExisting,
-                  }))}
-                >
-                  <ImageUploadIcon
-                    className="size-50 text-white color-orange-500"
-                    size={100}
+            {/* Author and Date Info Section */}
+            <Section>
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0">
+                  <Avatar
+                    src={userImageSrc}
+                    size="md"
+                    radius="xl"
+                    color="orange"
+                    name={storyAuthor}
+                    alt={`${storyAuthor}'s avatar`}
                   />
-                </ImageUploader>
-              </div>
-            ) : images.length > 0 ? (
-              <div className="relative w-full rounded-lg">
-                <NewCarousel
-                  items={images}
-                  enableInfiniteLoop={false}
-                  slideGap={16}
-                  renderItem={renderCarouselItem}
-                />
-              </div>
-            ) : (
-              <div className="relative w-full rounded-lg overflow-hidden">
-                <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 animate-pulse">
-                  <div className="w-full h-full flex items-center justify-center">
-                    <div className="flex flex-col items-center gap-2">
-                      <div className="w-12 h-12 bg-gray-300 rounded-full animate-pulse"></div>
-                      <div className="h-4 bg-gray-300 rounded w-32 animate-pulse"></div>
-                    </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm text-gray-600 mb-1">
+                    <span className="font-medium text-gray-900">
+                      {storyAuthor}
+                    </span>
+                    <span className="mx-2">•</span>
+                    <span>{storyDate}</span>
+                  </div>
+                  <div className="text-sm">
+                    {editMode ? (
+                      <span className="text-blue-400 cursor-not-allowed">
+                        {storyExperience}
+                      </span>
+                    ) : (
+                      <a
+                        href={`/discoveries/${experience_id}`}
+                        className="text-gray-500 hover:text-blue-800 hover:underline flex items-center gap-1 transition-colors duration-200"
+                      >
+                        {storyExperience}
+                        <HiExternalLink size={14} className="inline" />
+                      </a>
+                    )}
                   </div>
                 </div>
               </div>
-            )}
-            {/* Story Content */}
-            <section>
+            </Section>
+
+            {/* Photo Grid or Carousel Section */}
+            <Section>
+              {editMode ? (
+                <div className="mb-4">
+                  <h4 className="text-sm font-medium text-gray-700 mb-2">
+                    Story Images:
+                  </h4>
+                  <ImageUploader
+                    onImageUpload={(files) => {
+                      // Handle both adding new images and removing existing ones
+                      setEditImages((prev) => {
+                        // If files array is smaller than prev, it means images were removed
+                        if (files.length < prev.length) {
+                          // Find which images were removed by comparing names
+                          const remainingNames = files
+                            .map((f) => f.name)
+                            .filter(Boolean);
+                          return prev.filter((img) => {
+                            // Keep existing images that are still in the files array
+                            if (img.isExisting) {
+                              return (
+                                img.name && remainingNames.includes(img.name)
+                              );
+                            }
+                            // Keep new images that are still in the files array
+                            return (
+                              img.name && remainingNames.includes(img.name)
+                            );
+                          });
+                        } else {
+                          // Adding new images - apply deduplication
+                          const existingNames = prev
+                            .map((img) => img.name)
+                            .filter(Boolean);
+
+                          // Filter out files that already exist based on name
+                          const newFiles = files.filter((file) => {
+                            if (!file.name) return true; // Allow files without names
+                            return !existingNames.includes(file.name);
+                          });
+
+                          // Add only new, non-duplicate files
+                          return [
+                            ...prev,
+                            ...newFiles.map((f) => ({
+                              image: f.image || '',
+                              name: f.name,
+                              isExisting: false, // Mark new images
+                            })),
+                          ];
+                        }
+                      });
+                    }}
+                    allowMultiple={true}
+                    isStandalone={true}
+                    className="mt-2"
+                    // Pass existing images to show them in the uploader
+                    fetchImages={editImages.map((img) => ({
+                      image: img.image || '',
+                      name: img.name || '',
+                      isExisting: img.isExisting,
+                    }))}
+                  >
+                    <ImageUploadIcon
+                      className="size-50 text-white color-orange-500"
+                      size={100}
+                    />
+                  </ImageUploader>
+                </div>
+              ) : images.length > 0 ? (
+                <div className="relative w-full rounded-lg">
+                  <NewCarousel
+                    items={images}
+                    enableInfiniteLoop={false}
+                    slideGap={16}
+                    renderItem={renderCarouselItem}
+                  />
+                </div>
+              ) : (
+                <div className="relative w-full rounded-lg overflow-hidden">
+                  <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 animate-pulse">
+                    <div className="w-full h-full flex items-center justify-center">
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="w-12 h-12 bg-gray-300 rounded-full animate-pulse"></div>
+                        <div className="h-4 bg-gray-300 rounded w-32 animate-pulse"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </Section>
+
+            {/* Story Content Section */}
+            <Section>
               <div className="text-base font-normal text-gray-800 pb-4">
                 {editMode ? (
                   <textarea
@@ -821,40 +845,47 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
                   </div>
                 )}
               </div>
-            </section>
-            {/* Edit Mode Buttons */}
+            </Section>
+
+            {/* Edit Mode Buttons Section */}
             {editMode && (
-              <div className="flex gap-2 mt-2">
-                <button
-                  className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 transition-colors disabled:opacity-50"
-                  onClick={handleSaveChanges}
-                  disabled={isEditing || isSaving}
-                >
-                  {isSaving ? 'Saving...' : 'Save'}
-                </button>
-                <button
-                  className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition-colors"
-                  onClick={() => {
-                    setEditMode(false);
-                    setTitle(original.title);
-                    setBody(original.body);
-                    setEditImages(original.images);
-                    setIsSaving(false);
-                  }}
-                  disabled={isEditing || isSaving}
-                >
-                  Cancel
-                </button>
-              </div>
+              <Section>
+                <div className="flex gap-2 mt-2">
+                  <button
+                    className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 transition-colors disabled:opacity-50"
+                    onClick={handleSaveChanges}
+                    disabled={isEditing || isSaving}
+                  >
+                    {isSaving ? 'Saving...' : 'Save'}
+                  </button>
+                  <button
+                    className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition-colors"
+                    onClick={() => {
+                      setEditMode(false);
+                      setTitle(original.title);
+                      setBody(original.body);
+                      setEditImages(original.images);
+                      setIsSaving(false);
+                    }}
+                    disabled={isEditing || isSaving}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </Section>
             )}
-            {/* Follow-up Questions */}
+
+            {/* Follow-up Questions Section */}
             {!editMode && (
-              <FollowUpQuestions
-                questions={follow_up_questions || []}
-                experienceId={experience_id}
-                disabled={editMode}
-              />
+              <Section>
+                <FollowUpQuestions
+                  questions={follow_up_questions || []}
+                  experienceId={experience_id}
+                  disabled={editMode}
+                />
+              </Section>
             )}
+
             {/* Photo Modal */}
             {iconicPhotos.length > 0 && (
               <IconicPhotoModal
@@ -913,6 +944,6 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
           disabled={editMode}
         />
       )}
-    </PageWrapper>
+    </>
   );
 }

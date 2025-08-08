@@ -19,7 +19,7 @@ const ExperienceDetailSkeleton = () => {
         </div>
       </div>
 
-      {/* Activities Section Skeleton */}
+      {/* Activities Section Skeleton - align with updated card UI */}
       <div className="mt-20 container mx-auto px-4">
         {/* Section Header */}
         <div className="flex items-center gap-3 mb-8">
@@ -35,12 +35,12 @@ const ExperienceDetailSkeleton = () => {
           {[1, 2, 3].map((i) => (
             <div key={i} className="w-full sm:w-1/2 md:w-1/3 flex-shrink-0">
               <div className="flex flex-col gap-4 lg:gap-8">
-                <Skeleton height={300} radius="lg" />
+                <Skeleton height={220} radius="lg" />
                 <div className="flex flex-col gap-2 lg:gap-4">
-                  <Skeleton height={24} width="80%" radius="md" />
-                  <Skeleton height={16} radius="md" />
-                  <Skeleton height={16} radius="md" />
-                  <Skeleton height={16} width="90%" radius="md" />
+                  <Skeleton height={20} width="80%" radius="md" />
+                  <Skeleton height={14} radius="md" />
+                  <Skeleton height={14} radius="md" />
+                  <Skeleton height={14} width="90%" radius="md" />
                 </div>
               </div>
             </div>
@@ -98,4 +98,4 @@ const ExperienceDetailHeaderSkeleton = () => (
   </>
 );
 
-export { ExperienceDetailSkeleton, ExperienceDetailHeaderSkeleton };
+export { ExperienceDetailHeaderSkeleton, ExperienceDetailSkeleton };

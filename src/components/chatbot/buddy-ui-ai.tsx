@@ -2,7 +2,7 @@
 
 import { Container, Skeleton, UnstyledButton } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import { IconPin, IconPinFilled, IconPlus } from '@tabler/icons-react';
+import { IconPlus } from '@tabler/icons-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -15,6 +15,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import Chatbox from '@/components/chatbot/chatbox';
 import { base64ToUnicode } from '@/components/chatbot/streaming-hook';
+import SubSidebar from '@/components/layouts/SubSidebar';
 import { useAuth } from '@/contexts/auth-provider';
 import { useChat } from '@/contexts/chat-provider';
 import { useSidebar } from '@/contexts/sidebar-provider';
@@ -90,38 +91,22 @@ const SidebarLayer: React.FC<{
   if (!isHome) return null;
 
   return (
-    <aside
-      onMouseLeave={onSidebarLeave}
-      className={cn(
-        'relative left-0 top-0 h-full flex-col border-r border-gray-200 bg-white p-4 z-20 transition-all duration-300 ease-in-out flex overflow-hidden justify-items-between lg:flex flex-shrink-0',
-        'hidden', // Hide on mobile by default
-        isSidebarOpen || isPinned ? 'w-[20%]' : 'w-0 p-0 border-none',
-        !isPinned && 'absolute left-0 top-0',
-      )}
-    >
-      <div className="mt-4 flex items-center justify-between px-4 pt-2">
-        <h2 className="font-semibold text-gray-600">
-          Threads ({threadsList.length})
-        </h2>
+    <SubSidebar
+      title="Tell Your Travel Tale"
+      isSidebarOpen={isSidebarOpen}
+      isPinned={isPinned}
+      onSidebarLeave={onSidebarLeave}
+      onTogglePin={onTogglePin}
+      headerActions={
         <button
           onClick={onReset}
-          className="rounded-full bg-orange-100 p-1 text-orange-600 hover:bg-orange-200 cursor-pointer"
+          className="rounded-full p-1 hover:bg-gray-100 transition-colors cursor-pointer"
+          title="New chat"
         >
-          <IconPlus size={16} />
+          <IconPlus size={16} className="text-orange-600" />
         </button>
-        <button
-          onClick={onTogglePin}
-          className="p-1 rounded-full hover:bg-gray-100 transition-colors place-self-end cursor-pointer"
-          title={isPinned ? 'Unpin sidebar' : 'Pin sidebar'}
-        >
-          {isPinned ? (
-            <IconPinFilled className="size-4 text-orange-500" />
-          ) : (
-            <IconPin className="size-4 text-gray-400" />
-          )}
-        </button>
-      </div>
-
+      }
+    >
       {user ? (
         <nav className="mt-4 flex-grow overflow-y-auto">
           {threadsList.length > 0 && !isHistoryLoading && !isHistoryFetching ? (
@@ -159,7 +144,7 @@ const SidebarLayer: React.FC<{
           </button>
         </div>
       )}
-    </aside>
+    </SubSidebar>
   );
 };
 
