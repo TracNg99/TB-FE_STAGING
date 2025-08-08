@@ -6,7 +6,6 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ['@mantine/core', '@mantine/hooks'],
   },
   images: {
-    domains: ['*'],
     remotePatterns: [
       new URL('https://kkhkvzjpcnivhhutxled.supabase.co/**'),
       new URL('https://picsum.photos/**'),
@@ -20,8 +19,38 @@ const nextConfig: NextConfig = {
       new URL('https://www.google.com/s2/favicons?domain=vietravel.com&sz=256'),
       new URL('https://north-vietnam.com/**'),
       new URL('https://www.vietnamairlines.com/**'),
+      {
+        protocol: 'https',
+        hostname: 'via.placeholder.com',
+        port: '',
+        pathname: '**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.google.com',
+        port: '',
+        pathname: '**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'kkhkvzjpcnivhhutxled.supabase.co',
+        port: '',
+        pathname: '**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'north-vietnam.com',
+        port: '',
+        pathname: '**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.vietnamairlines.com',
+        port: '',
+        pathname: '**',
+      },
     ],
-    unoptimized: true,
+    // unoptimized: true,
   },
   webpack(config) {
     // Grab the existing rule that handles SVG imports

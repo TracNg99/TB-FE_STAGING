@@ -139,6 +139,12 @@ const ExperienceBusinessApi = createApi({
       }),
       transformResponse: (res: ExperiencesResponse) => res.data,
     }),
+    getScopedExperiences: builder.query<Experience[], void>({
+      query: () => ({
+        url: `/experiences/business/members`,
+      }),
+      transformResponse: (res: ExperiencesResponse) => res.data,
+    }),
   }),
 });
 
@@ -149,5 +155,6 @@ export const {
   useUpdateExperienceDetailsMutation,
   useDeleteExperienceDetailsMutation,
   useGetAllExperiencesBusinessQuery,
+  useGetScopedExperiencesQuery,
 } = ExperienceBusinessApi;
 export { ExperienceBusinessApi };

@@ -7,7 +7,10 @@ import React, { useMemo, useState } from 'react';
 
 import QRModal from '@/components/qr-code/qr-modal';
 import StickyTitleChipsHeader from '@/components/sharing/StickyTitleChipsHeader';
-import { Experience } from '@/store/redux/slices/business/experience';
+import {
+  Experience,
+  useGetScopedExperiencesQuery,
+} from '@/store/redux/slices/business/experience';
 import { useGetAddressExperienceMapByCompanyIdQuery } from '@/store/redux/slices/user/experience';
 
 import EditExperienceCard from '../admin/EditCard';
@@ -24,6 +27,7 @@ const ADDRESS_LIST = [
 const DiscoveriesMain: React.FC = () => {
   const searchParams = useSearchParams();
   const selectedAddress = searchParams.get('address') || 'For you';
+  const role = localStorage.getItem('role') || '';
   const companies = sessionStorage.getItem('companies')
     ? JSON.parse(sessionStorage.getItem('companies') || '')
     : null;
@@ -33,8 +37,21 @@ const DiscoveriesMain: React.FC = () => {
     data: addressMap,
     isLoading,
     error,
-  } = useGetAddressExperienceMapByCompanyIdQuery({
-    companies: companies || [companyId],
+  } = useGetAddressExperienceMapByCompanyIdQuery(
+    {
+      companies: companies || [companyId],
+    },
+    {
+      skip: role === 'business' || role === '',
+    },
+  );
+
+  const {
+    data: scopedExperiences,
+    isLoading: scopedExperiencesLoading,
+    error: scopedExperiencesError,
+  } = useGetScopedExperiencesQuery(undefined, {
+    skip: !!role && role !== 'business' && role !== '',
   });
 
   const [qrModal, setQrModal] = useState<{
@@ -48,13 +65,29 @@ const DiscoveriesMain: React.FC = () => {
 
   const experiences = useMemo(() => {
     let experiences: Experience[] = [];
-    if (selectedAddress === 'For you') {
-      experiences = Object.values(addressMap || {}).flat();
+    let finalMap: Record<string, Experience[]> = {};
+    if (!!role && role !== '' && role !== 'business') {
+      finalMap = addressMap || {};
     } else {
-      experiences = addressMap?.[selectedAddress] || [];
+      const scopedExperiencesMap = scopedExperiences?.reduce(
+        (acc, experience) => {
+          if (!acc[experience.address || '']) {
+            acc[experience.address || ''] = [];
+          }
+          acc[experience.address || ''].push(experience);
+          return acc;
+        },
+        {} as Record<string, Experience[]>,
+      );
+      finalMap = scopedExperiencesMap || {};
+    }
+    if (selectedAddress === 'For you') {
+      experiences = Object.values(finalMap || {}).flat();
+    } else {
+      experiences = finalMap?.[selectedAddress] || [];
     }
     return experiences;
-  }, [addressMap, selectedAddress]);
+  }, [addressMap, selectedAddress, scopedExperiences]);
 
   const actualAddresses = useMemo(() => {
     const addresses = Object.keys(addressMap || {});
@@ -83,111 +116,56 @@ const DiscoveriesMain: React.FC = () => {
 
       {/* Scrollable Content Area */}
       <div className="flex-1 py-3 overflow-y-auto bg-gray-50">
-        {isLoading && <div className="text-center py-8">Loading...</div>}
-        {error && (
+        {(isLoading || scopedExperiencesLoading) && (
+          <div className="text-center py-8">Loading...</div>
+        )}
+        {(error || scopedExperiencesError) && (
           <div className="text-red-500 text-center py-8">
             Error loading experiences
           </div>
         )}
         <AnimatePresence mode="wait">
-          {!isLoading && !error && (
-            <motion.div
-              key={selectedAddress}
-              initial={{ opacity: 0, x: 40 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -40 }}
-              transition={{ duration: 0.35, ease: 'easeInOut' }}
-            >
-              {experiences.length === 0 && (
-                <div className="text-gray-400 italic text-center py-20">
-                  No experiences found for this address.
-                </div>
-              )}
-              {experiences.length > 0 && (
-                <div className="space-y-6">
-                  {/* First (featured) card */}
-                  <div
-                    className="rounded-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow border relative"
-                    style={{ borderColor: '#E2E2E2' }}
-                    onClick={() =>
-                      experiences[0].id &&
-                      router.push(`/discoveries/${experiences[0].id}`)
-                    }
-                  >
-                    <div className="aspect-[16/7] overflow-hidden relative">
-                      <img
-                        src={experiences[0].primary_photo || ''}
-                        alt={experiences[0].name || ''}
-                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                      />
-                      <button
-                        className="absolute bottom-3 right-3 p-2 rounded-full hover:bg-gray-100 transition-colors focus:outline-none"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          console.log('Edit button clicked');
-                          setShowCard(true);
-                          setExperience(experiences[0]);
-                        }}
-                      >
-                        <img
-                          src="/assets/edit.svg"
-                          alt="Edit"
-                          className="w-10 h-10"
-                        />
-                      </button>
-                    </div>
-                    <div className="p-6">
-                      <div className="flex items-center gap-2 mb-3">
-                        <h2 className="text-xl font-bold flex-1 break-words text-black ">
-                          {experiences[0].name}
-                        </h2>
-                        {/* QR Icon Button (moved next to title) */}
-                        <button
-                          className="ml-2 p-1 rounded text-gray-700 hover:text-orange-500 transition focus:outline-none"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setQrModal({
-                              open: true,
-                              id: experiences[0].id,
-                              name: experiences[0].name || '',
-                            });
-                          }}
-                        >
-                          <IconQrcode className="w-5 h-5" />
-                        </button>
-                      </div>
-                      <p className="text-md leading-relaxed text-black ">
-                        {experiences[0].thumbnail_description ||
-                          experiences[0].description ||
-                          ''}
-                      </p>
-                    </div>
+          {!isLoading &&
+            !scopedExperiencesLoading &&
+            !error &&
+            !scopedExperiencesError && (
+              <motion.div
+                key={selectedAddress}
+                initial={{ opacity: 0, x: 40 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -40 }}
+                transition={{ duration: 0.35, ease: 'easeInOut' }}
+              >
+                {experiences.length === 0 && (
+                  <div className="text-gray-400 italic text-center py-20">
+                    No experiences found for this address.
                   </div>
-
-                  {/* Grid for the rest */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {experiences.slice(1).map((exp, idx) => (
-                      <div
-                        key={exp.id || idx}
-                        className="rounded-md overflow-hidden hover:shadow-lg  cursor-pointer transition-shadow border relative"
-                        style={{ borderColor: '#E2E2E2' }}
-                        onClick={() =>
-                          exp.id && router.push(`/discoveries/${exp.id}`)
-                        }
-                      >
-                        <div className="aspect-[4/3] overflow-hidden relative">
-                          <img
-                            src={exp.primary_photo || ''}
-                            alt={exp.name || ''}
-                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                          />
+                )}
+                {experiences.length > 0 && (
+                  <div className="space-y-6">
+                    {/* First (featured) card */}
+                    <div
+                      className="rounded-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow border relative"
+                      style={{ borderColor: '#E2E2E2' }}
+                      onClick={() =>
+                        experiences[0].id &&
+                        router.push(`/discoveries/${experiences[0].id}`)
+                      }
+                    >
+                      <div className="aspect-[16/7] overflow-hidden relative">
+                        <img
+                          src={experiences[0].primary_photo || ''}
+                          alt={experiences[0].name || ''}
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                        />
+                        {role === 'business' && (
                           <button
-                            className="absolute bottom-3 right-3 p-2 rounded-full hover:bg-gray-100 transition-colors focus:outline-none"
+                            className="absolute bottom-3 right-3 p-2 rounded-md hover:bg-gray-100/50 cursor-pointer"
                             onClick={(e) => {
                               e.stopPropagation();
                               console.log('Edit button clicked');
                               setShowCard(true);
-                              setExperience(exp);
+                              setExperience(experiences[0]);
                             }}
                           >
                             <img
@@ -196,38 +174,113 @@ const DiscoveriesMain: React.FC = () => {
                               className="w-10 h-10"
                             />
                           </button>
-                        </div>
-                        <div className="p-4">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3 className="text-base font-bold flex-1 break-words text-black ">
-                              {exp.name}
-                            </h3>
-                            {/* QR Icon Button */}
-                            <button
-                              className="ml-2 p-1 rounded text-gray-700 hover:text-orange-500 transition focus:outline-none"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setQrModal({
-                                  open: true,
-                                  id: exp.id,
-                                  name: exp.name || '',
-                                });
-                              }}
-                            >
-                              <IconQrcode className="w-5 h-5" />
-                            </button>
-                          </div>
-                          <p className="text-sm text-black line-clamp-3">
-                            {exp.thumbnail_description || exp.description || ''}
-                          </p>
-                        </div>
+                        )}
                       </div>
-                    ))}
+                      <div className="p-6">
+                        <div className="flex items-center gap-2 mb-3">
+                          <h2
+                            className="text-xl font-bold flex-1 break-words"
+                            style={{ color: '#333333' }}
+                          >
+                            {experiences[0].name}
+                          </h2>
+                          {/* QR Icon Button (moved next to title) */}
+                          <button
+                            className="ml-2 p-1 rounded text-gray-700 hover:text-orange-500 transition focus:outline-none"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setQrModal({
+                                open: true,
+                                id: experiences[0].id,
+                                name: experiences[0].name || '',
+                              });
+                            }}
+                          >
+                            <IconQrcode className="w-5 h-5" />
+                          </button>
+                        </div>
+                        <p
+                          className="text-md leading-relaxed"
+                          style={{ color: '#333333' }}
+                        >
+                          {experiences[0].thumbnail_description ||
+                            experiences[0].description ||
+                            ''}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Grid for the rest */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {experiences.slice(1).map((exp, idx) => (
+                        <div
+                          key={exp.id || idx}
+                          className="rounded-md overflow-hidden hover:shadow-lg  cursor-pointer transition-shadow border relative"
+                          style={{ borderColor: '#E2E2E2' }}
+                          onClick={() =>
+                            exp.id && router.push(`/discoveries/${exp.id}`)
+                          }
+                        >
+                          <div className="aspect-[4/3] overflow-hidden relative">
+                            <img
+                              src={exp.primary_photo || ''}
+                              alt={exp.name || ''}
+                              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                            />
+                            {role === 'business' && (
+                              <button
+                                className="absolute bottom-3 right-3 p-2 rounded-md cursor-pointer hover:bg-gray-100/50"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  console.log('Edit button clicked');
+                                  setShowCard(true);
+                                  setExperience(exp);
+                                }}
+                              >
+                                <img
+                                  src="/assets/edit.svg"
+                                  alt="Edit"
+                                  className="w-10 h-10"
+                                />
+                              </button>
+                            )}
+                          </div>
+                          <div className="p-4">
+                            <div className="flex items-center gap-2 mb-2">
+                              <h3
+                                className="text-base font-bold flex-1 break-words"
+                                style={{ color: '#333333' }}
+                              >
+                                {exp.name}
+                              </h3>
+                              {/* QR Icon Button */}
+                              <button
+                                className="ml-2 p-1 rounded text-gray-700 hover:text-orange-500 transition focus:outline-none"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setQrModal({
+                                    open: true,
+                                    id: exp.id,
+                                    name: exp.name || '',
+                                  });
+                                }}
+                              >
+                                <IconQrcode className="w-5 h-5" />
+                              </button>
+                            </div>
+                            <p className="text-sm" style={{ color: '#333333' }}>
+                              {exp.thumbnail_description ||
+                                exp.description ||
+                                ''}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
-            </motion.div>
-          )}
+                )}
+              </motion.div>
+            )}
         </AnimatePresence>
         {/* QR Modal */}
         {qrModal && (
@@ -239,7 +292,7 @@ const DiscoveriesMain: React.FC = () => {
           />
         )}
         {/* Edit Experience Card */}
-        {showCard && experience && (
+        {showCard && experience && role === 'business' && (
           <EditExperienceCard
             opened={showCard}
             onClose={() => setShowCard(false)}

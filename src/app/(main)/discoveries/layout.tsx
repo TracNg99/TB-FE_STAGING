@@ -8,6 +8,10 @@ import CreateExperienceCard from '@/components/admin/CreateCard';
 import PageWrapper from '@/components/layouts/PageWrapper';
 import SubSidebar from '@/components/layouts/SubSidebar';
 import { useSidebar } from '@/contexts/sidebar-provider';
+import {
+  Experience,
+  useGetScopedExperiencesQuery,
+} from '@/store/redux/slices/business/experience';
 import { useGetAddressExperienceMapByCompanyIdQuery } from '@/store/redux/slices/user/experience';
 import { cn } from '@/utils/class';
 
@@ -55,17 +59,42 @@ export default function DiscoveriesLayout({
   const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
   const [isPinned, setIsPinned] = useState(false);
 
-  const { data: addressMap } = useGetAddressExperienceMapByCompanyIdQuery({
-    companies: companies || [companyId],
+  const { data: addressMap } = useGetAddressExperienceMapByCompanyIdQuery(
+    {
+      companies: companies || [companyId],
+    },
+    {
+      skip: !!role && role === 'business',
+    },
+  );
+
+  const { data: scopedExperiences } = useGetScopedExperiencesQuery(undefined, {
+    skip: !!role && role !== 'business' && role !== '',
   });
 
   const actualAddresses = useMemo(() => {
-    const addresses = Object.keys(addressMap || {});
+    let addresses: any[] = [];
+    if (!!role && role === 'business') {
+      addresses = Object.keys(addressMap || {});
+    } else {
+      addresses = Object.keys(
+        scopedExperiences?.reduce(
+          (acc, experience) => {
+            if (!acc[experience.address || '']) {
+              acc[experience.address || ''] = [];
+            }
+            acc[experience.address || ''].push(experience);
+            return acc;
+          },
+          {} as Record<string, Experience[]>,
+        ) || {},
+      );
+    }
     const numAddresses = addresses.length;
     return numAddresses === ADDRESS_LIST.length - 1
       ? ADDRESS_LIST
       : ['For you', ...addresses];
-  }, [addressMap]);
+  }, [addressMap, scopedExperiences, role]);
 
   const handleSelect = (address: string) => {
     const params = new URLSearchParams(Array.from(searchParams.entries()));

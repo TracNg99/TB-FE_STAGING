@@ -9,6 +9,7 @@ import {
   Textarea,
   Title,
 } from '@mantine/core';
+import { notifications } from '@mantine/notifications';
 import { Link, RichTextEditor } from '@mantine/tiptap';
 import Underline from '@tiptap/extension-underline';
 import { useEditor } from '@tiptap/react';
@@ -239,7 +240,7 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
       Underline,
     ],
     content: experienceForm.watch('experience_description') || '',
-    onUpdate: ({ editor }) => {
+    onUpdate: ({ editor }: { editor: Editor }) => {
       experienceForm.setValue('experience_description', editor.getHTML(), {
         shouldValidate: true,
       });
@@ -266,7 +267,7 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
       Underline,
     ],
     content: activityForm.watch('activity_description') || '',
-    onUpdate: ({ editor }) => {
+    onUpdate: ({ editor }: { editor: Editor }) => {
       activityForm.setValue('activity_description', editor.getHTML(), {
         shouldValidate: true,
       });
@@ -302,7 +303,7 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
           Underline,
         ],
         content: activityForm.watch('activity_description') || '',
-        onUpdate: ({ editor }) => {
+        onUpdate: ({ editor }: { editor: Editor }) => {
           activityForm.setValue('activity_description', editor.getHTML(), {
             shouldValidate: true,
           });
@@ -621,7 +622,7 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
   };
 
   // Publish final experience
-  const publishExperience = async () => {
+  const publishExperience = async ({ status }: { status: string }) => {
     console.log('Before setIsSubmitting(true), isSubmitting:', isSubmitting);
     setIsSubmitting(true);
     console.log('After setIsSubmitting(true), isSubmitting:', isSubmitting); // This might still be false due to async nature
@@ -634,6 +635,12 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
         console.log('Form errors:', experienceForm.formState.errors);
         console.log('Form values:', experienceForm.getValues());
         setIsSubmitting(false);
+        notifications.show({
+          title: 'Error',
+          message: 'Experience form has validation errors, cannot publish',
+          color: 'red',
+          position: 'top-center',
+        });
         return;
       }
 
@@ -664,6 +671,7 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
             currentExperienceData.experience_thumbnail_url ||
             currentExperienceData.experience_thumbnail_image.image ||
             '',
+          status,
         },
       });
 
@@ -677,13 +685,19 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
             name: 'placeholder name',
             text: 'placeholder text',
             media_id: photo.iconicPhotoId,
-          });
+          }).unwrap();
         }
       }
 
       if (experienceError) {
         console.error('Error creating experience:', experienceError);
         setIsSubmitting(false);
+        notifications.show({
+          title: 'Error',
+          message: 'Experience form has validation errors, cannot publish',
+          color: 'red',
+          position: 'top-center',
+        });
         return;
       }
 
@@ -696,6 +710,12 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
       setIsVisible(false);
     } catch (error) {
       console.error('Error publishing experience:', error);
+      notifications.show({
+        title: 'Error',
+        message: 'Experience form has validation errors, cannot publish',
+        color: 'red',
+        position: 'top-center',
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -814,17 +834,19 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
                 <Button
                   variant="outline"
                   color="orange"
-                  onClick={() => console.log('Save as Draft')}
+                  onClick={() => publishExperience({ status: 'inactive' })}
                   className={styles.buttonText}
+                  loading={isSubmitting}
+                  disabled={isSubmitting}
                 >
                   Save as Draft
                 </Button>
                 <Button
                   color="orange"
-                  onClick={publishExperience}
-                  // disabled={activities.length === 0 || !expIsValid}
+                  onClick={() => publishExperience({ status: 'active' })}
                   loading={isSubmitting}
                   className={styles.buttonText}
+                  disabled={isSubmitting}
                 >
                   Publish
                 </Button>

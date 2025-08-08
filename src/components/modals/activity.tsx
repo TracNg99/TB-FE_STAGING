@@ -120,8 +120,7 @@ const ActivityModal = ({
               alt={activity.title}
               fill
               className="object-cover"
-              // priority
-              unoptimized
+              priority
             />
 
             <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-black/60" />
@@ -262,7 +261,6 @@ const ActivityModal = ({
                             className="object-cover cursor-pointer"
                             sizes="(max-width: 768px) 100vw, 50vw"
                             priority={index === 0}
-                            unoptimized={slide.includes('supabase.co')}
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
                               target.onerror = null;
