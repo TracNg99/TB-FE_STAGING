@@ -111,13 +111,15 @@ export default function DiscoveriesLayout({
         return {
           title: status === 'active' ? 'Active' : 'Draft',
           items: actualAddresses?.map(({ address, experiences }) => {
+            const matchedExperiences = experiences?.filter(
+              (experience: Experience) => experience.status === status,
+            );
+            if (matchedExperiences?.length === 0) return;
             return {
               address,
-              experiences: experiences?.filter(
-                (experience: Experience) => experience.status === status,
-              ),
+              experiences: matchedExperiences,
             };
-          }),
+          }).filter((item) => item !== undefined),
         };
       }
       return;
@@ -157,17 +159,6 @@ export default function DiscoveriesLayout({
             if (!isPinned) setIsSidebarOpen(false);
           }}
           onTogglePin={togglePin}
-          headerActions={
-            role === 'business' ? (
-              <button
-                onClick={() => setShowCard(true)}
-                className="p-1 rounded-full hover:bg-gray-100 transition-colors"
-                title="Add new address"
-              >
-                <AddIcon className="size-7" />
-              </button>
-            ) : null
-          }
         >
           <ul className="px-0 pb-0 space-y-2">
             {actualAddresses.map((address) => (

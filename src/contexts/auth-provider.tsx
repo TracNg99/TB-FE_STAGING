@@ -221,8 +221,8 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setRoleTracker(role);
 
     const checkExpirationAndRefresh = async () => {
-      const isExpired = Date.now() > Number(expiresAt) * 1000 - 60 * 5 * 1000;
-      if (!isExpired || !expiresAt || expiresAt === '') return;
+      const isExpired = Date.now() > ((Number(expiresAt) * 1000) - (60 * 5 * 1000));
+      if (!isExpired || !expiresAt) return;
       try {
         const { access_token, refresh_token, expires_at, user_id } =
           await refreshSession({
