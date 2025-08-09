@@ -42,7 +42,7 @@ const DiscoveriesMain: React.FC = () => {
       companies: companies || [companyId],
     },
     {
-      skip: role === 'business' || role === '',
+      skip: role === 'business',
     },
   );
 
