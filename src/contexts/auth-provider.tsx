@@ -233,7 +233,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           localStorage.setItem('jwt', access_token);
           localStorage.setItem('refreshToken', refresh_token);
           localStorage.setItem('expiresAt', expires_at);
-          localStorage.setItem('role', role);
           localStorage.setItem('userId', user_id);
           refetch();
         }

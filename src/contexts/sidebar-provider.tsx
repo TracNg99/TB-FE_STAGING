@@ -11,16 +11,26 @@ import {
 
 interface SidebarContextType {
   isSidebarOpen: boolean;
+  experiencesStatus: string;
   setIsSidebarOpen: Dispatch<SetStateAction<boolean>>;
+  setExperiencesStatus: Dispatch<SetStateAction<string>>;
 }
 
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 
 export const SidebarProvider = ({ children }: { children: ReactNode }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [experiencesStatus, setExperiencesStatus] = useState('');
 
   return (
-    <SidebarContext.Provider value={{ isSidebarOpen, setIsSidebarOpen }}>
+    <SidebarContext.Provider
+      value={{
+        isSidebarOpen,
+        setIsSidebarOpen,
+        experiencesStatus,
+        setExperiencesStatus,
+      }}
+    >
       {children}
     </SidebarContext.Provider>
   );
