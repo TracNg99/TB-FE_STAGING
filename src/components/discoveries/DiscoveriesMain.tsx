@@ -42,7 +42,7 @@ const DiscoveriesMain: React.FC = () => {
       companies: companies || [companyId],
     },
     {
-      skip: role === 'business',
+      skip: !!role && role === 'business',
     },
   );
 
@@ -51,7 +51,7 @@ const DiscoveriesMain: React.FC = () => {
     isLoading: scopedExperiencesLoading,
     error: scopedExperiencesError,
   } = useGetScopedExperiencesQuery(undefined, {
-    skip: !!role && role !== 'business' && role !== '',
+    skip: (!!role && role !== 'business') || !role,
   });
 
   const [qrModal, setQrModal] = useState<{
@@ -66,7 +66,7 @@ const DiscoveriesMain: React.FC = () => {
   const experiences = useMemo(() => {
     let experiences: Experience[] = [];
     let finalMap: Record<string, Experience[]> = {};
-    if (!!role && role !== '' && role !== 'business') {
+    if ((!!role && role !== 'business') || !role) {
       finalMap = addressMap || {};
     } else {
       const scopedExperiencesMap = scopedExperiences?.reduce(
