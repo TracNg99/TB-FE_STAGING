@@ -49,10 +49,11 @@ const AdminDiscoverySidebarContent: React.FC<
   onTogglePin,
   headerActions,
 }: AdminDiscoverySidebarContentProps) => {
+  const totalExperiencesPerType = Object.entries(items || {}).flat().length;
   return (
     <>
       <div className="h-auto my-3 flex justify-between items-center flex-shrink-0">
-        <h2 className="text-xl font-medium">{title}</h2>
+        <h2 className="text-xl font-medium">{title} ({totalExperiencesPerType})</h2>
         <div className="flex items-center gap-1">
           {index?.includes('0') && (
             <button

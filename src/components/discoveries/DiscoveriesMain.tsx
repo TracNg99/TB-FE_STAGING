@@ -81,7 +81,7 @@ const DiscoveriesMain: React.FC = () => {
       );
       finalMap = scopedExperiencesMap || {};
     }
-    if (selectedAddress === 'For you') {
+    if (selectedAddress === 'For you' || selectedAddress === 'All') {
       experiences = Object.values(finalMap || {}).flat();
     } else {
       experiences = finalMap?.[selectedAddress] || [];
@@ -90,12 +90,29 @@ const DiscoveriesMain: React.FC = () => {
   }, [addressMap, selectedAddress, scopedExperiences]);
 
   const actualAddresses = useMemo(() => {
-    const addresses = Object.keys(addressMap || {});
-    const numAddresses = addresses.length;
-    return numAddresses === ADDRESS_LIST.length - 1
-      ? ADDRESS_LIST
-      : ['For you', ...addresses];
-  }, [addressMap]);
+      let addresses: any[] = [];
+      if ((!!role && role !== 'business') || !role || role === '') {
+        addresses = Object.keys(addressMap || {});
+        const numAddresses = addresses.length;
+        return numAddresses === ADDRESS_LIST.length - 1
+          ? ADDRESS_LIST
+          : ['For you', ...addresses];
+      } else {
+        addresses = Object.keys(
+          scopedExperiences?.reduce(
+            (acc, experience) => {
+              if (!acc[experience.address || '']) {
+                acc[experience.address || ''] = [];
+              }
+              acc[experience.address || ''].push(experience);
+              return acc;
+            },
+            {} as Record<string, Experience[]>,
+          ) || {},
+        );
+        return ['All', ...addresses];
+      }
+    }, [addressMap, scopedExperiences, role]);
 
   return (
     <div className="h-full relative flex flex-col mb-20">

@@ -42,6 +42,11 @@ const AddIcon: React.FC<{ className?: string; size?: number }> = ({
   />
 );
 
+const titleStatusMap = {
+  'Active': 'active',
+  'Draft': 'inactive',
+}
+
 export default function DiscoveriesLayout({
   children,
 }: {
@@ -57,7 +62,7 @@ export default function DiscoveriesLayout({
     : null;
   const companyId = sessionStorage.getItem('company_id') || '';
 
-  const { isSidebarOpen, setIsSidebarOpen, setExperiencesStatus } =
+  const { isSidebarOpen, setIsSidebarOpen, setExperiencesStatus, experiencesStatus } =
     useSidebar();
   const [isPinned, setIsPinned] = useState(false);
 
@@ -110,16 +115,18 @@ export default function DiscoveriesLayout({
       if (role === 'business') {
         return {
           title: status === 'active' ? 'Active' : 'Draft',
-          items: actualAddresses?.map(({ address, experiences }) => {
-            const matchedExperiences = experiences?.filter(
-              (experience: Experience) => experience.status === status,
-            );
-            if (matchedExperiences?.length === 0) return;
-            return {
-              address,
-              experiences: matchedExperiences,
-            };
-          }).filter((item) => item !== undefined),
+          items: actualAddresses
+            ?.map(({ address, experiences }) => {
+              const matchedExperiences = experiences?.filter(
+                (experience: Experience) => experience.status === status,
+              );
+              if (matchedExperiences?.length === 0) return;
+              return {
+                address,
+                experiences: matchedExperiences,
+              };
+            })
+            .filter((item) => item !== undefined),
         };
       }
       return;
@@ -186,7 +193,7 @@ export default function DiscoveriesLayout({
               <button
                 className={cn(
                   'w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors rounded-md',
-                  selectedAddress === item.address && 'bg-[#FFF2E5] text-black',
+                  selectedAddress === item.address && experiencesStatus === titleStatusMap[title as keyof typeof titleStatusMap] && 'bg-[#FFF2E5] text-black',
                 )}
                 onClick={() => handleSelectWithStatus(title, item.address)}
               >
