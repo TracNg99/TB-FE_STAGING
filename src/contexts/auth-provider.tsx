@@ -120,7 +120,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             pathname === '/' ||
             pathname === '/business') &&
           isValidJwt &&
-          role
+          role === 'business'
         ) {
           router.replace(`/discoveries`);
           return;
