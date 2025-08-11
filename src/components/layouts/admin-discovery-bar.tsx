@@ -53,7 +53,9 @@ const AdminDiscoverySidebarContent: React.FC<
   return (
     <>
       <div className="h-auto my-3 flex justify-between items-center flex-shrink-0">
-        <h2 className="text-xl font-medium">{title} ({totalExperiencesPerType})</h2>
+        <h2 className="text-xl font-medium">
+          {title} ({totalExperiencesPerType})
+        </h2>
         <div className="flex items-center gap-1">
           {index?.includes('0') && (
             <button

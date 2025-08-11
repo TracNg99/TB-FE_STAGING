@@ -90,29 +90,29 @@ const DiscoveriesMain: React.FC = () => {
   }, [addressMap, selectedAddress, scopedExperiences]);
 
   const actualAddresses = useMemo(() => {
-      let addresses: any[] = [];
-      if ((!!role && role !== 'business') || !role || role === '') {
-        addresses = Object.keys(addressMap || {});
-        const numAddresses = addresses.length;
-        return numAddresses === ADDRESS_LIST.length - 1
-          ? ADDRESS_LIST
-          : ['For you', ...addresses];
-      } else {
-        addresses = Object.keys(
-          scopedExperiences?.reduce(
-            (acc, experience) => {
-              if (!acc[experience.address || '']) {
-                acc[experience.address || ''] = [];
-              }
-              acc[experience.address || ''].push(experience);
-              return acc;
-            },
-            {} as Record<string, Experience[]>,
-          ) || {},
-        );
-        return ['All', ...addresses];
-      }
-    }, [addressMap, scopedExperiences, role]);
+    let addresses: any[] = [];
+    if ((!!role && role !== 'business') || !role || role === '') {
+      addresses = Object.keys(addressMap || {});
+      const numAddresses = addresses.length;
+      return numAddresses === ADDRESS_LIST.length - 1
+        ? ADDRESS_LIST
+        : ['For you', ...addresses];
+    } else {
+      addresses = Object.keys(
+        scopedExperiences?.reduce(
+          (acc, experience) => {
+            if (!acc[experience.address || '']) {
+              acc[experience.address || ''] = [];
+            }
+            acc[experience.address || ''].push(experience);
+            return acc;
+          },
+          {} as Record<string, Experience[]>,
+        ) || {},
+      );
+      return ['All', ...addresses];
+    }
+  }, [addressMap, scopedExperiences, role]);
 
   return (
     <div className="h-full relative flex flex-col mb-20">
@@ -309,7 +309,7 @@ const DiscoveriesMain: React.FC = () => {
           />
         )}
         {/* Edit Experience Card */}
-        {showCard && experience && role === 'business' && (
+        {experience && role === 'business' && (
           <EditExperienceCard
             opened={showCard}
             onClose={() => setShowCard(false)}

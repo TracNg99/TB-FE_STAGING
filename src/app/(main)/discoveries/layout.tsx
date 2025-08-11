@@ -43,9 +43,9 @@ const AddIcon: React.FC<{ className?: string; size?: number }> = ({
 );
 
 const titleStatusMap = {
-  'Active': 'active',
-  'Draft': 'inactive',
-}
+  Active: 'active',
+  Draft: 'inactive',
+};
 
 export default function DiscoveriesLayout({
   children,
@@ -62,8 +62,12 @@ export default function DiscoveriesLayout({
     : null;
   const companyId = sessionStorage.getItem('company_id') || '';
 
-  const { isSidebarOpen, setIsSidebarOpen, setExperiencesStatus, experiencesStatus } =
-    useSidebar();
+  const {
+    isSidebarOpen,
+    setIsSidebarOpen,
+    setExperiencesStatus,
+    experiencesStatus,
+  } = useSidebar();
   const [isPinned, setIsPinned] = useState(false);
 
   const { data: addressMap } = useGetAddressExperienceMapByCompanyIdQuery(
@@ -110,7 +114,6 @@ export default function DiscoveriesLayout({
   }, [addressMap, scopedExperiences, role]);
 
   const mapByStatus = useMemo(() => {
-    console.log('actualAddresses', actualAddresses);
     const map = ['active', 'inactive'].map((status) => {
       if (role === 'business') {
         return {
@@ -193,7 +196,10 @@ export default function DiscoveriesLayout({
               <button
                 className={cn(
                   'w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors rounded-md',
-                  selectedAddress === item.address && experiencesStatus === titleStatusMap[title as keyof typeof titleStatusMap] && 'bg-[#FFF2E5] text-black',
+                  selectedAddress === item.address &&
+                    experiencesStatus ===
+                      titleStatusMap[title as keyof typeof titleStatusMap] &&
+                    'bg-[#FFF2E5] text-black',
                 )}
                 onClick={() => handleSelectWithStatus(title, item.address)}
               >

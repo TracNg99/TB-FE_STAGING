@@ -3,6 +3,7 @@ import {
   Button,
   Input,
   InputWrapper,
+  Loader,
   Select,
   Text,
   TextInput,
@@ -21,6 +22,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import IconicPhotoDisplay from '@/components/admin/IconicPhotoDisplay';
+import CustomizableDragDrop from '@/components/dynamics/grid-drag-n-drop';
 import ImageUploader from '@/components/image-uploader/image-picker';
 import {
   useCreateActivityMutation,
@@ -39,11 +41,12 @@ import { useGetActivitiesInExperiencePublicQuery } from '@/store/redux/slices/us
 import { Activity } from '@/store/redux/slices/user/experience';
 import { useGetExperiencePublicQuery } from '@/store/redux/slices/user/experience';
 import { useGetIconicPhotosPublicQuery } from '@/store/redux/slices/user/experience';
+import { cn } from '@/utils/class';
 
 import styles from './CreateCard.module.css';
 
 interface EditExperienceCardProps {
-  opened: boolean;
+  opened?: boolean;
   onClose: () => void;
   experience: any;
 }
@@ -124,6 +127,7 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
   const [formKey, setFormKey] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activityAddState, setActivityAddState] = useState(false);
+  const [activities, setActivities] = useState<Activity[]>([]);
 
   const [currentAddress, setCurrentAddress] = useState<string>('');
 
@@ -134,7 +138,6 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
   const [createActivity] = useCreateActivityMutation();
   const [updateActivity] = useUpdateActivityMutation();
   const [deleteExperienceDetails] = useDeleteExperienceDetailsMutation();
-  console.log('Opened', opened);
 
   // Fetch activities for this experience
   const { data: experienceFull } = useGetExperiencePublicQuery({
@@ -181,10 +184,78 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
   }, [experienceFull]);
 
   // Fetch activities for this experience
-  const { data: activitiesCurrent = [] } =
-    useGetActivitiesInExperiencePublicQuery({
-      experience_id: experience.id,
+  const {
+    data: activitiesCurrent = [],
+    isLoading: isActivitiesLoading,
+    isFetching: isActivitiesFetching,
+    refetch: refetchActivities,
+  } = useGetActivitiesInExperiencePublicQuery({
+    experience_id: experience.id,
+  });
+
+  useEffect(() => {
+    if (activitiesCurrent && activitiesCurrent.length > 0) {
+      setActivities(activitiesCurrent);
+    }
+  }, [activitiesCurrent]);
+
+  const updateActivityOrder = async (
+    updates: { id: string; order_of_appearance: number }[],
+  ) => {
+    updates.forEach(async (update) => {
+      try {
+        const { error } = await updateActivity({
+          id: update.id,
+          data: {
+            order_of_appearance: update.order_of_appearance,
+          },
+        });
+
+        if (error) {
+          throw error;
+        }
+
+        console.log('Activity order updated successfully.');
+        refetchActivities();
+        // notifications.show({
+        //   title: 'Success',
+        //   message: 'Activity order updated successfully.',
+        //   color: 'green',
+        // });
+      } catch (error: any) {
+        console.log('Failed to update activity order.', error);
+        // notifications.show({
+        //   title: 'Error',
+        //   message: error.message || 'Failed to update activity order.',
+        //   color: 'red',
+        // });
+      }
     });
+  };
+
+  const onDragEnd = (result: Activity[]) => {
+    const items = Array.from(activities);
+    const reorderedItem = result
+      .map((activity, index) => {
+        const item = items.find(
+          (item, originalIndex) =>
+            originalIndex !== index && activity.id === item.id,
+        );
+        if (item) {
+          return {
+            id: activity.id,
+            order_of_appearance: index,
+          };
+        }
+        return;
+      })
+      .filter((item) => item !== undefined);
+
+    if (reorderedItem.length > 0) {
+      setActivities(result);
+      updateActivityOrder(reorderedItem);
+    }
+  };
 
   // Activity form (Step 2)
   const activityForm = useForm<ActivityFormData>({
@@ -812,9 +883,19 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
   return (
     <>
       {/* Overlay (non-blocking) */}
-      <div className="fixed inset-0 bg-black/50 z-40 pointer-events-none" />
+      <div
+        className={cn(
+          'fixed inset-0 bg-black/50 z-40 pointer-events-none',
+          opened ? 'block' : 'hidden',
+        )}
+      />
       {/* Floating Card (scrolls with page) */}
-      <div className="absolute top-5 left-0 right-0 mx-auto z-50 w-full max-w-4xl p-4">
+      <div
+        className={cn(
+          'absolute top-5 left-0 right-0 mx-auto z-50 w-full max-w-4xl p-4',
+          opened ? 'block' : 'hidden',
+        )}
+      >
         <div className="bg-[#FCFCF9] rounded-lg shadow-xl p-6 w-full">
           {/* Header */}
           {currentStep === 'experience' ? (
@@ -949,12 +1030,12 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
                   >
                     <div
                       className="
-                                            [&_.mantine-Dropzone-root]:h-[200px] 
-                                            [&_.mantine-Dropzone-root]:flex 
-                                            [&_.mantine-Dropzone-root]:items-center 
-                                            [&_.mantine-Dropzone-root]:justify-center
-                                            [&_.image-display-container]:max-h-[180px]
-                                        "
+                        [&_.mantine-Dropzone-root]:h-[200px] 
+                        [&_.mantine-Dropzone-root]:flex 
+                        [&_.mantine-Dropzone-root]:items-center 
+                        [&_.mantine-Dropzone-root]:justify-center
+                        [&_.image-display-container]:max-h-[180px]
+                      "
                     >
                       <ImageUploader
                         {...(experienceForm.watch(
@@ -1056,23 +1137,32 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
                 <div className="w-full h-px bg-black mt-4 mb-4"></div>
                 <div className="flex items-center justify-between">
                   <Text className={styles.formLabel}>
-                    Activities ({activitiesCurrent.length})
+                    Activities ({activities.length})
                   </Text>
                 </div>
 
                 {/* Existing Activities */}
-                {activitiesCurrent && activitiesCurrent.length > 0 && (
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {activitiesCurrent.map((activity) => (
-                      <div
-                        key={activity.id}
-                        onClick={() => {
-                          handleEditActivity(activity);
-                          setCurrentStep('activity'); // Navigate to edit mode
-                        }}
-                        className="group relative rounded-lg overflow-hidden border border-gray-200 hover:shadow-md transition-shadow"
-                      >
-                        <div className="relative aspect-square">
+                {isActivitiesLoading ||
+                  isActivitiesFetching ||
+                  (activities.length === 0 && (
+                    <div className="flex flex-col items-center justify-center">
+                      <Loader />
+                    </div>
+                  ))}
+                {activities && activities.length > 0 && (
+                  <CustomizableDragDrop
+                    items={activities}
+                    onItemsChange={onDragEnd}
+                    columns={4}
+                    renderItem={(activity: Activity) => (
+                      <div className="group relative rounded-lg overflow-hidden border border-gray-200 hover:shadow-md transition-shadow">
+                        <div
+                          onClick={() => {
+                            handleEditActivity(activity);
+                            setCurrentStep('activity'); // Navigate to edit mode
+                          }}
+                          className="relative aspect-square cursor-pointer"
+                        >
                           <Image
                             src={activity.primary_photo}
                             alt={activity.title}
@@ -1096,24 +1186,13 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
                                 className="w-6 h-6"
                               />
                             </button>
-                            <button
-                              className="hover:bg-white transition-colors"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                // TODO: Handle view photo
-                                console.log(
-                                  'Move activity around:',
-                                  activity.primary_photo,
-                                );
-                              }}
-                              title="Move activity around"
-                            >
+                            <div title="Move activity" className="cursor-grab">
                               <img
                                 src="/assets/drag_and_move.svg"
-                                alt="Move activity around"
+                                alt="Move activity"
                                 className="w-6 h-6"
                               />
-                            </button>
+                            </div>
                           </div>
                         </div>
                         <div className="p-2">
@@ -1130,8 +1209,8 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
                           )}
                         </div>
                       </div>
-                    ))}
-                  </div>
+                    )}
+                  />
                 )}
 
                 {/* Add Activity Button */}

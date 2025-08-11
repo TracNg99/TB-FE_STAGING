@@ -670,21 +670,21 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
   };
 
   const handleCancel = () => {
-    console.log('🚫 Cancel clicked');
+    // console.log('🚫 Cancel clicked');
 
-    if (createdExperienceId) {
-      console.log(
-        '🗑️ Would delete placeholder experience:',
-        createdExperienceId,
-      );
-      console.log('🗄️ SQL cleanup:');
-      console.log(
-        `DELETE FROM activities WHERE experience_id = '${createdExperienceId}'`,
-      );
-      console.log(
-        `DELETE FROM experiences WHERE id = '${createdExperienceId}'`,
-      );
-    }
+    // if (createdExperienceId) {
+    //   console.log(
+    //     '🗑️ Would delete placeholder experience:',
+    //     createdExperienceId,
+    //   );
+    //   console.log('🗄️ SQL cleanup:');
+    //   console.log(
+    //     `DELETE FROM activities WHERE experience_id = '${createdExperienceId}'`,
+    //   );
+    //   console.log(
+    //     `DELETE FROM experiences WHERE id = '${createdExperienceId}'`,
+    //   );
+    // }
 
     // Reset everything
     experienceForm.reset();
