@@ -20,7 +20,7 @@ const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 
 export const SidebarProvider = ({ children }: { children: ReactNode }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [experiencesStatus, setExperiencesStatus] = useState('');
+  const [experiencesStatus, setExperiencesStatus] = useState('active');
 
   return (
     <SidebarContext.Provider
