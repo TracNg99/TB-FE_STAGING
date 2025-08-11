@@ -1,6 +1,13 @@
 'use client';
 
-import React, { ReactNode, createContext, useContext, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import React, {
+  ReactNode,
+  createContext,
+  useCallback,
+  useContext,
+  useState,
+} from 'react';
 
 interface ChatContextType {
   resetState: boolean;
@@ -11,12 +18,20 @@ const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export const ChatProvider = ({ children }: { children: ReactNode }) => {
   const [resetState, setResetState] = useState(false);
+  const router = useRouter();
+  const role = localStorage.getItem('role') || '';
 
-  const triggerReset = () => {
-    setResetState(true);
-    // Reset back to false after a short delay to allow consumers to react
-    setTimeout(() => setResetState(false), 50);
-  };
+  const triggerReset = useCallback(() => {
+    if (role === 'business') {
+      console.log('business');
+      router.push(`/discoveries`);
+      return;
+    } else {
+      setResetState(true);
+      // Reset back to false after a short delay to allow consumers to react
+      setTimeout(() => setResetState(false), 50);
+    }
+  }, [role, router]);
 
   return (
     <ChatContext.Provider value={{ resetState, triggerReset }}>

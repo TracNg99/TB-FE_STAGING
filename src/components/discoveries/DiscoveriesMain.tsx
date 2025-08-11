@@ -12,6 +12,7 @@ import {
   useGetScopedExperiencesQuery,
 } from '@/store/redux/slices/business/experience';
 import { useGetAddressExperienceMapByCompanyIdQuery } from '@/store/redux/slices/user/experience';
+import { cn } from '@/utils/class';
 
 import EditExperienceCard from '../admin/EditCard';
 
@@ -162,10 +163,16 @@ const DiscoveriesMain: React.FC = () => {
                   <div className="space-y-6">
                     {/* First (featured) card */}
                     <div
-                      className="rounded-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow border relative"
+                      className={cn(
+                        'rounded-md overflow-hidden transition-shadow border relative',
+                        role === 'business'
+                          ? ''
+                          : 'cursor-pointer hover:shadow-lg',
+                      )}
                       style={{ borderColor: '#E2E2E2' }}
                       onClick={() =>
                         experiences[0].id &&
+                        role !== 'business' &&
                         router.push(`/discoveries/${experiences[0].id}`)
                       }
                     >
@@ -173,11 +180,16 @@ const DiscoveriesMain: React.FC = () => {
                         <img
                           src={experiences[0].primary_photo || ''}
                           alt={experiences[0].name || ''}
-                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                          className={cn(
+                            'w-full h-full object-cover transition-transform duration-300',
+                            role === 'business' ? '' : 'hover:scale-105',
+                          )}
                         />
                         {role === 'business' && (
                           <button
-                            className="absolute bottom-3 right-3 p-2 rounded-md hover:bg-gray-100/50 cursor-pointer"
+                            className={cn(
+                              'absolute bottom-3 right-3 p-2 rounded-md hover:bg-gray-100/50 cursor-pointer',
+                            )}
                             onClick={(e) => {
                               e.stopPropagation();
                               console.log('Edit button clicked');
@@ -232,17 +244,27 @@ const DiscoveriesMain: React.FC = () => {
                       {experiences.slice(1).map((exp, idx) => (
                         <div
                           key={exp.id || idx}
-                          className="rounded-md overflow-hidden hover:shadow-lg  cursor-pointer transition-shadow border relative"
+                          className={cn(
+                            'rounded-md overflow-hidden transition-shadow border relative',
+                            role === 'business'
+                              ? ''
+                              : 'cursor-pointer hover:shadow-lg',
+                          )}
                           style={{ borderColor: '#E2E2E2' }}
                           onClick={() =>
-                            exp.id && router.push(`/discoveries/${exp.id}`)
+                            exp.id &&
+                            role !== 'business' &&
+                            router.push(`/discoveries/${exp.id}`)
                           }
                         >
                           <div className="aspect-[4/3] overflow-hidden relative">
                             <img
                               src={exp.primary_photo || ''}
                               alt={exp.name || ''}
-                              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                              className={cn(
+                                'w-full h-full object-cover transition-transform duration-300',
+                                role === 'business' ? '' : 'hover:scale-105',
+                              )}
                             />
                             {role === 'business' && (
                               <button

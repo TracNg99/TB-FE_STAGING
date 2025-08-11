@@ -24,20 +24,13 @@ const navbarLinks = [
   {
     title: 'Home',
     href: '/',
-    // icon: '/assets/home.svg',
     icon: IconHome,
   },
   {
     title: 'Discover',
     href: 'discoveries',
-    // icon: '/assets/discover.svg',
     icon: IconDiscover,
   },
-  // {
-  //   title: 'Experiences',
-  //   href: '/experiences/8efd1b59-fc69-4290-8bf3-20f39dff72e6',
-  //   icon: '/assets/backpack.svg',
-  // },
   {
     title: 'Stories',
     href: 'stories',
@@ -45,7 +38,16 @@ const navbarLinks = [
   },
 ];
 
+const businessLinks = [
+  {
+    title: 'Discover',
+    href: 'discoveries',
+    icon: IconDiscover,
+  },
+];
+
 const Navbar = () => {
+  const role = localStorage.getItem('role') || '';
   const { user, logout } = useAuth();
   const { setIsSidebarOpen } = useSidebar();
   const { triggerReset } = useChat();
@@ -123,46 +125,48 @@ const Navbar = () => {
         />
       </Link>
       <nav className="mt-6 flex flex-grow flex-col items-center gap-3">
-        {navbarLinks.map((link, index) => (
-          <UnstyledButton
-            onClick={() =>
-              link.title === 'Stories'
-                ? handleStoriesClicked()
-                : handleTabChange(link.href ?? '/')
-            }
-            className={cn(
-              'flex flex-col items-center justify-center gap-1.5 rounded-lg p-2 w-14 h-14 transition-all duration-200 hover:bg-gray-50',
-              activeTab === link.href && 'bg-[#FFF2E5]',
-              activeTab !== link.href && 'bg-transparent text-gray-500',
-            )}
-            key={index}
-          >
-            {link.title !== 'Stories' && (
-              <div className="flex items-center justify-center w-full">
-                <IconHandler
-                  IconComponent={link.icon}
-                  className={cn('size-[30px]')}
-                />
-              </div>
-            )}
-            {link.title === 'Stories' && (
-              <div className="flex items-center justify-center w-full">
-                <AiButton
-                  className="flex cursor-pointer"
-                  altIcon={
-                    <IconHandler
-                      IconComponent={link.icon}
-                      className={cn('size-6 text-gray-700')}
-                    />
-                  }
-                />
-              </div>
-            )}
-            <span className="text-[10px] font-medium leading-tight text-center">
-              {link.title}
-            </span>
-          </UnstyledButton>
-        ))}
+        {(role === 'business' ? businessLinks : navbarLinks).map(
+          (link, index) => (
+            <UnstyledButton
+              onClick={() =>
+                link.title === 'Stories'
+                  ? handleStoriesClicked()
+                  : handleTabChange(link.href ?? '/')
+              }
+              className={cn(
+                'flex flex-col items-center justify-center gap-1.5 rounded-lg p-2 w-14 h-14 transition-all duration-200 hover:bg-gray-50',
+                activeTab === link.href && 'bg-[#FFF2E5]',
+                activeTab !== link.href && 'bg-transparent text-gray-500',
+              )}
+              key={index}
+            >
+              {link.title !== 'Stories' && (
+                <div className="flex items-center justify-center w-full">
+                  <IconHandler
+                    IconComponent={link.icon}
+                    className={cn('size-[30px]')}
+                  />
+                </div>
+              )}
+              {link.title === 'Stories' && (
+                <div className="flex items-center justify-center w-full">
+                  <AiButton
+                    className="flex cursor-pointer"
+                    altIcon={
+                      <IconHandler
+                        IconComponent={link.icon}
+                        className={cn('size-6 text-gray-700')}
+                      />
+                    }
+                  />
+                </div>
+              )}
+              <span className="text-[10px] font-medium leading-tight text-center">
+                {link.title}
+              </span>
+            </UnstyledButton>
+          ),
+        )}
       </nav>
       <div className="mt-auto">
         {user ? (

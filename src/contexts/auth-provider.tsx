@@ -110,8 +110,19 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           if (role === 'user') {
             router.replace(`/`);
           } else {
-            router.replace(`/business`);
+            router.replace(`/discoveries`);
           }
+          return;
+        }
+
+        if (
+          (pathname === '/auth/login/business' ||
+            pathname === '/' ||
+            pathname === '/business') &&
+          isValidJwt &&
+          role
+        ) {
+          router.replace(`/discoveries`);
           return;
         }
 
@@ -221,7 +232,8 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setRoleTracker(role);
 
     const checkExpirationAndRefresh = async () => {
-      const isExpired = Date.now() > Number(expiresAt) * 1000 - 60 * 5 * 1000;
+      const expTime = Number(expiresAt) * 1000 - 60 * 5 * 1000;
+      const isExpired = Date.now() > expTime;
       if (!isExpired || !expiresAt) return;
       try {
         const { access_token, refresh_token, expires_at, user_id } =
@@ -230,6 +242,8 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           }).unwrap();
 
         if (access_token && refresh_token && expires_at && user_id) {
+          setRoleTracker(role);
+          setUser(null);
           localStorage.setItem('jwt', access_token);
           localStorage.setItem('refreshToken', refresh_token);
           localStorage.setItem('expiresAt', expires_at);
