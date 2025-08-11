@@ -42,7 +42,7 @@ const StoriesSidebar: React.FC<StoriesSidebarProps> = ({
         onClick={handleCreateStory}
         className={cn(
           'w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors',
-          pathname?.startsWith('/stories/new') && 'bg-[#FFF2E5] text-black',
+          pathname?.startsWith('/stories/new') && 'bg-[#FFEEE6] text-black',
         )}
       >
         Create a story
@@ -52,7 +52,7 @@ const StoriesSidebar: React.FC<StoriesSidebarProps> = ({
         onClick={handleShowMyStories}
         className={cn(
           'mt-2 w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors',
-          pathname === '/stories' && 'bg-[#FFF2E5] text-black',
+          pathname === '/stories' && 'bg-[#FFEEE6] text-black',
         )}
       >
         My stories

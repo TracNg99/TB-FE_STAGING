@@ -894,7 +894,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
                 renderItem={(item) => (
                   <button
                     key={item}
-                    className="text-nowrap rounded-full bg-[#FFF2E5] px-2 py-2 text-[12px] text-gray-600 shadow-lg hover:bg-gray-100 cursor-pointer"
+                    className="text-nowrap rounded-full bg-[#FFEEE6] px-2 py-2 text-[12px] text-gray-600 shadow-lg hover:bg-gray-100 cursor-pointer"
                     onClick={() => handleSend(item)}
                     disabled={isThreadFetching || isThreadLoading}
                   >

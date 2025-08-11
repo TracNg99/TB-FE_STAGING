@@ -56,16 +56,16 @@ export default function StoriesLayout({
             </h1>
             <div className="flex gap-2">
               <button
-                onClick={() => router.replace('/stories')}
-                className={`px-4 py-2 rounded-full text-sm transition-all border ${pathname === '/stories' ? 'bg-orange-50 text-black border-orange-300' : 'bg-transparent text-gray-700 border-gray-200'}`}
-              >
-                My stories
-              </button>
-              <button
                 onClick={() => router.replace('/stories/new')}
                 className={`px-4 py-2 rounded-full text-sm transition-all border ${pathname.startsWith('/stories/new') ? 'bg-orange-50 text-black border-orange-300' : 'bg-transparent text-gray-700 border-gray-200'}`}
               >
                 Create a story
+              </button>
+              <button
+                onClick={() => router.replace('/stories')}
+                className={`px-4 py-2 rounded-full text-sm transition-all border ${pathname === '/stories' ? 'bg-orange-50 text-black border-orange-300' : 'bg-transparent text-gray-700 border-gray-200'}`}
+              >
+                My stories
               </button>
             </div>
           </div>

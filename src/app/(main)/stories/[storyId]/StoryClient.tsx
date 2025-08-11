@@ -583,7 +583,7 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
                     className="flex items-center gap-2 py-2 text-gray-800"
                   >
                     <IconChevronLeft className="size-5" />
-                    <span className="text-base">Stories</span>
+                    <span className="text-base">My Stories</span>
                   </button>
                 ) : (
                   <div />

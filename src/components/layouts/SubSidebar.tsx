@@ -32,7 +32,7 @@ const SubSidebar: React.FC<SubSidebarProps> = ({
     <aside
       onMouseLeave={onSidebarLeave}
       className={cn(
-        'h-full flex-col bg-white z-50 py-6 px-6 transition-all duration-300 ease-in-out flex overflow-hidden lg:flex flex-shrink-0',
+        'h-full flex-col bg-white z-50 py-6 transition-all duration-300 ease-in-out flex overflow-hidden lg:flex flex-shrink-0',
         'hidden',
         isSidebarOpen || isPinned
           ? 'w-64 border-r border-gray-200'
@@ -41,7 +41,7 @@ const SubSidebar: React.FC<SubSidebarProps> = ({
         className,
       )}
     >
-      <div className="h-auto my-3 flex justify-between items-center flex-shrink-0">
+      <div className="h-auto my-3 mx-6 flex justify-between items-center flex-shrink-0">
         <h2 className="text-xl font-medium">{title}</h2>
         <div className="flex items-center gap-1">
           <button
@@ -60,10 +60,12 @@ const SubSidebar: React.FC<SubSidebarProps> = ({
       </div>
 
       {/* Divider */}
-      <div className="border-t border-black" />
+      <div className="mx-6 border-t border-black" />
 
       {/* Content area provided by consumers */}
-      <nav className={cn('py-3 text-base', contentClassName)}>{children}</nav>
+      <nav className={cn('px-6 py-3 text-base font-medium', contentClassName)}>
+        {children}
+      </nav>
     </aside>
   );
 };

@@ -92,7 +92,7 @@ const SidebarLayer: React.FC<{
 
   return (
     <SubSidebar
-      title="Threads"
+      title={`Threads (${threadsList.length})`}
       isSidebarOpen={isSidebarOpen}
       isPinned={isPinned}
       onSidebarLeave={onSidebarLeave}
@@ -100,7 +100,7 @@ const SidebarLayer: React.FC<{
       headerActions={
         <button
           onClick={onReset}
-          className="rounded-full p-1 hover:bg-gray-100 transition-colors cursor-pointer"
+          className="rounded-full p-1 bg-[#FFEEE6] hover:bg-gray-100 transition-colors cursor-pointer"
           title="New chat"
         >
           <IconPlus size={16} className="text-orange-600" />
@@ -109,7 +109,7 @@ const SidebarLayer: React.FC<{
       contentClassName="flex flex-col flex-grow overflow-y-auto"
     >
       {user ? (
-        <nav className="mt-4 flex flex-col flex-shrink overflow-y-auto">
+        <div className="flex flex-col flex-shrink">
           {threadsList.length > 0 && !isHistoryLoading && !isHistoryFetching ? (
             <ul>
               {threadsList.map((thread) => (
@@ -120,7 +120,7 @@ const SidebarLayer: React.FC<{
                     className={cn(
                       'w-full rounded-lg p-3 text-left text-sm font-medium text-gray-700 hover:bg-orange-100/50',
                       {
-                        'bg-[#FFF0E5] text-gray-900':
+                        'bg-[#FFEEE6] text-gray-900':
                           activeThread === thread.id,
                       },
                     )}
@@ -133,7 +133,7 @@ const SidebarLayer: React.FC<{
           ) : (
             <Skeleton height={20} width={200} />
           )}
-        </nav>
+        </div>
       ) : (
         <div className="flex flex-col mt-5 gap-3 items-center justify-items-center">
           <p>Login to see your previous conversations</p>
@@ -204,7 +204,7 @@ const ContentLayer: React.FC<{
               >
                 <Container
                   className={cn(
-                    'flex flex-col mt-5 mb-3 p-3 gap-2.5 shadow-md bg-[#FFF0E5] rounded-md hover:bg-gray-100 cursor-pointer w-full justify-between',
+                    'flex flex-col mt-5 mb-3 p-3 gap-2.5 shadow-md bg-[#FFEEE6] rounded-md hover:bg-gray-100 cursor-pointer w-full justify-between',
                   )}
                 >
                   <span className="flex flex-row items-center text-[14px] color-purple-200 text-purple-500 gap-2 w-full">

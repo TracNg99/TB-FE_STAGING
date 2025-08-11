@@ -196,7 +196,7 @@ const Navbar = () => {
             className={cn(
               'flex flex-col items-center justify-center gap-1 rounded-lg p-2 size-[50px]',
               {
-                'flex bg-[#FFF2E5]':
+                'flex bg-[#FFEEE6]':
                   activeTab === link.href && !isOAuthCallback,
               },
             )}

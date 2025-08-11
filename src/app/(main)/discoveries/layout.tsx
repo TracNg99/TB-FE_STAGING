@@ -176,7 +176,7 @@ export default function DiscoveriesLayout({
                 <button
                   className={cn(
                     'w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors rounded-md',
-                    selectedAddress === address && 'bg-[#FFF2E5] text-black',
+                    selectedAddress === address && 'bg-[#FFEEE6] text-black',
                   )}
                   onClick={() => handleSelect(address)}
                 >
@@ -199,7 +199,7 @@ export default function DiscoveriesLayout({
                   selectedAddress === item.address &&
                     experiencesStatus ===
                       titleStatusMap[title as keyof typeof titleStatusMap] &&
-                    'bg-[#FFF2E5] text-black',
+                    'bg-[#FFEEE6] text-black',
                 )}
                 onClick={() => handleSelectWithStatus(title, item.address)}
               >

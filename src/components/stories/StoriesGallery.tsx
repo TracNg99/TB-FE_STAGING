@@ -31,6 +31,8 @@ const StoriesGallery: React.FC<StoriesGalleryProps> = ({
 
   // Currently displayed stories based on selected filter
   const stories: StoryProps[] = useMemo(() => {
+    const toTime = (value?: string) => (value ? new Date(value).getTime() : 0);
+
     let filteredStories = [...userStoriesAll];
 
     if (selectedFilter !== 'All Stories') {
@@ -42,6 +44,9 @@ const StoriesGallery: React.FC<StoriesGalleryProps> = ({
           false,
       );
     }
+
+    // Always sort latest to oldest by created_at
+    filteredStories.sort((a, b) => toTime(b.created_at) - toTime(a.created_at));
 
     return filteredStories;
   }, [userStoriesAll, selectedFilter]);
