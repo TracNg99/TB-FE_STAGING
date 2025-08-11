@@ -100,7 +100,7 @@ const Navbar = () => {
       return;
     }
 
-    router.push('/stories');
+    router.push('/stories/new');
   };
 
   return (
