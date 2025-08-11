@@ -7,6 +7,7 @@ import React, { useMemo, useState } from 'react';
 
 import QRModal from '@/components/qr-code/qr-modal';
 import StickyTitleChipsHeader from '@/components/sharing/StickyTitleChipsHeader';
+import { useSidebar } from '@/contexts/sidebar-provider';
 import {
   Experience,
   useGetScopedExperiencesQuery,
@@ -26,9 +27,11 @@ const ADDRESS_LIST = [
 ];
 
 const DiscoveriesMain: React.FC = () => {
-  const searchParams = useSearchParams();
-  const selectedAddress = searchParams.get('address') || 'For you';
+  const { experiencesStatus } = useSidebar();
   const role = localStorage.getItem('role') || '';
+  const searchParams = useSearchParams();
+  const selectedAddress =
+    searchParams.get('address') || (role === 'business' ? 'All' : 'For you');
   const companies = sessionStorage.getItem('companies')
     ? JSON.parse(sessionStorage.getItem('companies') || '')
     : null;
@@ -75,7 +78,9 @@ const DiscoveriesMain: React.FC = () => {
           if (!acc[experience.address || '']) {
             acc[experience.address || ''] = [];
           }
-          acc[experience.address || ''].push(experience);
+          if (experience.status === experiencesStatus) {
+            acc[experience.address || ''].push(experience);
+          }
           return acc;
         },
         {} as Record<string, Experience[]>,
@@ -88,7 +93,7 @@ const DiscoveriesMain: React.FC = () => {
       experiences = finalMap?.[selectedAddress] || [];
     }
     return experiences;
-  }, [addressMap, selectedAddress, scopedExperiences]);
+  }, [addressMap, selectedAddress, scopedExperiences, experiencesStatus, role]);
 
   const actualAddresses = useMemo(() => {
     let addresses: any[] = [];
@@ -102,10 +107,15 @@ const DiscoveriesMain: React.FC = () => {
       addresses = Object.keys(
         scopedExperiences?.reduce(
           (acc, experience) => {
-            if (!acc[experience.address || '']) {
+            if (
+              !acc[experience.address || ''] &&
+              experience.status === experiencesStatus
+            ) {
               acc[experience.address || ''] = [];
             }
-            acc[experience.address || ''].push(experience);
+            if (experience.status === experiencesStatus) {
+              acc[experience.address || ''].push(experience);
+            }
             return acc;
           },
           {} as Record<string, Experience[]>,
@@ -113,7 +123,7 @@ const DiscoveriesMain: React.FC = () => {
       );
       return ['All', ...addresses];
     }
-  }, [addressMap, scopedExperiences, role]);
+  }, [addressMap, scopedExperiences, role, experiencesStatus]);
 
   return (
     <div className="h-full relative flex flex-col mb-20">
@@ -164,15 +174,11 @@ const DiscoveriesMain: React.FC = () => {
                     {/* First (featured) card */}
                     <div
                       className={cn(
-                        'rounded-md overflow-hidden transition-shadow border relative',
-                        role === 'business'
-                          ? ''
-                          : 'cursor-pointer hover:shadow-lg',
+                        'rounded-md overflow-hidden transition-shadow border relative cursor-pointer hover:shadow-lg',
                       )}
                       style={{ borderColor: '#E2E2E2' }}
                       onClick={() =>
                         experiences[0].id &&
-                        role !== 'business' &&
                         router.push(`/discoveries/${experiences[0].id}`)
                       }
                     >
@@ -181,8 +187,7 @@ const DiscoveriesMain: React.FC = () => {
                           src={experiences[0].primary_photo || ''}
                           alt={experiences[0].name || ''}
                           className={cn(
-                            'w-full h-full object-cover transition-transform duration-300',
-                            role === 'business' ? '' : 'hover:scale-105',
+                            'w-full h-full object-cover transition-transform duration-300 hover:scale-105',
                           )}
                         />
                         {role === 'business' && (
@@ -192,7 +197,6 @@ const DiscoveriesMain: React.FC = () => {
                             )}
                             onClick={(e) => {
                               e.stopPropagation();
-                              console.log('Edit button clicked');
                               setShowCard(true);
                               setExperience(experiences[0]);
                             }}
@@ -245,16 +249,11 @@ const DiscoveriesMain: React.FC = () => {
                         <div
                           key={exp.id || idx}
                           className={cn(
-                            'rounded-md overflow-hidden transition-shadow border relative',
-                            role === 'business'
-                              ? ''
-                              : 'cursor-pointer hover:shadow-lg',
+                            'rounded-md overflow-hidden transition-shadow border relative cursor-pointer hover:shadow-lg',
                           )}
                           style={{ borderColor: '#E2E2E2' }}
                           onClick={() =>
-                            exp.id &&
-                            role !== 'business' &&
-                            router.push(`/discoveries/${exp.id}`)
+                            exp.id && router.push(`/discoveries/${exp.id}`)
                           }
                         >
                           <div className="aspect-[4/3] overflow-hidden relative">
@@ -262,8 +261,7 @@ const DiscoveriesMain: React.FC = () => {
                               src={exp.primary_photo || ''}
                               alt={exp.name || ''}
                               className={cn(
-                                'w-full h-full object-cover transition-transform duration-300',
-                                role === 'business' ? '' : 'hover:scale-105',
+                                'w-full h-full object-cover transition-transform duration-300 hover:scale-105',
                               )}
                             />
                             {role === 'business' && (
@@ -271,7 +269,6 @@ const DiscoveriesMain: React.FC = () => {
                                 className="absolute bottom-3 right-3 p-2 rounded-md cursor-pointer hover:bg-gray-100/50"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  console.log('Edit button clicked');
                                   setShowCard(true);
                                   setExperience(exp);
                                 }}
@@ -331,7 +328,7 @@ const DiscoveriesMain: React.FC = () => {
           />
         )}
         {/* Edit Experience Card */}
-        {experience && role === 'business' && (
+        {showCard && experience && role === 'business' && (
           <EditExperienceCard
             opened={showCard}
             onClose={() => setShowCard(false)}

@@ -49,7 +49,8 @@ const AdminDiscoverySidebarContent: React.FC<
   onTogglePin,
   headerActions,
 }: AdminDiscoverySidebarContentProps) => {
-  const totalExperiencesPerType = Object.entries(items || {}).flat().length;
+  const totalExperiencesPerType = items.find((item) => item.address === 'All')
+    ?.experiences.length;
   return (
     <>
       <div className="h-auto my-3 flex justify-between items-center flex-shrink-0">

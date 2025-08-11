@@ -227,8 +227,8 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const jwt = localStorage.getItem('jwt') || '';
     const role = localStorage.getItem('role') || '';
-    const expiresAt = localStorage.getItem('expiresAt') || '';
-    const refreshToken = localStorage.getItem('refreshToken') || '';
+    const expiresAt = sessionStorage.getItem('expiresAt') || '';
+    const refreshToken = sessionStorage.getItem('refreshToken') || '';
     setRoleTracker(role);
 
     const checkExpirationAndRefresh = async () => {

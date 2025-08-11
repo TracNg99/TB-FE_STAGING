@@ -114,7 +114,7 @@ type ActivityFormData = z.infer<typeof activitySchema>;
 const CITIES = ['Danang', 'Hanoi', 'Saigon', 'Mekong Delta', 'Phan Thiet'];
 
 const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
-  opened = false,
+  // opened = false,
   onClose,
   experience,
 }) => {
@@ -886,14 +886,14 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
       <div
         className={cn(
           'fixed inset-0 bg-black/50 z-40 pointer-events-none',
-          opened ? 'block' : 'hidden',
+          // opened ? 'block' : 'hidden',
         )}
       />
       {/* Floating Card (scrolls with page) */}
       <div
         className={cn(
           'absolute top-5 left-0 right-0 mx-auto z-50 w-full max-w-4xl p-4',
-          opened ? 'block' : 'hidden',
+          // opened ? 'block' : 'hidden',
         )}
       >
         <div className="bg-[#FCFCF9] rounded-lg shadow-xl p-6 w-full">

@@ -72,10 +72,11 @@ const RegisterPage = () => {
           position: 'top-center',
         });
         localStorage.setItem('jwt', signUpData?.access_token || '');
-        localStorage.setItem('refreshToken', signUpData?.refresh_token || '');
-        localStorage.setItem('expiresAt', signUpData?.expires_at || '');
         localStorage.setItem('userId', signUpData?.userId || '');
         localStorage.setItem('role', 'business');
+
+        sessionStorage.setItem('expiresAt', signUpData?.expires_at ?? '');
+        sessionStorage.setItem('refreshToken', signUpData?.refresh_token ?? '');
       }
 
       const currentPath = sessionStorage.getItem('currentPath') || '';
@@ -85,7 +86,7 @@ const RegisterPage = () => {
         return;
       }
 
-      router.replace('/auth/login/business');
+      router.replace('/discoveries');
     } catch (error) {
       const message =
         error instanceof AuthError

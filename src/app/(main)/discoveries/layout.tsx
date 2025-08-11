@@ -115,26 +115,38 @@ export default function DiscoveriesLayout({
 
   const mapByStatus = useMemo(() => {
     const map = ['active', 'inactive'].map((status) => {
-      if (role === 'business') {
-        return {
-          title: status === 'active' ? 'Active' : 'Draft',
-          items: actualAddresses
-            ?.map(({ address, experiences }) => {
-              const matchedExperiences = experiences?.filter(
-                (experience: Experience) => experience.status === status,
-              );
-              if (matchedExperiences?.length === 0) return;
-              return {
-                address,
-                experiences: matchedExperiences,
-              };
-            })
-            .filter((item) => item !== undefined),
-        };
-      }
-      return;
+      const allExp = actualAddresses
+        .map(({ experiences }) =>
+          experiences?.filter(
+            (experience: Experience) => experience.status === status,
+          ),
+        )
+        .flat();
+      const matchingStatusExperiences = actualAddresses
+        ?.map(({ address, experiences }) => {
+          const matchedExperiences = experiences?.filter(
+            (experience: Experience) => experience.status === status,
+          );
+          if (matchedExperiences?.length === 0) return;
+          return {
+            address,
+            experiences: matchedExperiences,
+          };
+        })
+        .filter((item) => item !== undefined);
+
+      return {
+        title: status === 'active' ? 'Active' : 'Draft',
+        items: [
+          {
+            address: 'All',
+            experiences: allExp,
+          },
+          ...matchingStatusExperiences,
+        ],
+      };
     });
-    return map.filter((item) => item !== undefined);
+    return role === 'business' ? map : [];
   }, [actualAddresses, role]);
 
   const handleSelect = (address: string) => {

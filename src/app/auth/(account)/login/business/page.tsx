@@ -62,7 +62,18 @@ const LoginPage = () => {
         localStorage.setItem('jwt', authData?.access_token ?? '');
         localStorage.setItem('userId', authData?.userId ?? '');
         localStorage.setItem('role', 'business');
-        router.replace('/business');
+
+        sessionStorage.setItem('expiresAt', authData?.expires_at ?? '');
+        sessionStorage.setItem('refreshToken', authData?.refresh_token ?? '');
+
+        const currentPath = sessionStorage.getItem('currentPath') || '';
+        if (currentPath) {
+          router.replace(currentPath);
+          sessionStorage.removeItem('currentPath');
+          return;
+        } else {
+          router.replace('/discoveries');
+        }
       }
     } catch (error) {
       const message =
