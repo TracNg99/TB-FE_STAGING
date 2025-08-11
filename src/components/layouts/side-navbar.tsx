@@ -134,7 +134,7 @@ const Navbar = () => {
                   : handleTabChange(link.href ?? '/')
               }
               className={cn(
-                'flex flex-col items-center justify-center gap-1.5 rounded-lg p-2 w-14 h-14 transition-all duration-200 hover:bg-gray-50',
+                'flex flex-col items-center justify-center gap-1.5 rounded-lg p-2 w-14 h-14 transition-all duration-200 hover:bg-orange-100/50',
                 activeTab === link.href && 'bg-[#FFEEE6]',
                 activeTab !== link.href && 'bg-transparent text-gray-500',
               )}
