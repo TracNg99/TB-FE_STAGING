@@ -106,9 +106,10 @@ const SidebarLayer: React.FC<{
           <IconPlus size={16} className="text-orange-600" />
         </button>
       }
+      contentClassName="flex flex-col flex-grow overflow-y-auto"
     >
       {user ? (
-        <nav className="mt-4 flex-grow overflow-y-auto">
+        <nav className="mt-4 flex flex-col flex-shrink overflow-y-auto">
           {threadsList.length > 0 && !isHistoryLoading && !isHistoryFetching ? (
             <ul>
               {threadsList.map((thread) => (

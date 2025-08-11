@@ -14,6 +14,7 @@ interface SubSidebarProps {
   children: React.ReactNode;
   className?: string;
   headerActions?: React.ReactNode;
+  contentClassName?: string;
 }
 
 const SubSidebar: React.FC<SubSidebarProps> = ({
@@ -25,6 +26,7 @@ const SubSidebar: React.FC<SubSidebarProps> = ({
   children,
   className,
   headerActions,
+  contentClassName,
 }) => {
   return (
     <aside
@@ -61,7 +63,7 @@ const SubSidebar: React.FC<SubSidebarProps> = ({
       <div className="border-t border-black" />
 
       {/* Content area provided by consumers */}
-      <nav className="py-3 text-base">{children}</nav>
+      <nav className={cn('py-3 text-base', contentClassName)}>{children}</nav>
     </aside>
   );
 };
