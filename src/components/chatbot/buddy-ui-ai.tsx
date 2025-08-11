@@ -92,7 +92,7 @@ const SidebarLayer: React.FC<{
 
   return (
     <SubSidebar
-      title="Tell Your Travel Tale"
+      title="Threads"
       isSidebarOpen={isSidebarOpen}
       isPinned={isPinned}
       onSidebarLeave={onSidebarLeave}
