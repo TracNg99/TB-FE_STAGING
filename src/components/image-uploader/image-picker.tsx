@@ -215,6 +215,7 @@ interface ImageUploaderProps {
     images: (File & { image: string | null; name: string | null })[],
   ) => void;
   withDropzone?: boolean;
+  dropzoneClassName?: string;
   allowMultiple?: boolean; // New prop for choosing and displaying multiple images
   allowAddNew?: boolean;
   fetchImages?: {
@@ -232,6 +233,7 @@ interface ImageUploaderProps {
 
 const ImageUploader: React.FC<ImageUploaderProps> = ({
   onImageUpload,
+  dropzoneClassName,
   className,
   children,
   allowAddNew = true,
@@ -306,6 +308,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       imageError={imageError}
       handleRemoveImage={handleRemoveImage}
       loadingFiles={loadingFiles}
+      dropzoneClassName={dropzoneClassName}
       {...paramObj}
     >
       {children}

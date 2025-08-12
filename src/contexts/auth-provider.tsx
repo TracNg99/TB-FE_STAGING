@@ -232,9 +232,11 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setRoleTracker(role);
 
     const checkExpirationAndRefresh = async () => {
+      const isValid = await isAuthenticated(jwt);
       const expTime = Number(expiresAt) * 1000 - 60 * 5 * 1000;
       const isExpired = Date.now() > expTime;
-      if (!isExpired || !expiresAt) return;
+      if ((!isExpired || !expiresAt) && isValid) return;
+      console.log('Session expired, refreshing...');
       try {
         const { access_token, refresh_token, expires_at, user_id } =
           await refreshSession({
@@ -245,9 +247,9 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setRoleTracker(role);
           setUser(null);
           localStorage.setItem('jwt', access_token);
-          localStorage.setItem('refreshToken', refresh_token);
-          localStorage.setItem('expiresAt', expires_at);
           localStorage.setItem('userId', user_id);
+          sessionStorage.setItem('refreshToken', refresh_token);
+          sessionStorage.setItem('expiresAt', expires_at);
           refetch();
         }
         return;

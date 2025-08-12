@@ -560,19 +560,20 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
   // Step 1: Create placeholder experience (only on first activity)
   const createPlaceholderExperience = async (data: ExperienceFormData) => {
     if (!createdExperienceId) {
-      console.log('🎯 STEP 1: Creating placeholder experience...');
+
+      // console.log('🎯 STEP 1: Creating placeholder experience...');
       console.log('📊 Experience data:', data);
 
       const mockExperienceId = `exp_${Date.now()}`;
 
-      console.log(
-        '✅ Placeholder experience created with ID:',
-        mockExperienceId,
-      );
-      console.log('🗄️ SQL would be:');
-      console.log(`INSERT INTO experiences (id, title, description, thumbnail_description, address, status) 
-                         VALUES ('${mockExperienceId}', '${data.experience_title}', '${data.experience_description}', 
-                                '${data.experience_thumbnail_description}', '${data.address}', 'draft')`);
+      // console.log(
+      //   '✅ Placeholder experience created with ID:',
+      //   mockExperienceId,
+      // );
+      // console.log('🗄️ SQL would be:');
+      // console.log(`INSERT INTO experiences (id, title, description, thumbnail_description, address, status)
+      //                    VALUES ('${mockExperienceId}', '${data.experience_title}', '${data.experience_description}',
+      //                           '${data.experience_thumbnail_description}', '${data.address}', 'draft')`);
 
       setCreatedExperienceId(mockExperienceId);
     }
@@ -593,10 +594,10 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
     };
 
     console.log('✅ Activity created:', newActivity);
-    console.log('🗄️ SQL would be:');
-    console.log(`INSERT INTO activities (id, experience_id, title, description_thumbnail, description) 
-                     VALUES ('${mockActivityId}', '${createdExperienceId}', '${data.activity_title}', 
-                            '${data.activity_thumbnail_description}', '${data.activity_description}')`);
+    // console.log('🗄️ SQL would be:');
+    // console.log(`INSERT INTO activities (id, experience_id, title, description_thumbnail, description)
+    //                  VALUES ('${mockActivityId}', '${createdExperienceId}', '${data.activity_title}',
+    //                         '${data.activity_thumbnail_description}', '${data.activity_description}')`);
 
     // Reset the activity form state completely
     activityForm.reset({
@@ -1172,7 +1173,7 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
                           {/* Action Buttons */}
                           <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button
-                              className="hover:bg-white transition-colors"
+                              className="transition-colors p-1 hover:bg-white/50 cursor-pointer"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleEditActivity(activity);
@@ -1186,7 +1187,10 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
                                 className="w-6 h-6"
                               />
                             </button>
-                            <div title="Move activity" className="cursor-grab">
+                            <div
+                              title="Move activity"
+                              className="cursor-grab p-1"
+                            >
                               <img
                                 src="/assets/drag_and_move.svg"
                                 alt="Move activity"
@@ -1242,17 +1246,9 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
                       photos={iconicPhotoUrls}
                       onDelete={(index) => handleDeleteIconicPhoto(index)}
                     />
-                    <div
-                      className="
-                                            [&_.mantine-Dropzone-root]:h-[200px] 
-                                            [&_.mantine-Dropzone-root]:flex 
-                                            [&_.mantine-Dropzone-root]:items-center 
-                                            [&_.mantine-Dropzone-root]:justify-center
-                                            [&_.image-display-container]:max-h-[180px]
-                                            mt-10
-                                            "
-                    >
+                    <div className="mt-10">
                       <ImageUploader
+                        dropzoneClassName="h-[200px] flex flex-col items-center justify-center"
                         onImageUpload={async (fileArray) => {
                           if (fileArray && fileArray.length > 0) {
                             const images = fileArray

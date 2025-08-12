@@ -32,7 +32,7 @@ import { Activity } from '@/store/redux/slices/user/experience';
 import styles from './CreateCard.module.css';
 
 interface CreateExperienceCardProps {
-  opened: boolean;
+  opened?: boolean;
   onClose: () => void;
 }
 
@@ -84,7 +84,7 @@ type ActivityFormData = z.infer<typeof activitySchema>;
 const CITIES = ['Danang', 'Hanoi', 'Saigon', 'Mekong Delta', 'Phan Thiet'];
 
 const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
-  opened = false,
+  //   opened = false,
   onClose,
 }) => {
   const [currentStep, setCurrentStep] = useState<'experience' | 'activity'>(
@@ -103,7 +103,7 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
   const [createExperienceDetails] = useCreateExperienceDetailsMutation();
   const [createActivity] = useCreateActivityMutation();
 
-  console.log('Card opened:', opened);
+  //   console.log('Card opened:', opened);
 
   // Experience form (Step 1)
   const experienceForm = useForm<ExperienceFormData>({
@@ -389,19 +389,20 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
   // Step 1: Create placeholder experience (only on first activity)
   const createPlaceholderExperience = async (data: ExperienceFormData) => {
     if (!createdExperienceId) {
-      console.log('🎯 STEP 1: Creating placeholder experience...');
-      console.log('📊 Experience data:', data);
+      console.log(data);
+      //   console.log('🎯 STEP 1: Creating placeholder experience...');
+      //   console.log('📊 Experience data:', data);
 
       const mockExperienceId = `exp_${Date.now()}`;
 
-      console.log(
-        '✅ Placeholder experience created with ID:',
-        mockExperienceId,
-      );
-      console.log('🗄️ SQL would be:');
-      console.log(`INSERT INTO experiences (id, title, description, thumbnail_description, address, status) 
-                         VALUES ('${mockExperienceId}', '${data.experience_title}', '${data.experience_description}', 
-                                '${data.experience_thumbnail_description}', '${data.address}', 'draft')`);
+      //   console.log(
+      //     '✅ Placeholder experience created with ID:',
+      //     mockExperienceId,
+      //   );
+      //   console.log('🗄️ SQL would be:');
+      //   console.log(`INSERT INTO experiences (id, title, description, thumbnail_description, address, status)
+      //                      VALUES ('${mockExperienceId}', '${data.experience_title}', '${data.experience_description}',
+      //                             '${data.experience_thumbnail_description}', '${data.address}', 'draft')`);
 
       setCreatedExperienceId(mockExperienceId);
     }
@@ -421,11 +422,11 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
       ...data,
     };
 
-    console.log('✅ Activity created:', newActivity);
-    console.log('🗄️ SQL would be:');
-    console.log(`INSERT INTO activities (id, experience_id, title, description_thumbnail, description) 
-                     VALUES ('${mockActivityId}', '${createdExperienceId}', '${data.activity_title}', 
-                            '${data.activity_thumbnail_description}', '${data.activity_description}')`);
+    // console.log('✅ Activity created:', newActivity);
+    // console.log('🗄️ SQL would be:');
+    // console.log(`INSERT INTO activities (id, experience_id, title, description_thumbnail, description)
+    //                  VALUES ('${mockActivityId}', '${createdExperienceId}', '${data.activity_title}',
+    //                         '${data.activity_thumbnail_description}', '${data.activity_description}')`);
 
     setActivities((prev) => [...prev, newActivity]);
     // Reset the activity form state completely

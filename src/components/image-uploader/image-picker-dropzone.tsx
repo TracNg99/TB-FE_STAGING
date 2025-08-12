@@ -3,10 +3,13 @@ import { Dropzone, DropzoneIdle } from '@mantine/dropzone';
 import { IconCloudUpload } from '@tabler/icons-react';
 import React from 'react';
 
+import { cn } from '@/utils/class';
+
 import ImageDisplayBaseGrid from './image-display-base-grid';
 import { handleImageUpload } from './image-picker';
 
 interface ImageSubcomponentProps {
+  dropzoneClassName?: string;
   onImageUpload: (
     images: (File & { image: string | null; name: string | null })[],
   ) => void;
@@ -39,6 +42,7 @@ interface ImageSubcomponentProps {
 }
 
 const DropzoneUploader: React.FC<ImageSubcomponentProps> = ({
+  dropzoneClassName,
   onImageUpload,
   children,
   allowAddNew = true,
@@ -111,7 +115,12 @@ const DropzoneUploader: React.FC<ImageSubcomponentProps> = ({
           />
         ) : (
           <DropzoneIdle>
-            <div className="flex flex-col items-center justify-center h-80">
+            <div
+              className={cn(
+                'flex flex-col items-center justify-center h-80',
+                dropzoneClassName,
+              )}
+            >
               {children ?? <IconCloudUpload className="size-6" />}
               <p className="mt-2 text-base-black/50 text-md">
                 {`Select ${allowMultiple ? 'up to 10 photos' : 'a photo'}`}
