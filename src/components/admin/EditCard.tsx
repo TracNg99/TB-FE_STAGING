@@ -3,7 +3,6 @@ import {
   Button,
   Input,
   InputWrapper,
-  Loader,
   Select,
   Text,
   TextInput,
@@ -22,7 +21,6 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import IconicPhotoDisplay from '@/components/admin/IconicPhotoDisplay';
-import CustomizableDragDrop from '@/components/dynamics/grid-drag-n-drop';
 import ImageUploader from '@/components/image-uploader/image-picker';
 import {
   useCreateActivityMutation,
@@ -91,6 +89,7 @@ const activitySchema = z.object({
     image: z.string(),
     name: z.string(),
   }),
+  activity_thumbnail_url: z.string(),
   activity_visiting_time: z.string().min(1, 'Visiting time is required'),
   activity_address: z.string().min(1, 'Address is required'),
   activity_iconic_photos: z.array(
@@ -130,6 +129,9 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
   const [activities, setActivities] = useState<Activity[]>([]);
 
   const [currentAddress, setCurrentAddress] = useState<string>('');
+  const [currentStatus, setCurrentStatus] = useState<string>('');
+  const [currentActivityStatus, setCurrentActivityStatus] =
+    useState<string>('');
 
   const [uploadImageCloudRun] = useUploadImageCloudRunMutation();
   const [createMediaAsset] = useCreateMediaAssetMutation();
@@ -140,11 +142,15 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
   const [deleteExperienceDetails] = useDeleteExperienceDetailsMutation();
 
   // Fetch activities for this experience
-  const { data: experienceFull } = useGetExperiencePublicQuery({
-    id: experience.id,
-  });
+  const { data: experienceFull, refetch: refetchExperienceFull } =
+    useGetExperiencePublicQuery({
+      id: experience.id,
+    });
 
   let { data: iconicPhotos = [] } = useGetIconicPhotosPublicQuery({
+    id: experience.id,
+  });
+  const { refetch: refetchIconicPhotos } = useGetIconicPhotosPublicQuery({
     id: experience.id,
   });
   let iconicPhotoUrls = iconicPhotos.map((photo) => photo.url);
@@ -175,6 +181,7 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
 
   useEffect(() => {
     setCurrentAddress(experienceFull?.address || '');
+    setCurrentStatus(experienceFull?.status || '');
     experienceForm.setValue('experience_id', experienceFull?.id || '');
     experienceForm.setValue('address', experienceFull?.address || '');
     experienceForm.setValue(
@@ -184,78 +191,16 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
   }, [experienceFull]);
 
   // Fetch activities for this experience
-  const {
-    data: activitiesCurrent = [],
-    isLoading: isActivitiesLoading,
-    isFetching: isActivitiesFetching,
-    refetch: refetchActivities,
-  } = useGetActivitiesInExperiencePublicQuery({
-    experience_id: experience.id,
-  });
+  const { data: activitiesCurrent = [], refetch: refetchActivities } =
+    useGetActivitiesInExperiencePublicQuery({
+      experience_id: experience.id,
+    });
 
   useEffect(() => {
     if (activitiesCurrent && activitiesCurrent.length > 0) {
       setActivities(activitiesCurrent);
     }
   }, [activitiesCurrent]);
-
-  const updateActivityOrder = async (
-    updates: { id: string; order_of_appearance: number }[],
-  ) => {
-    updates.forEach(async (update) => {
-      try {
-        const { error } = await updateActivity({
-          id: update.id,
-          data: {
-            order_of_appearance: update.order_of_appearance,
-          },
-        });
-
-        if (error) {
-          throw error;
-        }
-
-        console.log('Activity order updated successfully.');
-        refetchActivities();
-        // notifications.show({
-        //   title: 'Success',
-        //   message: 'Activity order updated successfully.',
-        //   color: 'green',
-        // });
-      } catch (error: any) {
-        console.log('Failed to update activity order.', error);
-        // notifications.show({
-        //   title: 'Error',
-        //   message: error.message || 'Failed to update activity order.',
-        //   color: 'red',
-        // });
-      }
-    });
-  };
-
-  const onDragEnd = (result: Activity[]) => {
-    const items = Array.from(activities);
-    const reorderedItem = result
-      .map((activity, index) => {
-        const item = items.find(
-          (item, originalIndex) =>
-            originalIndex !== index && activity.id === item.id,
-        );
-        if (item) {
-          return {
-            id: activity.id,
-            order_of_appearance: index,
-          };
-        }
-        return;
-      })
-      .filter((item) => item !== undefined);
-
-    if (reorderedItem.length > 0) {
-      setActivities(result);
-      updateActivityOrder(reorderedItem);
-    }
-  };
 
   // Activity form (Step 2)
   const activityForm = useForm<ActivityFormData>({
@@ -270,6 +215,7 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
         image: '',
         name: '',
       },
+      activity_thumbnail_url: '',
       activity_visiting_time: '',
       activity_address: '',
       activity_iconic_photos: [],
@@ -284,12 +230,12 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
   });
 
   // Add this effect to reset the activity form when navigating to it
-  useEffect(() => {
-    if (currentStep === 'activity') {
-      activityForm.reset();
-      setFormKey((prev) => prev + 1); // This will force a remount of the activity form
-    }
-  }, [currentStep]);
+  // useEffect(() => {
+  //   if (currentStep === 'activity') {
+  //     activityForm.reset();
+  //     setFormKey((prev) => prev + 1); // This will force a remount of the activity form
+  //   }
+  // }, [currentStep]);
 
   const experienceEditor = useEditor({
     extensions: [
@@ -392,12 +338,14 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
       activity_thumbnail_description: '',
       activity_description: '',
       activity_thumbnail_image: { image: '', name: '' },
+      activity_thumbnail_url: '',
       activity_visiting_time: '',
       activity_address: '',
       activity_iconic_photos: [],
       activity_highlights: [],
     });
     const newActivityId = `activity-${Date.now()}`;
+    setFormKey((prev) => prev + 1);
     setCurrentActivityId(newActivityId);
     // Create a new editor instance with empty content
     const newEditor = getActivityEditor(newActivityId);
@@ -418,11 +366,12 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
         image: activity.primary_photo || '',
         name: activity.title || 'activity-image',
       },
+      activity_thumbnail_url: activity.primary_photo || '',
       activity_visiting_time: activity.hours || '',
       activity_address: activity.address || '',
       activity_highlights: activity.highlights || [],
       activity_iconic_photos:
-        activity.photos.map((photo) => ({
+        (activity.photos || []).map((photo) => ({
           image: photo,
           name: activity.title || 'activity-image',
         })) || [],
@@ -431,27 +380,72 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
   };
 
   const handleEditActivity = (activity: Activity) => {
-    setActivityAddState(false);
-    setCurrentActivityId(activity.id);
-    activityForm.reset(mapActivityToForm(activity));
-    const editor = getActivityEditor(activity.id);
-    // Set the editor content to the activity's description
-    editor.commands.setContent(activity.description || '');
+    try {
+      console.log('Editing activity:', activity);
+      const formData = mapActivityToForm(activity);
+      console.log('Mapped form data:', formData);
 
-    setCurrentStep('activity');
+      setActivityAddState(false);
+      setCurrentActivityId(activity.id);
+
+      // Reset the form with the activity data
+      activityForm.reset(formData);
+
+      // Navigate to the activity step first
+      setCurrentStep('activity');
+
+      // Use a timeout to ensure the editor is mounted
+      setTimeout(() => {
+        try {
+          const editor = getActivityEditor(activity.id);
+          if (editor && !editor.isDestroyed) {
+            editor.commands.setContent(activity.description || '');
+            activityForm.setValue(
+              'activity_description',
+              activity.description || '',
+              {
+                shouldValidate: true,
+                shouldDirty: true,
+              },
+            );
+          }
+        } catch (error) {
+          console.error('Error setting editor content:', error);
+        }
+      }, 100);
+    } catch (error) {
+      console.error('Error in handleEditActivity:', error);
+      setCurrentStep('activity');
+    }
   };
 
   const handleDeleteIconicPhoto = (index: number) => {
-    // const updatedIconicPhotos = iconicPhotos.filter((_, i) => i !== index);
-    // const updatedIconicPhotosUrls = iconicPhotoUrls.filter((_, i) => i !== index);
-    // iconicPhotos = updatedIconicPhotos;
-    // iconicPhotoUrls = updatedIconicPhotosUrls;
+    // Get the ID before removing the item
+    const deletedPhotoId = iconicPhotos[index]?.id;
 
+    // Filter the arrays
     iconicPhotos = iconicPhotos.filter((_, i) => i !== index);
     iconicPhotoUrls = iconicPhotoUrls.filter((_, i) => i !== index);
 
-    const deletedPhotoId = iconicPhotos[index].id;
-    deleteExperienceDetails({ dd_id: deletedPhotoId });
+    // Delete the experience details if we have a valid ID
+    if (deletedPhotoId) {
+      deleteExperienceDetails({ dd_id: deletedPhotoId });
+    }
+    refetchIconicPhotos();
+  };
+
+  const handleDeleteMorePhotos = (index: number) => {
+    const updatedPhotos = [...activityForm.watch('activity_iconic_photos')];
+    updatedPhotos.splice(index, 1);
+    activityForm.setValue('activity_iconic_photos', updatedPhotos);
+    if (currentActivityId) {
+      updateActivity({
+        id: currentActivityId,
+        data: {
+          photos: updatedPhotos,
+        },
+      });
+    }
   };
 
   const TagsInput = ({
@@ -610,6 +604,7 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
   const uploadImageToSupabase = async (
     new_image: string,
   ): Promise<{ thumbnailUrl: string; image_id: string }> => {
+    setIsSubmitting(true);
     let thumbnailUrl: string | null = null;
     try {
       const payload = {
@@ -644,12 +639,14 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
     }
 
     const image_id = mediaAssetResponse.data.id || '';
+    setIsSubmitting(false);
     return { thumbnailUrl, image_id };
   };
 
   const uploadIconicPhotosToSupabase = async (
     new_images: string[],
   ): Promise<{ iconicPhotoUrl: string; iconicPhotoId: string }[]> => {
+    setIsSubmitting(true);
     const result: { iconicPhotoUrl: string; iconicPhotoId: string }[] = [];
     const uploadedUrls = (
       await Promise.all(
@@ -689,6 +686,7 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
         result.push({ iconicPhotoUrl: imageUrl, iconicPhotoId: imageId });
       }
     }
+    setIsSubmitting(false);
     return result;
   };
 
@@ -760,6 +758,9 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
         }
       }
 
+      refetchExperienceFull();
+      refetchIconicPhotos();
+
       if (experienceError) {
         console.error('Error creating experience:', experienceError);
         setIsSubmitting(false);
@@ -792,7 +793,7 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
     }
   };
 
-  const handleConfirmActivity = async () => {
+  const handleConfirmActivity = async ({ status }: { status: string }) => {
     if (activityAddState) {
       const currentExperienceData = experienceForm.getValues();
       const activityData = activityForm.getValues();
@@ -805,14 +806,19 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
         description: activityData.activity_description || '',
         description_thumbnail:
           activityData.activity_thumbnail_description || '',
-        primary_photo: activityData.activity_thumbnail_image?.image || '',
+        primary_photo:
+          activityData.activity_thumbnail_url ||
+          activityData.activity_thumbnail_image.image ||
+          '',
         highlights: activityData.activity_highlights || [],
         photos: newPhotos?.map((photo) => photo.iconicPhotoUrl) || [],
       });
       activityForm.reset();
+      refetchActivities();
       setCurrentStep('experience');
     } else {
       const activityData = activityForm.getValues();
+      console.log(activityData);
       const activity_id = activityData.activity_id;
       const newPhotos = activityData.new_activity_iconic_photos;
       await updateActivity({
@@ -821,7 +827,10 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
           title: activityData.activity_title,
           description: activityData.activity_description,
           description_thumbnail: activityData.activity_thumbnail_description,
-          primary_photo: activityData.activity_thumbnail_image?.image || '',
+          primary_photo:
+            activityData.activity_thumbnail_url ||
+            activityData.activity_thumbnail_image.image ||
+            '',
           photos: [
             ...(activityData.activity_iconic_photos?.map(
               (photo) => photo.image,
@@ -831,9 +840,11 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
           hours: activityData.activity_visiting_time,
           address: activityData.activity_address,
           highlights: activityData.activity_highlights || [],
+          status,
         },
       });
       activityForm.reset();
+      refetchActivities();
       setCurrentStep('experience');
     }
   };
@@ -915,21 +926,36 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
                 <Button
                   variant="outline"
                   color="orange"
-                  onClick={() => publishExperience({ status: 'inactive' })}
+                  onClick={() => publishExperience({ status: 'deleted' })}
                   className={styles.buttonText}
                   loading={isSubmitting}
                   disabled={isSubmitting}
                 >
-                  Save as Draft
+                  Delete
+                </Button>
+                <Button
+                  variant="outline"
+                  color="orange"
+                  onClick={() =>
+                    publishExperience({
+                      status:
+                        currentStatus === 'active' ? 'inactive' : 'active',
+                    })
+                  }
+                  className={styles.buttonText}
+                  loading={isSubmitting}
+                  disabled={isSubmitting}
+                >
+                  {currentStatus === 'active' ? 'Archive' : 'Activate'}
                 </Button>
                 <Button
                   color="orange"
-                  onClick={() => publishExperience({ status: 'active' })}
+                  onClick={() => publishExperience({ status: currentStatus })}
                   loading={isSubmitting}
                   className={styles.buttonText}
                   disabled={isSubmitting}
                 >
-                  Publish
+                  Save Changes
                 </Button>
               </div>
             </div>
@@ -938,25 +964,74 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
               <Title order={2} className={styles.formTitle}>
                 {activityAddState ? 'Add New Activity' : 'Edit Activity'}
               </Title>
-              <div className="flex gap-2">
-                <Button
-                  variant="filled"
-                  color="gray"
-                  onClick={handleCancel}
-                  className={styles.buttonText}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  color="orange"
-                  // disabled={!actIsValid}
-                  onClick={handleConfirmActivity}
-                  className={styles.buttonText}
-                >
-                  Confirm
-                </Button>
-              </div>
+              {activityAddState ? (
+                <div className="flex gap-2">
+                  <Button
+                    variant="filled"
+                    color="gray"
+                    onClick={goBackToExperience}
+                    className={styles.buttonText}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    color="orange"
+                    // disabled={!actIsValid}
+                    onClick={() => handleConfirmActivity({ status: 'active' })}
+                    className={styles.buttonText}
+                    disabled={isSubmitting}
+                  >
+                    Add to Experience
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <Button
+                    variant="filled"
+                    color="gray"
+                    onClick={goBackToExperience}
+                    className={styles.buttonText}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="outline"
+                    color="orange"
+                    onClick={() => handleConfirmActivity({ status: 'deleted' })}
+                    className={styles.buttonText}
+                    disabled={isSubmitting}
+                  >
+                    Delete
+                  </Button>
+                  <Button
+                    variant="outline"
+                    color="orange"
+                    onClick={() =>
+                      handleConfirmActivity({
+                        status:
+                          currentActivityStatus === 'active'
+                            ? 'inactive'
+                            : 'active',
+                      })
+                    }
+                    className={styles.buttonText}
+                    disabled={isSubmitting}
+                  >
+                    {currentActivityStatus === 'active' ? 'Hide' : 'Show'}
+                  </Button>
+                  <Button
+                    type="submit"
+                    color="orange"
+                    // disabled={!actIsValid}
+                    onClick={() => handleConfirmActivity({ status: 'active' })}
+                    className={styles.buttonText}
+                    disabled={isSubmitting}
+                  >
+                    Save Changes
+                  </Button>
+                </div>
+              )}
             </div>
           )}
           {currentStep === 'experience' ? (
@@ -1028,33 +1103,26 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
                     }}
                     required
                   >
-                    <div
-                      className="
-                        [&_.mantine-Dropzone-root]:h-[200px] 
-                        [&_.mantine-Dropzone-root]:flex 
-                        [&_.mantine-Dropzone-root]:items-center 
-                        [&_.mantine-Dropzone-root]:justify-center
-                        [&_.image-display-container]:max-h-[180px]
-                      "
-                    >
+                    <div>
                       <ImageUploader
+                        dropzoneClassName="h-[150px] flex flex-col items-center justify-center"
                         {...(experienceForm.watch(
                           'experience_thumbnail_image.image',
                         )
                           ? {
-                              fetchImages: [
-                                {
-                                  image: experienceForm.watch(
-                                    'experience_thumbnail_image.image',
-                                  ),
-                                  name:
-                                    experienceForm.watch(
-                                      'experience_thumbnail_image.name',
-                                    ) || 'Thumbnail',
-                                  isExisting: true,
-                                },
-                              ],
-                            }
+                            fetchImages: [
+                              {
+                                image: experienceForm.watch(
+                                  'experience_thumbnail_image.image',
+                                ),
+                                name:
+                                  experienceForm.watch(
+                                    'experience_thumbnail_image.name',
+                                  ) || 'Thumbnail',
+                                isExisting: true,
+                              },
+                            ],
+                          }
                           : {})}
                         onImageUpload={async (fileArray) => {
                           const file = fileArray[0];
@@ -1142,40 +1210,32 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
                 </div>
 
                 {/* Existing Activities */}
-                {isActivitiesLoading ||
-                  isActivitiesFetching ||
-                  (activities.length === 0 && (
-                    <div className="flex flex-col items-center justify-center">
-                      <Loader />
-                    </div>
-                  ))}
-                {activities && activities.length > 0 && (
-                  <CustomizableDragDrop
-                    items={activities}
-                    onItemsChange={onDragEnd}
-                    columns={4}
-                    renderItem={(activity: Activity) => (
-                      <div className="group relative rounded-lg overflow-hidden border border-gray-200 hover:shadow-md transition-shadow">
-                        <div
-                          onClick={() => {
-                            handleEditActivity(activity);
-                            setCurrentStep('activity'); // Navigate to edit mode
-                          }}
-                          className="relative aspect-square cursor-pointer"
-                        >
+                {activitiesCurrent && activitiesCurrent.length > 0 && (
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {activitiesCurrent.map((activity) => (
+                      <div
+                        key={activity.id}
+                        onClick={() => {
+                          handleEditActivity(activity);
+                          setCurrentStep('activity'); // Navigate to edit mode
+                        }}
+                        className="group relative rounded-lg overflow-hidden border border-gray-200 hover:shadow-md transition-shadow"
+                      >
+                        <div className="relative aspect-square">
                           <Image
                             src={activity.primary_photo}
                             alt={activity.title}
                             fill
-                            className="object-cover"
+                            className={`object-cover ${activity.status === 'inactive' ? 'opacity-50' : ''}`}
                           />
                           {/* Action Buttons */}
                           <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button
-                              className="transition-colors p-1 hover:bg-white/50 cursor-pointer"
+                              className="hover:bg-white transition-colors"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleEditActivity(activity);
+                                setCurrentActivityStatus(activity.status);
                                 setCurrentStep('activity');
                               }}
                               title="Edit activity"
@@ -1186,16 +1246,24 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
                                 className="w-6 h-6"
                               />
                             </button>
-                            <div
-                              title="Move activity"
-                              className="cursor-grab p-1"
+                            <button
+                              className="hover:bg-white transition-colors"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                // TODO: Handle view photo
+                                console.log(
+                                  'Move activity around:',
+                                  activity.primary_photo,
+                                );
+                              }}
+                              title="Move activity around"
                             >
                               <img
                                 src="/assets/drag_and_move.svg"
-                                alt="Move activity"
+                                alt="Move activity around"
                                 className="w-6 h-6"
                               />
-                            </div>
+                            </button>
                           </div>
                         </div>
                         <div className="p-2">
@@ -1206,20 +1274,20 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
                             {activity.title}
                           </h3>
                           {activity.status === 'inactive' && (
-                            <span className="inline-block mt-1 text-[10px] px-1.5 py-0.5 bg-yellow-100 text-yellow-800 rounded-full">
+                            <span className="inline-block mt-1 text-[10px] px-1.5 py-0.5 bg-gray-100 text-gray-800 rounded-full">
                               Inactive
                             </span>
                           )}
                         </div>
                       </div>
-                    )}
-                  />
+                    ))}
+                  </div>
                 )}
 
                 {/* Add Activity Button */}
                 <div className="flex flex-col items-center justify-center">
                   <Button
-                    type="submit"
+                    type="button"
                     variant="outline"
                     className="bg-orange-50 text-orange-500 mt-6"
                     // disabled={!expIsValid}
@@ -1263,7 +1331,7 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
                         }}
                         isStandalone={true}
                         allowMultiple={true}
-                        // withResize={true}
+                      // withResize={true}
                       />
                     </div>
                   </InputWrapper>
@@ -1319,41 +1387,40 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
                     }}
                     required
                   >
-                    <div
-                      className="
-                                            [&_.mantine-Dropzone-root]:h-[200px] 
-                                            [&_.mantine-Dropzone-root]:flex 
-                                            [&_.mantine-Dropzone-root]:items-center 
-                                            [&_.mantine-Dropzone-root]:justify-center
-                                            [&_.image-display-container]:max-h-[180px]
-                                        "
-                    >
+                    <div>
                       <ImageUploader
+                        dropzoneClassName="h-[150px] flex flex-col items-center justify-center"
                         {...(activityForm.watch(
                           'activity_thumbnail_image.image',
                         )
                           ? {
-                              fetchImages: [
-                                {
-                                  image: activityForm.watch(
-                                    'activity_thumbnail_image.image',
-                                  ),
-                                  name:
-                                    activityForm.watch(
-                                      'activity_thumbnail_image.name',
-                                    ) || 'Thumbnail',
-                                  isExisting: true,
-                                },
-                              ],
-                            }
+                            fetchImages: [
+                              {
+                                image: activityForm.watch(
+                                  'activity_thumbnail_image.image',
+                                ),
+                                name:
+                                  activityForm.watch(
+                                    'activity_thumbnail_image.name',
+                                  ) || 'Thumbnail',
+                                isExisting: true,
+                              },
+                            ],
+                          }
                           : {})}
-                        onImageUpload={(fileArray) => {
+                        onImageUpload={async (fileArray) => {
                           const file = fileArray[0];
                           if (file && file.image && file.name) {
                             activityForm.setValue('activity_thumbnail_image', {
                               image: file.image!,
                               name: file.name!,
                             });
+                            const { thumbnailUrl } =
+                              await uploadImageToSupabase(file.image);
+                            activityForm.setValue(
+                              'activity_thumbnail_url',
+                              thumbnailUrl,
+                            );
                           } else {
                             activityForm.setValue('activity_thumbnail_image', {
                               image: '',
@@ -1487,28 +1554,11 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
                       photos={activityForm
                         .watch('activity_iconic_photos')
                         .map((photo) => photo.image)}
-                      onDelete={(index) => {
-                        const updatedPhotos = [
-                          ...activityForm.watch('activity_iconic_photos'),
-                        ];
-                        updatedPhotos.splice(index, 1);
-                        activityForm.setValue(
-                          'activity_iconic_photos',
-                          updatedPhotos,
-                        );
-                      }}
+                      onDelete={(index) => handleDeleteMorePhotos(index)}
                     />
-                    <div
-                      className="
-                                                [&_.mantine-Dropzone-root]:h-[200px] 
-                                                [&_.mantine-Dropzone-root]:flex 
-                                                [&_.mantine-Dropzone-root]:items-center 
-                                                [&_.mantine-Dropzone-root]:justify-center
-                                                [&_.image-display-container]:max-h-[180px]
-                                                mt-10
-                                            "
-                    >
+                    <div className="mt-10">
                       <ImageUploader
+                        dropzoneClassName="h-[200px] flex flex-col items-center justify-center"
                         onImageUpload={async (fileArray) => {
                           if (fileArray && fileArray.length > 0) {
                             const images = fileArray
@@ -1524,17 +1574,10 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
                         }}
                         isStandalone={true}
                         allowMultiple={true}
-                        // withResize={true}
+                      // withResize={true}
                       />
                     </div>
                   </InputWrapper>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex justify-between pt-4 border-t">
-                  <Button variant="outline" onClick={goBackToExperience}>
-                    ← Back to Experience
-                  </Button>
                 </div>
               </div>
             </form>

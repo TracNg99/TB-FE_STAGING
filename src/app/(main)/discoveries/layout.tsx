@@ -44,7 +44,8 @@ const AddIcon: React.FC<{ className?: string; size?: number }> = ({
 
 const titleStatusMap = {
   Active: 'active',
-  Draft: 'inactive',
+  Draft: 'internal',
+  Archived: 'inactive',
 };
 
 export default function DiscoveriesLayout({
@@ -114,7 +115,7 @@ export default function DiscoveriesLayout({
   }, [addressMap, scopedExperiences, role]);
 
   const mapByStatus = useMemo(() => {
-    const map = ['active', 'inactive'].map((status) => {
+    const map = ['active', 'internal', 'inactive'].map((status) => {
       const allExp = actualAddresses
         .map(({ experiences }) =>
           experiences?.filter(
@@ -136,7 +137,12 @@ export default function DiscoveriesLayout({
         .filter((item) => item !== undefined);
 
       return {
-        title: status === 'active' ? 'Active' : 'Draft',
+        title:
+          status === 'active'
+            ? 'Active'
+            : status === 'internal'
+              ? 'Draft'
+              : 'Archived',
         items: [
           {
             address: 'All',
@@ -163,7 +169,13 @@ export default function DiscoveriesLayout({
   };
 
   const handleSelectWithStatus = (status: string, address: string) => {
-    setExperiencesStatus(status === 'Active' ? 'active' : 'inactive');
+    setExperiencesStatus(
+      status === 'Active'
+        ? 'active'
+        : status === 'Draft'
+          ? 'internal'
+          : 'inactive',
+    );
     const params = new URLSearchParams(Array.from(searchParams.entries()));
     params.set('address', address);
     router.push(`/discoveries?${params.toString()}`);

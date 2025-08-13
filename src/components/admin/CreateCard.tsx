@@ -443,7 +443,7 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
   }, [isSubmitting]);
 
   // Publish final experience
-  const publishExperience = async () => {
+  const publishExperience = async (status: string) => {
     console.log('Before setIsSubmitting(true), isSubmitting:', isSubmitting);
     setIsSubmitting(true);
     console.log('After setIsSubmitting(true), isSubmitting:', isSubmitting); // This might still be false due to async nature
@@ -459,33 +459,6 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
 
       // Get the current form values (including any changes user made)
       const currentExperienceData = experienceForm.getValues();
-
-      console.log('🚀 FINAL STEP: Publishing experience...');
-      console.log('📊 Experience ID:', createdExperienceId);
-      console.log('📋 Updated experience data:', currentExperienceData);
-      console.log('🎯 Total activities:', activities.length);
-      console.log('📝 Activities:', activities);
-
-      // Update the experience with current form values AND publish
-      console.log('🗄️ SQL would update experience with latest data:');
-      console.log(`UPDATE experiences SET 
-                        title = '${currentExperienceData.experience_title}',
-                        description = '${currentExperienceData.experience_description}',
-                        thumbnail_description = '${currentExperienceData.experience_thumbnail_description}',
-                        address = '${currentExperienceData.address}',
-                        status = 'published',
-                        updated_at = NOW()
-                        WHERE id = '${createdExperienceId}'`);
-
-      console.log('✅ Experience published with latest data!');
-      console.log('📊 Final payload that would be sent to API:', {
-        experience: {
-          id: createdExperienceId,
-          ...currentExperienceData,
-          status: 'published',
-        },
-        activities: activities,
-      });
 
       let thumbnailUrl = '';
       let image_id = '';
@@ -595,6 +568,7 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
             currentExperienceData.experience_thumbnail_description || '',
           primary_photo: thumbnailUrl,
           primary_photo_id: image_id,
+          status,
         });
 
       if (experienceError) {
@@ -738,14 +712,14 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
                 <Button
                   variant="outline"
                   color="orange"
-                  onClick={() => console.log('Save as Draft')}
+                  onClick={() => publishExperience('internal')}
                   className={styles.buttonText}
                 >
                   Save as Draft
                 </Button>
                 <Button
                   color="orange"
-                  onClick={publishExperience}
+                  onClick={() => publishExperience('active')}
                   disabled={activities.length === 0 || !expIsValid}
                   loading={isSubmitting}
                   className={styles.buttonText}
@@ -763,10 +737,34 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
                 <Button
                   variant="filled"
                   color="gray"
-                  onClick={handleCancel}
+                  onClick={goBackToExperience}
                   className={styles.buttonText}
                 >
                   Cancel
+                </Button>
+                <Button
+                  variant="filled"
+                  color="orange"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    // 1. Save current activity data
+                    const formData = activityForm.getValues();
+                    // 2. Add to activities list
+                    setActivities((prev) => [
+                      ...prev,
+                      {
+                        id: currentActivityId!,
+                        ...formData,
+                      },
+                    ]);
+                    // 3. Reset form
+                    activityForm.reset();
+                    // 4. Go back to experience
+                    setCurrentStep('experience');
+                  }}
+                  className={styles.buttonText}
+                >
+                  Add to Experience
                 </Button>
               </div>
             </div>
@@ -839,16 +837,9 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
                     }}
                     required
                   >
-                    <div
-                      className="
-                                            [&_.mantine-Dropzone-root]:h-[200px] 
-                                            [&_.mantine-Dropzone-root]:flex 
-                                            [&_.mantine-Dropzone-root]:items-center 
-                                            [&_.mantine-Dropzone-root]:justify-center
-                                            [&_.image-display-container]:max-h-[180px]
-                                        "
-                    >
+                    <div>
                       <ImageUploader
+                        dropzoneClassName="h-[150px] flex flex-col items-center justify-center"
                         {...(experienceForm.watch(
                           'experience_thumbnail_image.image',
                         )
@@ -1039,7 +1030,7 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
                 </div>
 
                 {/* Iconic Photos */}
-                <div className="w-full h-px bg-black mt-4 mb-4"></div>
+                <div className="w-full h-px bg-black mt-5 mb-5"></div>
                 <div className="space-y-3">
                   <InputWrapper
                     label="Iconic Photos"
@@ -1047,16 +1038,9 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
                       label: styles.formLabel,
                     }}
                   >
-                    <div
-                      className="
-                                        [&_.mantine-Dropzone-root]:h-[200px] 
-                                        [&_.mantine-Dropzone-root]:flex 
-                                        [&_.mantine-Dropzone-root]:items-center 
-                                        [&_.mantine-Dropzone-root]:justify-center
-                                        [&_.image-display-container]:max-h-[180px]
-                                    "
-                    >
+                    <div>
                       <ImageUploader
+                        dropzoneClassName="h-[200px] flex flex-col items-center justify-center"
                         onImageUpload={(fileArray) => {
                           if (fileArray && fileArray.length > 0) {
                             const images = fileArray
@@ -1133,16 +1117,9 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
                     }}
                     required
                   >
-                    <div
-                      className="
-                                            [&_.mantine-Dropzone-root]:h-[200px] 
-                                            [&_.mantine-Dropzone-root]:flex 
-                                            [&_.mantine-Dropzone-root]:items-center 
-                                            [&_.mantine-Dropzone-root]:justify-center
-                                            [&_.image-display-container]:max-h-[180px]
-                                        "
-                    >
+                    <div>
                       <ImageUploader
+                        dropzoneClassName="h-[150px] flex flex-col items-center justify-center"
                         {...(activityForm.watch(
                           'activity_thumbnail_image.image',
                         )
@@ -1297,16 +1274,9 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
                       label: styles.formLabel,
                     }}
                   >
-                    <div
-                      className="
-                                        [&_.mantine-Dropzone-root]:h-[200px] 
-                                        [&_.mantine-Dropzone-root]:flex 
-                                        [&_.mantine-Dropzone-root]:items-center 
-                                        [&_.mantine-Dropzone-root]:justify-center
-                                        [&_.image-display-container]:max-h-[180px]
-                                    "
-                    >
+                    <div>
                       <ImageUploader
+                        dropzoneClassName="h-[200px] flex flex-col items-center justify-center"
                         onImageUpload={(fileArray) => {
                           if (fileArray && fileArray.length > 0) {
                             const images = fileArray
@@ -1334,43 +1304,6 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
                       />
                     </div>
                   </InputWrapper>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex justify-between pt-4 border-t">
-                  <Button variant="outline" onClick={goBackToExperience}>
-                    ← Back to Experience
-                  </Button>
-
-                  <div className="flex space-x-3">
-                    <Button variant="outline" onClick={handleCancel}>
-                      Cancel
-                    </Button>
-                    <Button
-                      type="submit"
-                      color="blue"
-                      // disabled={!actIsValid}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        // 1. Save current activity data
-                        const formData = activityForm.getValues();
-                        // 2. Add to activities list
-                        setActivities((prev) => [
-                          ...prev,
-                          {
-                            id: currentActivityId!,
-                            ...formData,
-                          },
-                        ]);
-                        // 3. Reset form
-                        activityForm.reset();
-                        // 4. Go back to experience
-                        setCurrentStep('experience');
-                      }}
-                    >
-                      Add Activity
-                    </Button>
-                  </div>
                 </div>
               </div>
             </form>
