@@ -15,6 +15,21 @@ export const ttsApi = createApi({
       }),
       invalidatesTags: ['Session'],
     }),
+    // GET version for fetching session info (including transcript) via query params
+    startSessionGet: builder.query<
+      any,
+      { content_id: string; language: string }
+    >({
+      query: ({ content_id, language }) => ({
+        url: 'tts/sessions/start',
+        method: 'GET',
+        params: { content_id, language },
+      }),
+      providesTags: ['Session'],
+      keepUnusedDataFor: 300,
+      serializeQueryArgs: ({ endpointName, queryArgs }) =>
+        `${endpointName}|${queryArgs.content_id}|${queryArgs.language}`,
+    }),
     updateSession: builder.mutation({
       query: ({ sessionId, ...body }) => ({
         url: `tts/sessions`,
@@ -83,4 +98,5 @@ export const {
   useUpdateSessionMutation,
   useLazyGetSessionQuery,
   useLazyGetAudioStreamQuery,
+  useLazyStartSessionGetQuery,
 } = ttsApi;

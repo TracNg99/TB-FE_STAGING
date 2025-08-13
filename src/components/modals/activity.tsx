@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 
-import TTSButton from '../audio-handler/tts-button';
+import { useAudioDrawer } from '../audio-handler/use-audio-drawer';
 
 type ActivityModalProps = {
   isOpen: boolean;
@@ -30,6 +30,7 @@ const ActivityModal = ({
   experience_name,
   language,
 }: ActivityModalProps) => {
+  const { open: openAudio, Drawer: AudioDrawerPortal } = useAudioDrawer();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isFavorited, setIsFavorited] = useState(false);
   const [showFullDescription, setShowFullDescription] = useState(false);
@@ -162,7 +163,27 @@ const ActivityModal = ({
             <div className="mb-8">
               <div className="flex items-center justify-start gap-4 mb-4">
                 <h2 className="text-xl font-bold text-gray-800">About</h2>
-                <TTSButton contentId={activity.id} language={language} />
+                <button
+                  className="rounded-lg cursor-pointer relative flex items-center justify-center"
+                  onClick={() =>
+                    openAudio({
+                      contentId: activity.id,
+                      title: activity.title,
+                      author: '',
+                      source: experience_name,
+                      backgroundImage: activity.imageUrl,
+                      language,
+                    })
+                  }
+                  title="Play audio"
+                >
+                  <img
+                    src="/assets/welcome_modal_welcome.png"
+                    alt="headphone"
+                    width={35}
+                    height={35}
+                  />
+                </button>
               </div>
               <div
                 ref={descriptionRef}
@@ -310,6 +331,7 @@ const ActivityModal = ({
           </div>
         </div>
       </div>
+      <AudioDrawerPortal />
     </div>
   );
 };

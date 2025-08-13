@@ -66,6 +66,15 @@
   mask-position: center;
 }
 
+/* Hide scrollbar utility */
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
 @theme {
   --font-oswald: var(--font-oswald);
   --font-poppins: var(--font-poppins);

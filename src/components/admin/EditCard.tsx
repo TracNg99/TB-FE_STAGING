@@ -560,7 +560,6 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
   // Step 1: Create placeholder experience (only on first activity)
   const createPlaceholderExperience = async (data: ExperienceFormData) => {
     if (!createdExperienceId) {
-
       // console.log('🎯 STEP 1: Creating placeholder experience...');
       console.log('📊 Experience data:', data);
 

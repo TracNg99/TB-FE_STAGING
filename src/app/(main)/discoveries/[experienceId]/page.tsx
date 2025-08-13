@@ -7,7 +7,7 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { PiShareFat } from 'react-icons/pi';
 
-import TTSButton from '@/components/audio-handler/tts-button';
+import { useAudioDrawer } from '@/components/audio-handler/use-audio-drawer';
 import FollowUpQuestions from '@/components/chatbot/follow-up-questions';
 import StickyChatbox from '@/components/chatbot/sticky-chatbox';
 import IconFeatureCamera from '@/components/icons/icon-feature-camera';
@@ -25,7 +25,7 @@ import {
 } from '@/store/redux/slices/user/experience';
 
 const SECTION_TITLE_CLASS =
-  'text-[#222] text-[20px] font-semibold flex items-center gap-2 mb-4';
+  'text-[#222] text-[20px] font-semibold flex items-center gap-2';
 
 const ExperienceDetailPage = () => {
   const { experienceId } = useParams();
@@ -96,6 +96,7 @@ const ExperienceDetailPage = () => {
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(
     null,
   );
+  const { open: openAudio, Drawer: AudioDrawerPortal } = useAudioDrawer();
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(
     null,
   );
@@ -165,11 +166,27 @@ const ExperienceDetailPage = () => {
               >
                 <PiShareFat size={20} />
               </button>
-              <TTSButton
-                contentId={experienceId as string}
-                language={language}
-                buttonClassName="rounded-lg cursor-pointer relative flex items-center justify-center"
-              />
+              <button
+                className="rounded-lg cursor-pointer relative flex items-center justify-center"
+                onClick={() =>
+                  openAudio({
+                    contentId: experienceId as string,
+                    title: experience.name,
+                    author: '',
+                    source: experience.owned_by || '',
+                    backgroundImage: experience.primary_photo || '',
+                    language,
+                  })
+                }
+                title="Play audio"
+              >
+                <img
+                  src="/assets/welcome_modal_welcome.png"
+                  alt="headphone"
+                  width={35}
+                  height={35}
+                />
+              </button>
             </div>
           </div>
           <QRModal
@@ -310,6 +327,7 @@ const ExperienceDetailPage = () => {
           experienceId={experienceId as string}
         />
       </div>
+      <AudioDrawerPortal />
       {/* Chatbot */}
       <StickyChatbox
         className="bg-gray-50"
