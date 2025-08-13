@@ -69,6 +69,7 @@ const ExperienceBusinessApi = createApi({
         primary_video,
         primary_video_id,
         parent_experience,
+        status,
       }) => ({
         url: `/experiences`,
         method: 'POST',
@@ -86,6 +87,7 @@ const ExperienceBusinessApi = createApi({
           primary_video,
           primary_video_id,
           parent_experience,
+          status,
         },
       }),
     }),

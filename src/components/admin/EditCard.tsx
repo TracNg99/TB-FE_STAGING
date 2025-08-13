@@ -1110,19 +1110,19 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
                           'experience_thumbnail_image.image',
                         )
                           ? {
-                            fetchImages: [
-                              {
-                                image: experienceForm.watch(
-                                  'experience_thumbnail_image.image',
-                                ),
-                                name:
-                                  experienceForm.watch(
-                                    'experience_thumbnail_image.name',
-                                  ) || 'Thumbnail',
-                                isExisting: true,
-                              },
-                            ],
-                          }
+                              fetchImages: [
+                                {
+                                  image: experienceForm.watch(
+                                    'experience_thumbnail_image.image',
+                                  ),
+                                  name:
+                                    experienceForm.watch(
+                                      'experience_thumbnail_image.name',
+                                    ) || 'Thumbnail',
+                                  isExisting: true,
+                                },
+                              ],
+                            }
                           : {})}
                         onImageUpload={async (fileArray) => {
                           const file = fileArray[0];
@@ -1331,7 +1331,7 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
                         }}
                         isStandalone={true}
                         allowMultiple={true}
-                      // withResize={true}
+                        // withResize={true}
                       />
                     </div>
                   </InputWrapper>
@@ -1394,19 +1394,19 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
                           'activity_thumbnail_image.image',
                         )
                           ? {
-                            fetchImages: [
-                              {
-                                image: activityForm.watch(
-                                  'activity_thumbnail_image.image',
-                                ),
-                                name:
-                                  activityForm.watch(
-                                    'activity_thumbnail_image.name',
-                                  ) || 'Thumbnail',
-                                isExisting: true,
-                              },
-                            ],
-                          }
+                              fetchImages: [
+                                {
+                                  image: activityForm.watch(
+                                    'activity_thumbnail_image.image',
+                                  ),
+                                  name:
+                                    activityForm.watch(
+                                      'activity_thumbnail_image.name',
+                                    ) || 'Thumbnail',
+                                  isExisting: true,
+                                },
+                              ],
+                            }
                           : {})}
                         onImageUpload={async (fileArray) => {
                           const file = fileArray[0];
@@ -1574,7 +1574,7 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
                         }}
                         isStandalone={true}
                         allowMultiple={true}
-                      // withResize={true}
+                        // withResize={true}
                       />
                     </div>
                   </InputWrapper>

@@ -27,7 +27,6 @@ import {
   useCreateMediaAssetMutation,
   useUploadImageCloudRunMutation,
 } from '@/store/redux/slices/storage/upload';
-import { Activity } from '@/store/redux/slices/user/experience';
 
 import styles from './CreateCard.module.css';
 
@@ -94,7 +93,6 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
     null,
   );
   const [activities, setActivities] = useState<any[]>([]);
-  const [formKey, setFormKey] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [uploadImageCloudRun] = useUploadImageCloudRunMutation();
@@ -140,14 +138,6 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
       activity_highlights: [],
     },
   });
-
-  // Add this effect to reset the activity form when navigating to it
-  useEffect(() => {
-    if (currentStep === 'activity') {
-      activityForm.reset();
-      setFormKey((prev) => prev + 1); // This will force a remount of the activity form
-    }
-  }, [currentStep]);
 
   const experienceEditor = useEditor({
     extensions: [
@@ -244,6 +234,7 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
 
   // 3. When adding a new activity
   const handleAddActivity = () => {
+    activityForm.reset();
     const newActivityId = `activity-${Date.now()}`;
     setCurrentActivityId(newActivityId);
     // Create editor for new activity
@@ -251,23 +242,36 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
     // Rest of your add activity logic
   };
 
-  // 4. When switching activities
-  const handleSelectActivity = (activityId: string) => {
-    const editor = activityEditors.current[activityId];
-    if (editor) {
-      // Update form with selected activity's content
-      activityForm.setValue('activity_description', editor.getHTML());
-    }
+  const mapActivityToForm = (activity: any): ActivityFormData => {
+    return {
+      activity_title: activity.activity_title || '',
+      activity_thumbnail_description:
+        activity.activity_thumbnail_description || '',
+      activity_description: activity.activity_description || '',
+      activity_thumbnail_image: {
+        image: activity.activity_thumbnail_image.image || '',
+        name: activity.activity_thumbnail_image.name || 'activity-image',
+      },
+      activity_visiting_time: activity.activity_visiting_time || '',
+      activity_address: activity.activity_address || '',
+      activity_highlights: activity.activity_highlights || [],
+      activity_iconic_photos:
+        (activity.activity_iconic_photos || []).map((photo: any) => ({
+          image: photo.image,
+          name: photo.name,
+        })) || [],
+    };
   };
 
-  const handleEditActivity = (activity: Activity) => {
+  const handleEditActivity = (activity: any) => {
+    const formData = mapActivityToForm(activity);
     setCurrentActivityId(activity.id);
-    activityForm.reset();
+    activityForm.reset(formData);
+    setCurrentStep('activity');
     // Initialize editor if it doesn't exist
     if (!activityEditors.current[activity.id]) {
       getActivityEditor(activity.id);
     }
-    activityForm.setValue('activity_description', activity.description);
   };
 
   useEffect(() => {
@@ -429,12 +433,6 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
     //                         '${data.activity_thumbnail_description}', '${data.activity_description}')`);
 
     setActivities((prev) => [...prev, newActivity]);
-    // Reset the activity form state completely
-    activityForm.reset({
-      activity_title: '',
-      activity_thumbnail_description: '',
-      activity_description: '',
-    });
     setCurrentStep('experience'); // Return to experience step
   };
 
@@ -443,7 +441,7 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
   }, [isSubmitting]);
 
   // Publish final experience
-  const publishExperience = async (status: string) => {
+  const publishExperience = async ({ status }: { status: string }) => {
     console.log('Before setIsSubmitting(true), isSubmitting:', isSubmitting);
     setIsSubmitting(true);
     console.log('After setIsSubmitting(true), isSubmitting:', isSubmitting); // This might still be false due to async nature
@@ -712,14 +710,15 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
                 <Button
                   variant="outline"
                   color="orange"
-                  onClick={() => publishExperience('internal')}
+                  onClick={() => publishExperience({ status: 'internal' })}
+                  loading={isSubmitting}
                   className={styles.buttonText}
                 >
                   Save as Draft
                 </Button>
                 <Button
                   color="orange"
-                  onClick={() => publishExperience('active')}
+                  onClick={() => publishExperience({ status: 'active' })}
                   disabled={activities.length === 0 || !expIsValid}
                   loading={isSubmitting}
                   className={styles.buttonText}
@@ -757,8 +756,7 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
                         ...formData,
                       },
                     ]);
-                    // 3. Reset form
-                    activityForm.reset();
+                    console.log('Activities', activities);
                     // 4. Go back to experience
                     setCurrentStep('experience');
                   }}
@@ -944,7 +942,6 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
                       <div
                         key={activity.id}
                         onClick={() => {
-                          handleSelectActivity(activity.id);
                           handleEditActivity(activity);
                           setCurrentStep('activity'); // Navigate to edit mode
                         }}
@@ -960,11 +957,12 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
                           {/* Action Buttons */}
                           <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button
+                              type="button"
                               className="bg-white/90 p-1.5 rounded-md shadow-sm hover:bg-white transition-colors"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                // TODO: Handle edit
-                                console.log('Edit:', activity.id);
+                                handleEditActivity(activity);
+                                setCurrentStep('activity');
                               }}
                               title="Edit activity"
                             >
@@ -1070,10 +1068,7 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
             </form>
           ) : (
             // STEP 2: Activity Form (Clean, no current activities shown)
-            <form
-              key={`activity-form-${formKey}`}
-              onSubmit={activityForm.handleSubmit(addActivityToExperience)}
-            >
+            <form onSubmit={activityForm.handleSubmit(addActivityToExperience)}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-6 lg:col-span-1">
                   <div className="space-y-2">
