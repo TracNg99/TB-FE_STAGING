@@ -21,7 +21,14 @@ import IconStory from '../../../public/assets/story.svg';
 import AiButton from '../ai-button';
 import IconHandler from '../icons/icon-handler';
 
-const navbarLinks = [
+type NavLink = {
+  title: string;
+  href: string;
+  navigateTo?: string;
+  icon: any;
+};
+
+const navbarLinks: NavLink[] = [
   {
     title: 'navigation.home',
     href: '/',
@@ -34,12 +41,13 @@ const navbarLinks = [
   },
   {
     title: 'navigation.stories',
-    href: '/stories/new',
+    href: 'stories',
+    navigateTo: 'stories/new', // Where to navigate when clicked
     icon: IconStory,
   },
 ];
 
-const businessLinks = [
+const businessLinks: NavLink[] = [
   {
     title: 'navigation.discover',
     href: 'discoveries',
@@ -70,11 +78,6 @@ const Navbar = () => {
         setActiveTab(link.href);
       }
     }
-
-    // Highlight stories for all /stories/* pages including /stories/new
-    if (currentPath.startsWith('stories')) {
-      setActiveTab('stories');
-    }
   }, [pathname]);
 
   const handleTabChange = (href: string) => {
@@ -96,7 +99,7 @@ const Navbar = () => {
     router.replace(href === '/' ? href : `/${href}`);
   };
 
-  const handleStoriesClicked = () => {
+  const handleStoriesClicked = (link: NavLink) => {
     if (!user) {
       notifications.show({
         title: 'Member-only feature',
@@ -106,8 +109,8 @@ const Navbar = () => {
       router.push('/auth/login');
       return;
     }
-    setActiveTab('/stories/new');
-    router.push('/stories/new');
+    setActiveTab(link.href);
+    router.push(`/${link.navigateTo || link.href}`);
     setIsSidebarOpen(true);
   };
 
@@ -133,7 +136,7 @@ const Navbar = () => {
                 <UnstyledButton
                   onClick={() =>
                     link.title === 'navigation.stories'
-                      ? handleStoriesClicked()
+                      ? handleStoriesClicked(link)
                       : handleTabChange(link.href ?? '/')
                   }
                   className={cn(
