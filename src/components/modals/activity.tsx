@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 type ActivityModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  onOpenAudio: (args: { chapterId: string; language?: string }) => void;
+  onOpenAudio?: (args: { chapterId: string; language?: string }) => void;
   activity: {
     id: string;
     title: string;
@@ -170,7 +170,7 @@ const ActivityModal = ({
                 <button
                   className="rounded-lg cursor-pointer relative flex items-center justify-center"
                   onClick={() =>
-                    onOpenAudio({ chapterId: activity.id, language })
+                    onOpenAudio?.({ chapterId: activity.id, language })
                   }
                   title="Play audio"
                 >
