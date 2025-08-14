@@ -18,9 +18,30 @@ export default {
             transform: 'translate3d(0, 0, 0)',
           },
         },
+        marquee: {
+          '0%': {
+            transform: 'translateX(0%)',
+          },
+          '10%': {
+            transform: 'translateX(0%)',
+          },
+          '30%': {
+            transform: 'translateX(-100%)',
+          },
+          '40%': {
+            transform: 'translateX(-100%)',
+          },
+          '60%': {
+            transform: 'translateX(0%)',
+          },
+          '100%': {
+            transform: 'translateX(0%)',
+          },
+        },
       },
       animation: {
         fadeinleft: 'fade-in-left 1s ease-in-out 0.25s 1',
+        marquee: 'marquee 15s ease-in-out infinite',
       },
     },
   },

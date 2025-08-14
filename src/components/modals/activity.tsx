@@ -3,11 +3,10 @@
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 
-import { useAudioDrawer } from '../audio-handler/use-audio-drawer';
-
 type ActivityModalProps = {
   isOpen: boolean;
   onClose: () => void;
+  onOpenAudio: (args: { chapterId: string; language?: string }) => void;
   activity: {
     id: string;
     title: string;
@@ -28,12 +27,12 @@ type ActivityModalProps = {
 const ActivityModal = ({
   isOpen,
   onClose,
+  onOpenAudio,
   activity,
   experience_name,
   language,
   t,
 }: ActivityModalProps) => {
-  const { open: openAudio, Drawer: AudioDrawerPortal } = useAudioDrawer();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isFavorited, setIsFavorited] = useState(false);
   const [showFullDescription, setShowFullDescription] = useState(false);
@@ -171,14 +170,7 @@ const ActivityModal = ({
                 <button
                   className="rounded-lg cursor-pointer relative flex items-center justify-center"
                   onClick={() =>
-                    openAudio({
-                      contentId: activity.id,
-                      title: activity.title,
-                      author: '',
-                      source: experience_name,
-                      backgroundImage: activity.imageUrl,
-                      language,
-                    })
+                    onOpenAudio({ chapterId: activity.id, language })
                   }
                   title="Play audio"
                 >
@@ -334,7 +326,7 @@ const ActivityModal = ({
           </div>
         </div>
       </div>
-      <AudioDrawerPortal />
+      {/* Drawer is rendered by parent page */}
     </div>
   );
 };

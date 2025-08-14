@@ -98,10 +98,28 @@ const ExperienceDetailPage = () => {
     null,
   );
 
-  useEffect(() => {
-    console.log('Selected Activity', selectedActivity);
-  }, [selectedActivity]);
-  const { open: openAudio, Drawer: AudioDrawerPortal } = useAudioDrawer();
+  // Build chapters directly from experience + activities
+  const activitiesMinimal = activities.map((a) => ({
+    id: a.id,
+    title: a.title,
+    primary_photo: a.primary_photo,
+    order_of_appearance: a.order_of_appearance,
+  }));
+  const { open, Drawer: AudioDrawerPortal } = useAudioDrawer(
+    experience
+      ? {
+          experience: {
+            id: experience.id,
+            name: experience.name,
+            primary_photo: experience.primary_photo,
+            created_by: experience.created_by,
+            owned_by: experience.owned_by,
+            owner: (experience as any).owner,
+          },
+          activities: activitiesMinimal,
+        }
+      : undefined,
+  );
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(
     null,
   );
@@ -175,16 +193,7 @@ const ExperienceDetailPage = () => {
                   </button>
                   <button
                     className="rounded-lg cursor-pointer relative flex items-center justify-center"
-                    onClick={() =>
-                      openAudio({
-                        contentId: experienceId as string,
-                        title: experience.name,
-                        author: '',
-                        source: experience.owned_by || '',
-                        backgroundImage: experience.primary_photo || '',
-                        language,
-                      })
-                    }
+                    onClick={() => open({ chapterId: experience.id, language })}
                     title="Play audio"
                   >
                     <img
@@ -276,6 +285,9 @@ const ExperienceDetailPage = () => {
                   <ActivityModal
                     isOpen={!!selectedActivity}
                     onClose={() => setSelectedActivity(null)}
+                    onOpenAudio={({ chapterId, language: lang }) =>
+                      open({ chapterId, language: lang })
+                    }
                     activity={{
                       id: selectedActivity.id,
                       photos: selectedActivity.photos,

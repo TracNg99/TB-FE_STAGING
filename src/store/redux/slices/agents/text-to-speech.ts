@@ -99,4 +99,5 @@ export const {
   useLazyGetSessionQuery,
   useLazyGetAudioStreamQuery,
   useLazyStartSessionGetQuery,
+  useStartSessionGetQuery,
 } = ttsApi;
