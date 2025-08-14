@@ -242,38 +242,6 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
     // Rest of your add activity logic
   };
 
-  const mapActivityToForm = (activity: any): ActivityFormData => {
-    return {
-      activity_title: activity.activity_title || '',
-      activity_thumbnail_description:
-        activity.activity_thumbnail_description || '',
-      activity_description: activity.activity_description || '',
-      activity_thumbnail_image: {
-        image: activity.activity_thumbnail_image.image || '',
-        name: activity.activity_thumbnail_image.name || 'activity-image',
-      },
-      activity_visiting_time: activity.activity_visiting_time || '',
-      activity_address: activity.activity_address || '',
-      activity_highlights: activity.activity_highlights || [],
-      activity_iconic_photos:
-        (activity.activity_iconic_photos || []).map((photo: any) => ({
-          image: photo.image,
-          name: photo.name,
-        })) || [],
-    };
-  };
-
-  const handleEditActivity = (activity: any) => {
-    const formData = mapActivityToForm(activity);
-    setCurrentActivityId(activity.id);
-    activityForm.reset(formData);
-    setCurrentStep('activity');
-    // Initialize editor if it doesn't exist
-    if (!activityEditors.current[activity.id]) {
-      getActivityEditor(activity.id);
-    }
-  };
-
   useEffect(() => {
     console.log('Activity Editor State:', {
       currentActivityId,
@@ -1005,10 +973,6 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
                     {activities.map((activity) => (
                       <div
                         key={activity.id}
-                        onClick={() => {
-                          handleEditActivity(activity);
-                          setCurrentStep('activity'); // Navigate to edit mode
-                        }}
                         className="group relative rounded-lg overflow-hidden border border-gray-200 hover:shadow-md transition-shadow"
                       >
                         <div className="relative aspect-square">
