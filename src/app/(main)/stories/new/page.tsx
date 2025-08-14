@@ -21,6 +21,7 @@ import VoiceToTextButton from '@/components/audio-handler/voice-to-text';
 import ImageUploader from '@/components/image-uploader/image-picker';
 import Section from '@/components/layouts/section';
 import StoryCreationLoading from '@/components/loading/StoryCreationLoading';
+import { Translation } from '@/components/translation';
 import { useUploadImageCloudRunMutation } from '@/store/redux/slices/storage/upload';
 import { useGetAllExperiencesQuery } from '@/store/redux/slices/user/experience';
 import { useUploadStoryAgentMutation } from '@/store/redux/slices/user/storyAgent';
@@ -44,6 +45,8 @@ const NewStoryPage = () => {
   const router = useRouter();
   const [experiences, setExperiences] = useState<string[]>([]);
   const [isConfirmClicked, setIsConfirmClicked] = useState<boolean>(false);
+  const [defaultExperienceOption, setDefaultExperienceOption] =
+    useState<string>('No experience selected');
   const [uploadStory, { isLoading: isUploading }] =
     useUploadStoryAgentMutation();
 
@@ -58,7 +61,7 @@ const NewStoryPage = () => {
   }, [experiencesData]);
 
   const handleInputsUpload = async (userInputs: StorySchema) => {
-    if (userInputs.experience === 'No experience selected') {
+    if (userInputs.experience === defaultExperienceOption) {
       notifications.show({
         title: 'Warning: No experience was selected',
         message: 'Please choose an experience for your story!',
@@ -207,118 +210,126 @@ const NewStoryPage = () => {
 
   return (
     <form className="pt-8" onSubmit={form.handleSubmit(handleInputsUpload)}>
-      <Section className="flex flex-col gap-x-8 gap-y-4 lg:gap-y-8 max-w-5xl mx-auto px-4 mb-8">
-        <p className=" hidden md:block text-base-black font-semibold text-display-sm">
-          Share your travel story
-        </p>
-        <Controller
-          control={form.control}
-          name="experience"
-          render={({ field: { onChange, value } }) => (
-            <Select
-              allowDeselect={false}
-              className="mb-4 lg:mb-0 pointer-events-auto"
-              comboboxProps={{
-                transitionProps: { transition: 'pop', duration: 200 },
-              }}
-              id="experience"
-              placeholder="Select an Experience you have tried"
-              classNames={{
-                input: 'h-10 cursor-pointer',
-                options: 'p-0',
-                option: 'w-full p-0',
-                dropdown:
-                  'p-0 rounded-tl-none rounded-tr-none overflow-hidden border-1 -translate-y-2',
-              }}
-              renderOption={renderSelectOption}
-              error={form.formState.errors.experience?.message}
-              data={experiences}
-              onChange={onChange}
-              value={value as any}
-            />
-          )}
-        />
-        <div>
-          <label htmlFor="media" className="font-medium">
-            Pick your photos ({watchedMedia.length} / 10)
-          </label>
-          <Controller
-            control={form.control}
-            name="media"
-            render={({ field }) => (
-              <InputWrapper error={form.formState.errors.media?.message}>
-                <ImageUploader
-                  onImageUpload={(files) => {
-                    field.onChange(files.map((item) => item));
-                  }}
-                  allowMultiple={true}
-                  // withResize={true}
-                  // asBlob={true}
-                  isStandalone={true}
-                  fetchImages={watchedMedia.map((item) => {
-                    if (typeof item === 'string') {
-                      return { image: item, name: 'image' };
-                    }
-                    if (item instanceof Blob) {
-                      return { image: null, name: 'blob' };
-                    }
-                    return { image: item.image, name: item.name };
-                  })}
-                >
-                  <ImageUploadIcon
-                    className="size-50 text-white color-orange-500"
-                    size={100}
+      <Translation>
+        {(t) => {
+          setDefaultExperienceOption(t('stories.defaultExperienceOption'));
+          return (
+            <Section className="flex flex-col gap-x-8 gap-y-4 lg:gap-y-8 max-w-5xl mx-auto px-4 mb-8">
+              <p className=" hidden md:block text-base-black font-semibold text-display-sm">
+                {t('stories.shareYourTravelStory')}
+              </p>
+              <Controller
+                control={form.control}
+                name="experience"
+                render={({ field: { onChange, value } }) => (
+                  <Select
+                    allowDeselect={false}
+                    className="mb-4 lg:mb-0 pointer-events-auto"
+                    comboboxProps={{
+                      transitionProps: { transition: 'pop', duration: 200 },
+                    }}
+                    id="experience"
+                    placeholder={t('stories.selectExperience')}
+                    classNames={{
+                      input: 'h-10 cursor-pointer',
+                      options: 'p-0',
+                      option: 'w-full p-0',
+                      dropdown:
+                        'p-0 rounded-tl-none rounded-tr-none overflow-hidden border-1 -translate-y-2',
+                    }}
+                    renderOption={renderSelectOption}
+                    error={form.formState.errors.experience?.message}
+                    data={experiences}
+                    onChange={onChange}
+                    value={value as any}
                   />
-                </ImageUploader>
-              </InputWrapper>
-            )}
-          />
-        </div>
-        {watchedMedia.length > 0 &&
-          form.watch('experience') !== 'No experience selected' && (
-            <>
-              <div className="relative mb-4 lg:mb-0">
-                <Textarea
-                  id="story"
-                  placeholder="Anything to add?"
-                  resize="vertical"
-                  classNames={{
-                    input: 'pb-20 pt-4',
-                  }}
-                  error={form.formState.errors.notes?.message}
-                  {...form.register('notes')}
-                />
-                <VoiceToTextButton
-                  language="en-US"
-                  existingTexts={watchedNotes ?? ''}
-                  onUnsupportDetected={() => {
-                    notifications.show({
-                      title: 'Error: Browser not supported',
-                      message:
-                        'This browser does not support speech recognition',
-                      color: 'red',
-                    });
-                  }}
-                  onTranscribe={(e) => handleTranscription(e)}
-                  isInterrupted={isConfirmClicked || isUploading}
-                />
-              </div>
-              <div className="w-full flex justify-center">
-                <AiButton
-                  additionalClassName="w-full md:w-auto h-16 disabled:opacity-50 text-white bg-orange-500 hover:bg-orange-600 cursor-pointer text-white px-8 py-4 flex items-center justify-center gap-2"
-                  type="submit"
-                  displayText="Generate your AI-assisted story"
-                  disabled={form.formState.isSubmitting}
-                  onClick={() => {
-                    handleInputsUpload(form.getValues());
-                  }}
-                  altIcon={<IconSparkles size={24} />}
-                  asFloating={false}
+                )}
+              />
+              <div>
+                <label htmlFor="media" className="font-medium">
+                  {t('stories.pickYourPhotos')} ({watchedMedia.length} / 10)
+                </label>
+                <Controller
+                  control={form.control}
+                  name="media"
+                  render={({ field }) => (
+                    <InputWrapper error={form.formState.errors.media?.message}>
+                      <ImageUploader
+                        onImageUpload={(files) => {
+                          field.onChange(files.map((item) => item));
+                        }}
+                        allowMultiple={true}
+                        // withResize={true}
+                        // asBlob={true}
+                        isStandalone={true}
+                        fetchImages={watchedMedia.map((item) => {
+                          if (typeof item === 'string') {
+                            return { image: item, name: 'image' };
+                          }
+                          if (item instanceof Blob) {
+                            return { image: null, name: 'blob' };
+                          }
+                          return { image: item.image, name: item.name };
+                        })}
+                      >
+                        <ImageUploadIcon
+                          className="size-50 text-white color-orange-500"
+                          size={100}
+                        />
+                      </ImageUploader>
+                    </InputWrapper>
+                  )}
                 />
               </div>
-            </>
-          )}
-      </Section>
+              {watchedMedia.length > 0 &&
+                form.watch('experience') !== defaultExperienceOption && (
+                  <>
+                    <div className="relative mb-4 lg:mb-0">
+                      <Textarea
+                        id="story"
+                        placeholder={t('stories.anythingToAdd')}
+                        resize="vertical"
+                        classNames={{
+                          input: 'pb-20 pt-4',
+                        }}
+                        error={form.formState.errors.notes?.message}
+                        {...form.register('notes')}
+                      />
+                      <VoiceToTextButton
+                        language="en-US"
+                        existingTexts={watchedNotes ?? ''}
+                        onUnsupportDetected={() => {
+                          notifications.show({
+                            title: t('stories.errorBrowserNotSupported'),
+                            message: t(
+                              'stories.errorBrowserNotSupportedMessage',
+                            ),
+                            color: 'red',
+                          });
+                        }}
+                        onTranscribe={(e) => handleTranscription(e)}
+                        isInterrupted={isConfirmClicked || isUploading}
+                      />
+                    </div>
+                    <div className="w-full flex justify-center">
+                      <AiButton
+                        additionalClassName="w-full md:w-auto h-16 disabled:opacity-50 text-white bg-orange-500 hover:bg-orange-600 cursor-pointer text-white px-8 py-4 flex items-center justify-center gap-2"
+                        type="submit"
+                        displayText={t('stories.generateAIAssistedStory')}
+                        disabled={form.formState.isSubmitting}
+                        onClick={() => {
+                          handleInputsUpload(form.getValues());
+                        }}
+                        altIcon={<IconSparkles size={24} />}
+                        asFloating={false}
+                      />
+                    </div>
+                  </>
+                )}
+            </Section>
+          );
+        }}
+      </Translation>
     </form>
   );
 };

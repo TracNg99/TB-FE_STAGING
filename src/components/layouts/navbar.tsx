@@ -10,7 +10,7 @@ import {
 } from '@tabler/icons-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useAuth } from '@/contexts/auth-provider';
 import { cn } from '@/utils/class';
@@ -76,8 +76,13 @@ const Navbar = () => {
   const pathname = usePathname();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobileQuery = useMediaQuery('(max-width: 768px)');
+
+  useEffect(() => {
+    setIsMobile(isMobileQuery || false);
+  }, [isMobileQuery]);
 
   const handleAiButtonClicked = () => {
     setIsMenuOpen(false);

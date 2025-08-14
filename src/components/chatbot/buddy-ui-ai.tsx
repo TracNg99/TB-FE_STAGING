@@ -16,6 +16,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Chatbox from '@/components/chatbot/chatbox';
 import { base64ToUnicode } from '@/components/chatbot/streaming-hook';
 import SubSidebar from '@/components/layouts/SubSidebar';
+import { Translation } from '@/components/translation';
 import { useAuth } from '@/contexts/auth-provider';
 import { useChat } from '@/contexts/chat-provider';
 import { useSidebar } from '@/contexts/sidebar-provider';
@@ -60,6 +61,7 @@ const BackgroundLayer: React.FC<{
 
 // Layer 2: Sidebar Layer (Fixed)
 const SidebarLayer: React.FC<{
+  t: (key: string, options?: any) => string;
   isHome: boolean;
   isSidebarOpen: boolean;
   isPinned: boolean;
@@ -73,6 +75,7 @@ const SidebarLayer: React.FC<{
   onTogglePin: () => void;
   onSidebarLeave: () => void;
 }> = ({
+  t,
   isHome,
   isSidebarOpen,
   isPinned,
@@ -92,7 +95,7 @@ const SidebarLayer: React.FC<{
 
   return (
     <SubSidebar
-      title={`Threads (${threadsList.length})`}
+      title={`${t('chat.threads')} (${threadsList.length})`}
       isSidebarOpen={isSidebarOpen}
       isPinned={isPinned}
       onSidebarLeave={onSidebarLeave}
@@ -136,12 +139,12 @@ const SidebarLayer: React.FC<{
         </div>
       ) : (
         <div className="flex flex-col mt-5 gap-3 items-center justify-items-center">
-          <p>Login to see your previous conversations</p>
+          <p>{t('chat.threadLoginPhrase')}</p>
           <button
             onClick={() => router.push('/auth/login')}
             className="rounded-full bg-orange-500 p-2 text-white font-semibold hover:bg-orange-700 cursor-pointer"
           >
-            Login
+            {t('auth.login')}
           </button>
         </div>
       )}
@@ -151,6 +154,7 @@ const SidebarLayer: React.FC<{
 
 // Layer 4: Content Layer (Scrollable)
 const ContentLayer: React.FC<{
+  t: (key: string, options?: any) => string;
   isHome: boolean;
   isMobile: boolean | undefined;
   experienceId: string | undefined | null;
@@ -169,6 +173,7 @@ const ContentLayer: React.FC<{
   ) => void;
   messagesEndRef: React.RefObject<HTMLDivElement | null>;
 }> = ({
+  t,
   isHome,
   isMobile,
   experienceId,
@@ -215,7 +220,7 @@ const ContentLayer: React.FC<{
                       height={isMobile ? 12 : 16}
                       className="size-[24px]"
                     />
-                    Follow up to
+                    {t('chat.followUpTo')}
                   </span>
                   <div className="flex flex-row self-start items-center justify-between gap-2 w-full">
                     <h2
@@ -261,7 +266,7 @@ const ContentLayer: React.FC<{
                 'text-[40px]': !isMobile,
               })}
             >
-              Welcome to Travel Buddy!
+              {t('chat.landingPageWelcome')}
             </h2>
           </div>
         )}
@@ -723,94 +728,102 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
   }, [charIndex, unfoldingTexts, messages]); // messages
 
   return (
-    <div className="h-full w-full">
-      {/* Main flex-row container: [Sidebar][MainContentColumn] */}
-      <div className="flex h-full flex-row w-full z-10">
-        {/* Sidebar Layer - Fixed */}
-        <SidebarLayer
-          isHome={isHome}
-          isSidebarOpen={isSidebarOpen}
-          isPinned={isPinned}
-          threadsList={threadsList}
-          activeThread={activeThread}
-          user={user}
-          isHistoryLoading={isHistoryLoading}
-          isHistoryFetching={isHistoryFetching}
-          onThreadSelect={handleThreadSelect}
-          onReset={handleReset}
-          onTogglePin={togglePin}
-          onSidebarLeave={handleSidebarLeave}
-        />
+    <Translation>
+      {(t) => (
+        <div className="h-full w-full">
+          {/* Main flex-row container: [Sidebar][MainContentColumn] */}
+          <div className="flex h-full flex-row w-full z-10">
+            {/* Sidebar Layer - Fixed */}
+            <SidebarLayer
+              t={t}
+              isHome={isHome}
+              isSidebarOpen={isSidebarOpen}
+              isPinned={isPinned}
+              threadsList={threadsList}
+              activeThread={activeThread}
+              user={user}
+              isHistoryLoading={isHistoryLoading}
+              isHistoryFetching={isHistoryFetching}
+              onThreadSelect={handleThreadSelect}
+              onReset={handleReset}
+              onTogglePin={togglePin}
+              onSidebarLeave={handleSidebarLeave}
+            />
 
-        {/* MainContentColumn: flex-col [ScrollableContent][Chatbox] */}
-        <div className="flex pt-18 md:pt-2 grow flex-col min-w-0 z-10 relative h-full overflow-hidden">
-          <BackgroundLayer
-            isHome={isHome}
-            hasMessages={messages.length > 0}
-            isInputActive={isInputActive || isThreadFetching || isThreadLoading}
-          />
-          {/* <ChatWrapper className='bg-transparent'> */}
-          {/* Main content container with proper flex layout */}
-          <div
-            className={cn('flex flex-col h-full w-full z-10 gap-0', {
-              'justify-center': messages.length === 0 && !isMobile,
-            })}
-          >
-            {/* Scrollable content area - takes remaining space */}
-            <div
-              className={cn('overflow-y-auto overscroll-none min-h-0', {
-                'flex-1': messages.length > 0 || isMobile,
-              })}
-            >
-              <PageWrapper className="bg-transparent">
+            {/* MainContentColumn: flex-col [ScrollableContent][Chatbox] */}
+            <div className="flex pt-18 md:pt-2 grow flex-col min-w-0 z-10 relative h-full overflow-hidden">
+              <BackgroundLayer
+                isHome={isHome}
+                hasMessages={messages.length > 0}
+                isInputActive={
+                  isInputActive || isThreadFetching || isThreadLoading
+                }
+              />
+              {/* <ChatWrapper className='bg-transparent'> */}
+              {/* Main content container with proper flex layout */}
+              <div
+                className={cn('flex flex-col h-full w-full z-10 gap-0', {
+                  'justify-center': messages.length === 0 && !isMobile,
+                })}
+              >
+                {/* Scrollable content area - takes remaining space */}
                 <div
-                  className={cn('flex flex-col h-full w-full', {
-                    'justify-center': messages.length === 0 && isMobile,
+                  className={cn('overflow-y-auto overscroll-none min-h-0', {
+                    'flex-1': messages.length > 0 || isMobile,
                   })}
                 >
-                  <ContentLayer
-                    isHome={isHome}
-                    isMobile={isMobile}
-                    experienceId={experienceId}
-                    experienceData={experienceData}
-                    isThreadFetching={isThreadFetching}
-                    isThreadLoading={isThreadLoading}
-                    messages={messages}
-                    isLoading={isLoading}
-                    unfoldingTexts={unfoldingTexts}
-                    floatingTexts={floatingTexts}
-                    onSend={handleSend}
-                    messagesEndRef={messagesEndRef}
-                    isSessionActive={
-                      !!activeThread &&
-                      activeThread !== null &&
-                      activeThread !== ''
-                    }
-                    threadId={activeThread || ''}
-                  />
+                  <PageWrapper className="bg-transparent">
+                    <div
+                      className={cn('flex flex-col h-full w-full', {
+                        'justify-center': messages.length === 0 && isMobile,
+                      })}
+                    >
+                      <ContentLayer
+                        t={t}
+                        isHome={isHome}
+                        isMobile={isMobile}
+                        experienceId={experienceId}
+                        experienceData={experienceData}
+                        isThreadFetching={isThreadFetching}
+                        isThreadLoading={isThreadLoading}
+                        messages={messages}
+                        isLoading={isLoading}
+                        unfoldingTexts={unfoldingTexts}
+                        floatingTexts={floatingTexts}
+                        onSend={handleSend}
+                        messagesEndRef={messagesEndRef}
+                        isSessionActive={
+                          !!activeThread &&
+                          activeThread !== null &&
+                          activeThread !== ''
+                        }
+                        threadId={activeThread || ''}
+                      />
+                    </div>
+                  </PageWrapper>
                 </div>
-              </PageWrapper>
-            </div>
-            {/* Fixed chatbox at bottom */}
-            <div className="flex-shrink-0 pb-4 sticky bottom-0">
-              <PageWrapper className="bg-transparent">
-                <Chatbox
-                  isHome={isHome}
-                  isMobile={isMobile}
-                  onSend={handleSend}
-                  initialSuggestions={initialSuggestions}
-                  hasMessages={
-                    messages.length > 0 ||
-                    (!!activeThread && activeThread !== '')
-                  }
-                />
-              </PageWrapper>
+                {/* Fixed chatbox at bottom */}
+                <div className="flex-shrink-0 pb-4 sticky bottom-0">
+                  <PageWrapper className="bg-transparent">
+                    <Chatbox
+                      isHome={isHome}
+                      isMobile={isMobile}
+                      onSend={handleSend}
+                      initialSuggestions={initialSuggestions}
+                      hasMessages={
+                        messages.length > 0 ||
+                        (!!activeThread && activeThread !== '')
+                      }
+                    />
+                  </PageWrapper>
+                </div>
+              </div>
+              {/* </ChatWrapper> */}
             </div>
           </div>
-          {/* </ChatWrapper> */}
         </div>
-      </div>
-    </div>
+      )}
+    </Translation>
   );
 };
 

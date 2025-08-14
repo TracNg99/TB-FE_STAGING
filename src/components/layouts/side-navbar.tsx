@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+import { Translation } from '@/components/translation';
 import { useAuth } from '@/contexts/auth-provider';
 import { useChat } from '@/contexts/chat-provider';
 import { useSidebar } from '@/contexts/sidebar-provider';
@@ -22,17 +23,17 @@ import IconHandler from '../icons/icon-handler';
 
 const navbarLinks = [
   {
-    title: 'Home',
+    title: 'navigation.home',
     href: '/',
     icon: IconHome,
   },
   {
-    title: 'Discover',
+    title: 'navigation.discover',
     href: 'discoveries',
     icon: IconDiscover,
   },
   {
-    title: 'Stories',
+    title: 'navigation.stories',
     href: 'stories',
     icon: IconStory,
   },
@@ -40,7 +41,7 @@ const navbarLinks = [
 
 const businessLinks = [
   {
-    title: 'Discover',
+    title: 'navigation.discover',
     href: 'discoveries',
     icon: IconDiscover,
   },
@@ -111,102 +112,106 @@ const Navbar = () => {
   };
 
   return (
-    <aside
-      onMouseEnter={() => setIsSidebarOpen(true)}
-      // onMouseLeave={() => setIsSidebarOpen(false)}
-      className="h-full w-20 flex flex-col items-center border-r border-gray-200 bg-white py-4 overflow-visible"
-    >
-      <Link href="/" onClick={triggerReset}>
-        <Image
-          src="/assets/travelbuddy_logo_icon.svg"
-          alt="Logo"
-          width={56}
-          height={56}
-        />
-      </Link>
-      <nav className="mt-6 flex flex-grow flex-col items-center gap-3">
-        {(role === 'business' ? businessLinks : navbarLinks).map(
-          (link, index) => (
-            <UnstyledButton
-              onClick={() =>
-                link.title === 'Stories'
-                  ? handleStoriesClicked()
-                  : handleTabChange(link.href ?? '/')
-              }
-              className={cn(
-                'flex flex-col items-center justify-center gap-1.5 rounded-lg p-2 w-14 h-14 transition-all duration-200 hover:bg-orange-100/50',
-                activeTab === link.href && 'bg-[#FFEEE6]',
-                activeTab !== link.href && 'bg-transparent text-gray-500',
-              )}
-              key={index}
-            >
-              {link.title !== 'Stories' && (
-                <div className="flex items-center justify-center w-full">
-                  <IconHandler
-                    IconComponent={link.icon}
-                    className={cn('size-[30px]')}
-                  />
-                </div>
-              )}
-              {link.title === 'Stories' && (
-                <div className="flex items-center justify-center w-full">
-                  <AiButton
-                    className="flex cursor-pointer"
-                    altIcon={
+    <Translation>
+      {(t) => (
+        <aside
+          onMouseEnter={() => setIsSidebarOpen(true)}
+          // onMouseLeave={() => setIsSidebarOpen(false)}
+          className="h-full w-20 flex flex-col items-center border-r border-gray-200 bg-white py-4 overflow-visible"
+        >
+          <Link href="/" onClick={triggerReset}>
+            <Image
+              src="/assets/travelbuddy_logo_icon.svg"
+              alt="Logo"
+              width={56}
+              height={56}
+            />
+          </Link>
+          <nav className="mt-6 flex flex-grow flex-col items-center gap-3">
+            {(role === 'business' ? businessLinks : navbarLinks).map(
+              (link, index) => (
+                <UnstyledButton
+                  onClick={() =>
+                    link.title === 'Stories'
+                      ? handleStoriesClicked()
+                      : handleTabChange(link.href ?? '/')
+                  }
+                  className={cn(
+                    'flex flex-col items-center justify-center gap-1.5 rounded-lg p-2 w-14 h-14 transition-all duration-200 hover:bg-orange-100/50',
+                    activeTab === link.href && 'bg-[#FFEEE6]',
+                    activeTab !== link.href && 'bg-transparent text-gray-500',
+                  )}
+                  key={index}
+                >
+                  {link.title !== 'Stories' && (
+                    <div className="flex items-center justify-center w-full">
                       <IconHandler
                         IconComponent={link.icon}
-                        className={cn('size-6 text-gray-700')}
+                        className={cn('size-[30px]')}
                       />
-                    }
-                  />
-                </div>
-              )}
-              <span className="text-[10px] font-medium leading-tight text-center">
-                {link.title}
-              </span>
-            </UnstyledButton>
-          ),
-        )}
-      </nav>
-      <div className="mt-auto">
-        {user ? (
-          <Popover position="top" withArrow>
-            <Popover.Target>
-              <UnstyledButton>
-                <Avatar
-                  src={user.media_assets?.url ?? null}
-                  name={user.username}
-                  radius="xl"
-                />
-              </UnstyledButton>
-            </Popover.Target>
-            <Popover.Dropdown className="flex flex-col gap-2 bg-white/50">
-              <Button
-                className="bg-orange-500 text-white"
-                fullWidth
-                variant="subtle"
-                onClick={() => router.push('/profile')}
-              >
-                Profile
-              </Button>
-              <Button
-                className="bg-red-500 text-white"
-                fullWidth
-                variant="subtle"
-                color="red"
-                onClick={logout}
-              >
-                Logout
-              </Button>
-            </Popover.Dropdown>
-          </Popover>
-        ) : (
-          <div onClick={logout} className="cursor-pointer">
-            <Avatar radius="xl" />
+                    </div>
+                  )}
+                  {link.title === 'Stories' && (
+                    <div className="flex items-center justify-center w-full">
+                      <AiButton
+                        className="flex cursor-pointer"
+                        altIcon={
+                          <IconHandler
+                            IconComponent={link.icon}
+                            className={cn('size-6 text-gray-700')}
+                          />
+                        }
+                      />
+                    </div>
+                  )}
+                  <span className="text-[10px] font-medium leading-tight text-center">
+                    {t(link.title)}
+                  </span>
+                </UnstyledButton>
+              ),
+            )}
+          </nav>
+          <div className="mt-auto">
+            {user ? (
+              <Popover position="top" withArrow>
+                <Popover.Target>
+                  <UnstyledButton>
+                    <Avatar
+                      src={user.media_assets?.url ?? null}
+                      name={user.username}
+                      radius="xl"
+                    />
+                  </UnstyledButton>
+                </Popover.Target>
+                <Popover.Dropdown className="flex flex-col gap-2 bg-white/50">
+                  <Button
+                    className="bg-orange-500 text-white"
+                    fullWidth
+                    variant="subtle"
+                    onClick={() => router.push('/profile')}
+                  >
+                    {t('navigation.profile')}
+                  </Button>
+                  <Button
+                    className="bg-red-500 text-white"
+                    fullWidth
+                    variant="subtle"
+                    color="red"
+                    onClick={logout}
+                  >
+                    {t('navigation.logout')}
+                  </Button>
+                </Popover.Dropdown>
+              </Popover>
+            ) : (
+              <div onClick={logout} className="cursor-pointer">
+                <Avatar radius="xl" />
+              </div>
+            )}
           </div>
-        )}
-      </div>
-    </aside>
+        </aside>
+      )}
+    </Translation>
   );
 };
 

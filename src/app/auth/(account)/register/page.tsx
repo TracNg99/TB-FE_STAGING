@@ -10,6 +10,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { Translation } from '@/components/translation';
 import { useSignUpMutation } from '@/store/redux/slices/user/auth';
 
 const registerSchema = z.object({
@@ -67,7 +68,7 @@ const RegisterPage = () => {
       } else {
         notifications.show({
           color: 'success',
-          title: 'Sign Up successful',
+          title: 'Account created successfully!',
           message: 'Account created successfully!',
           position: 'top-center',
         });
@@ -102,59 +103,65 @@ const RegisterPage = () => {
   };
 
   return (
-    <>
-      <header className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold">Welcome to Travel buddy</h1>
-        <p className="text-sm">
-          Already have an account?{' '}
-          <Link href="/auth/login" className="underline">
-            Log in
-          </Link>
-        </p>
-      </header>
-      <form
-        className="flex flex-col gap-4 mt-4"
-        onSubmit={form.handleSubmit(onSubmit)}
-      >
-        <TextInput
-          {...form.register('firstName')}
-          label="First name"
-          placeholder="John"
-          error={form.formState.errors.firstName?.message}
-        />
-        <TextInput
-          {...form.register('lastName')}
-          label="Last name"
-          placeholder="Doe"
-          error={form.formState.errors.lastName?.message}
-        />
-        <TextInput
-          {...form.register('email')}
-          label="Email"
-          placeholder="email@example.com"
-          error={form.formState.errors.email?.message}
-        />
-        {/* <TextInput
+    <Translation>
+      {(t) => (
+        <>
+          <header className="flex flex-col gap-1">
+            <h1 className="text-2xl font-semibold">
+              {t('chat.landingPageWelcome')}
+            </h1>
+            <p className="text-sm">
+              {t('auth.alreadyHaveAccount')}{' '}
+              <Link href="/auth/login" className="underline">
+                {t('auth.login')}
+              </Link>
+            </p>
+          </header>
+          <form
+            className="flex flex-col gap-4 mt-4"
+            onSubmit={form.handleSubmit(onSubmit)}
+          >
+            <TextInput
+              {...form.register('firstName')}
+              label={t('profile.firstName')}
+              placeholder="John"
+              error={form.formState.errors.firstName?.message}
+            />
+            <TextInput
+              {...form.register('lastName')}
+              label={t('profile.lastName')}
+              placeholder="Doe"
+              error={form.formState.errors.lastName?.message}
+            />
+            <TextInput
+              {...form.register('email')}
+              label={t('auth.email')}
+              placeholder="email@example.com"
+              error={form.formState.errors.email?.message}
+            />
+            {/* <TextInput
           {...form.register('phoneNumber')}
           label="Phone number"
           placeholder="+1234567890"
           error={form.formState.errors.phoneNumber?.message}
         /> */}
-        <PasswordInput
-          {...form.register('password')}
-          label="Password"
-          placeholder="******"
-          error={form.formState.errors.password?.message}
-        />
-        <Button
-          type="submit"
-          disabled={!form.formState.isValid}
-          loading={loading}
-        >
-          Register
-        </Button>
-      </form>
-    </>
+            <PasswordInput
+              {...form.register('password')}
+              label={t('auth.password')}
+              placeholder="******"
+              error={form.formState.errors.password?.message}
+            />
+            <Button
+              type="submit"
+              disabled={!form.formState.isValid}
+              loading={loading}
+            >
+              {t('auth.register')}
+            </Button>
+          </form>
+        </>
+      )}
+    </Translation>
   );
 };
 

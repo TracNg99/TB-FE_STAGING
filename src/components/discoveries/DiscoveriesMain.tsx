@@ -8,6 +8,7 @@ import React, { useMemo, useState } from 'react';
 import QRModal from '@/components/qr-code/qr-modal';
 import StickyTitleChipsHeader from '@/components/sharing/StickyTitleChipsHeader';
 import { useSidebar } from '@/contexts/sidebar-provider';
+// import { useTranslation } from 'react-i18next';
 import {
   Experience,
   useGetScopedExperiencesQuery,
@@ -28,14 +29,33 @@ const ADDRESS_LIST = [
 
 const DiscoveriesMain: React.FC = () => {
   const { experiencesStatus } = useSidebar();
-  const role = localStorage.getItem('role') || '';
   const searchParams = useSearchParams();
+
+  // Initialize state with actual storage values to ensure consistent skip conditions
+  const role = useMemo<string>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('role') || '';
+    }
+    return '';
+  }, []);
+
+  const companies = useMemo<any>(() => {
+    if (typeof window !== 'undefined') {
+      const companiesData = sessionStorage.getItem('companies');
+      return companiesData ? JSON.parse(companiesData) : null;
+    }
+    return null;
+  }, []);
+
+  const companyId = useMemo<string | null>(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('company_id') || null;
+    }
+    return null;
+  }, []);
+
   const selectedAddress =
     searchParams.get('address') || (role === 'business' ? 'All' : 'For you');
-  const companies = sessionStorage.getItem('companies')
-    ? JSON.parse(sessionStorage.getItem('companies') || '')
-    : null;
-  const companyId = sessionStorage.getItem('company_id') || null;
   const router = useRouter();
   const {
     data: addressMap,

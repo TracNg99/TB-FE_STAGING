@@ -22,6 +22,7 @@ type ActivityModalProps = {
   };
   experience_name: string;
   language: string;
+  t?: any;
 };
 
 const ActivityModal = ({
@@ -30,6 +31,7 @@ const ActivityModal = ({
   activity,
   experience_name,
   language,
+  t,
 }: ActivityModalProps) => {
   const { open: openAudio, Drawer: AudioDrawerPortal } = useAudioDrawer();
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -163,7 +165,9 @@ const ActivityModal = ({
             {/* About Section */}
             <div className="mb-8">
               <div className="flex items-center justify-start gap-4 mb-4">
-                <h2 className="text-xl font-bold text-gray-800">About</h2>
+                <h2 className="text-xl font-bold text-gray-800">
+                  {t?.('common.about')}
+                </h2>
                 <button
                   className="rounded-lg cursor-pointer relative flex items-center justify-center"
                   onClick={() =>
@@ -208,7 +212,7 @@ const ActivityModal = ({
             {/* Highlights */}
             <div className="mb-8">
               <h2 className="text-xl font-bold mb-4 text-gray-800">
-                Highlights
+                {t?.('experiences.highlights')}
               </h2>
               <div className="flex flex-wrap gap-2 mb-5">
                 {activity.highlights?.map((tag, index) => (
@@ -224,13 +228,15 @@ const ActivityModal = ({
 
             {/* Details */}
             <div className="mb-8">
-              <h2 className="text-xl font-bold mb-4 text-gray-800">Details</h2>
+              <h2 className="text-xl font-bold mb-4 text-gray-800">
+                {t?.('experiences.details')}
+              </h2>
               <div className="bg-gray-50 rounded-xl p-5 mb-5">
                 <div className="flex items-start mb-4 text-base">
                   <span className="w-6 mr-4 text-gray-600 mt-0.5">📍</span>
                   <div className="flex-1">
                     <div className="font-semibold text-gray-800 mb-1">
-                      Location
+                      {t?.('experiences.location')}
                     </div>
                     <div className="text-gray-600 leading-relaxed">
                       {activity.address}
@@ -240,7 +246,9 @@ const ActivityModal = ({
                 <div className="flex items-start text-base">
                   <span className="w-6 mr-4 text-gray-600 mt-0.5">🕐</span>
                   <div className="flex-1">
-                    <div className="font-semibold text-gray-800 mb-1">Time</div>
+                    <div className="font-semibold text-gray-800 mb-1">
+                      {t?.('common.time')}
+                    </div>
                     <div className="text-gray-600 leading-relaxed">
                       {activity.hours}
                     </div>
@@ -252,7 +260,7 @@ const ActivityModal = ({
             {/* Image Carousel */}
             <div className="mb-8">
               <h2 className="text-xl font-bold mb-4 text-gray-800">
-                More Images
+                {t?.('experiences.moreImages')}
               </h2>
               <div className="relative mb-5">
                 <div className="overflow-hidden rounded-xl relative w-full h-80">

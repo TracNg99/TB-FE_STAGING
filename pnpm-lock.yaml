@@ -121,6 +121,9 @@ importers:
       heic2any:
         specifier: ^0.0.4
         version: 0.0.4
+      i18next:
+        specifier: ^25.3.4
+        version: 25.3.4(typescript@5.8.2)
       jwt-decode:
         specifier: ^4.0.0
         version: 4.0.0
@@ -151,6 +154,9 @@ importers:
       react-hook-form-persist:
         specifier: ^3.0.0
         version: 3.0.0(react-hook-form@7.54.2(react@19.0.0))(react@19.0.0)
+      react-i18next:
+        specifier: ^15.6.1
+        version: 15.6.1(i18next@25.3.4(typescript@5.8.2))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.8.2)
       react-icons:
         specifier: ^5.5.0
         version: 5.5.0(react@19.0.0)
@@ -1113,6 +1119,13 @@ packages:
     resolution:
       {
         integrity: sha512-2WJMeRQPHKSPemqk/awGrAiuFfzBmOIPXKizAsVhWH9YJqLZ0H+HS4c8loHGgW6utJ3E/ejXQUsiGaQy2NZ9Fw==,
+      }
+    engines: { node: '>=6.9.0' }
+
+  '@babel/runtime@7.28.2':
+    resolution:
+      {
+        integrity: sha512-KHp2IflsnGywDjBWDkR9iEqiWSpc8GIi0lgTT3mOElT0PP1tG26P4tmFI2YvAdzgq9RGyoHZQEIEdZy6Ec5xCA==,
       }
     engines: { node: '>=6.9.0' }
 
@@ -4251,6 +4264,12 @@ packages:
         integrity: sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==,
       }
 
+  html-parse-stringify@3.0.1:
+    resolution:
+      {
+        integrity: sha512-KknJ50kTInJ7qIScF3jeaFRpMpE8/lfiTdzf/twXyPBLAGrLRTmkz3AdTnKeh40X8k9L2fdYwEp/42WGXIRGcg==,
+      }
+
   html-url-attributes@3.0.1:
     resolution:
       {
@@ -4264,6 +4283,17 @@ packages:
       }
     engines: { node: '>=18' }
     hasBin: true
+
+  i18next@25.3.4:
+    resolution:
+      {
+        integrity: sha512-AHklEYFLiRRxW1Cb6zE9lfnEtYvsydRC8nRS3RSKGX3zCqZ8nLZwMaUsrb80YuccPNv2RNokDL8LkTNnp+6mDw==,
+      }
+    peerDependencies:
+      typescript: ^5
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   ignore@5.3.2:
     resolution:
@@ -5730,6 +5760,25 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17 || ^18 || ^19
 
+  react-i18next@15.6.1:
+    resolution:
+      {
+        integrity: sha512-uGrzSsOUUe2sDBG/+FJq2J1MM+Y4368/QW8OLEKSFvnDflHBbZhSd1u3UkW0Z06rMhZmnB/AQrhCpYfE5/5XNg==,
+      }
+    peerDependencies:
+      i18next: '>= 23.2.3'
+      react: '>= 16.8.0'
+      react-dom: '*'
+      react-native: '*'
+      typescript: ^5
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
+      react-native:
+        optional: true
+      typescript:
+        optional: true
+
   react-icons@5.5.0:
     resolution:
       {
@@ -6666,6 +6715,13 @@ packages:
         integrity: sha512-PnpQQMuxlwYdocC8fIJqVXvkeViHYzotI+NJrCuav0ZYFoq912ZHBk3mCeuj+5/VpodOjPe1z0Fk2ihgzlXqjQ==,
       }
 
+  void-elements@3.1.0:
+    resolution:
+      {
+        integrity: sha512-Dhxzh5HZuiHQhbvTW9AMetFfBHDMYpo23Uo9btPXgdYP+3T5S+p+jgNy7spra+veYhBP2dCSgxR/i2Y02h5/6w==,
+      }
+    engines: { node: '>=0.10.0' }
+
   w3c-keyname@2.2.8:
     resolution:
       {
@@ -7540,6 +7596,8 @@ snapshots:
   '@babel/runtime@7.26.10':
     dependencies:
       regenerator-runtime: 0.14.1
+
+  '@babel/runtime@7.28.2': {}
 
   '@babel/template@7.26.9':
     dependencies:
@@ -9590,9 +9648,19 @@ snapshots:
     dependencies:
       react-is: 16.13.1
 
+  html-parse-stringify@3.0.1:
+    dependencies:
+      void-elements: 3.1.0
+
   html-url-attributes@3.0.1: {}
 
   husky@9.1.7: {}
+
+  i18next@25.3.4(typescript@5.8.2):
+    dependencies:
+      '@babel/runtime': 7.28.2
+    optionalDependencies:
+      typescript: 5.8.2
 
   ignore@5.3.2: {}
 
@@ -10630,6 +10698,16 @@ snapshots:
     dependencies:
       react: 19.0.0
 
+  react-i18next@15.6.1(i18next@25.3.4(typescript@5.8.2))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.8.2):
+    dependencies:
+      '@babel/runtime': 7.28.2
+      html-parse-stringify: 3.0.1
+      i18next: 25.3.4(typescript@5.8.2)
+      react: 19.0.0
+    optionalDependencies:
+      react-dom: 19.0.0(react@19.0.0)
+      typescript: 5.8.2
+
   react-icons@5.5.0(react@19.0.0):
     dependencies:
       react: 19.0.0
@@ -11313,6 +11391,8 @@ snapshots:
       d3-shape: 3.2.0
       d3-time: 3.1.0
       d3-timer: 3.0.1
+
+  void-elements@3.1.0: {}
 
   w3c-keyname@2.2.8: {}
 

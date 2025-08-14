@@ -7,6 +7,7 @@ import { FaMicrophone } from 'react-icons/fa';
 
 import VoiceButtonForm from '@/components/audio-handler/voice-to-text';
 import TextCarousel from '@/components/text-carousel';
+import { Translation } from '@/components/translation';
 import { cn } from '@/utils/class';
 
 import ImageUploader from '../image-uploader/image-picker';
@@ -94,98 +95,106 @@ const InputLayer: React.FC<{
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
   return (
-    <div
-      className={cn(
-        'relative z-30 w-full min-h-[120px] flex flex-col justify-end h-20',
-        {
-          'min-h-[60px]': isMobile,
-          'min-h-[80px]': !isMobile && !isHome,
-        },
-      )}
-    >
-      {/* Dynamic height, grows with content */}
-      <div
-        className={cn(
-          'w-full mx-auto h-full flex flex-col justify-end px-3 bg-transparent',
-        )}
-      >
-        <InchatUploader
-          className={cn('flex flex-row w-full lg:mx gap-4 my-3')}
-          selectedImages={selectedImages}
-          handleRemoveImage={onRemoveImage}
-          CustomChildren={CustomImageDisplay}
-          singleImageClassName="hidden"
-        />
-
+    <Translation>
+      {(t) => (
         <div
           className={cn(
-            'w-full flex flex-row items-center mx-1 h-full gap-2 bg-transparent',
+            'relative z-30 w-full min-h-[120px] flex flex-col justify-end h-20',
+            {
+              'min-h-[60px]': isMobile,
+              'min-h-[80px]': !isMobile && !isHome,
+            },
           )}
         >
-          <textarea
-            className="flex-grow h-full bg-transparent border-none outline-none text-lg placeholder-gray-400 px-2 py-1 resize-none focus:ring-0 placeholder-gray-600"
-            placeholder="Ask anything..."
-            value={input}
-            onChange={(e) => onInputChange(e.target.value)}
-            onKeyDown={onKeyPress}
-            ref={textAreaRef}
-            style={{ minHeight: '60px', maxHeight: '100%', overflow: 'auto' }}
-            rows={isMobile ? 2 : 4}
-            disabled={disabled}
-          />
-          {/* Image upload */}
-          <div className="flex flex-row items-center place-self-end">
-            {isHome && (
-              <ImageUploader
-                onImageUpload={onImageUpload}
-                fetchImages={selectedImages}
-                className={cn(
-                  'flex text-gray-200 rounded-full cursor-pointer align-items-end',
-                  { 'size-8': isMobile, 'size-10': !isMobile },
-                )}
-                allowMultiple={true}
-                disabled={disabled}
-              >
-                <Image
-                  src="/assets/image_uploader_icon.svg"
-                  alt="Upload"
-                  width={isMobile ? 28 : 32}
-                  height={isMobile ? 28 : 32}
-                />
-              </ImageUploader>
+          {/* Dynamic height, grows with content */}
+          <div
+            className={cn(
+              'w-full mx-auto h-full flex flex-col justify-end px-3 bg-transparent',
             )}
-            {/* Voice button */}
-            <VoiceButtonForm
-              language="en-US"
-              onTranscribe={onVoiceTranscribe}
-              existingTexts={input}
-              className={cn(
-                'flex flex-end text-gray-600 bg-transparent rounded-full cursor-pointer self-center border items-center',
-                { 'size-6 pb-1': isMobile, 'size-10': !isMobile },
-              )}
-              customIcon={<FaMicrophone className="size-5" />}
-              asModal
-              disabled={disabled}
+          >
+            <InchatUploader
+              className={cn('flex flex-row w-full lg:mx gap-4 my-3')}
+              selectedImages={selectedImages}
+              handleRemoveImage={onRemoveImage}
+              CustomChildren={CustomImageDisplay}
+              singleImageClassName="hidden"
             />
-            {/* Send button */}
-            <button
+
+            <div
               className={cn(
-                `flex shrink-0 ml-1 rounded-md bg-orange-500 hover:bg-orange-600 text-white cursor-pointer p-[6px] size-[28px]`,
-                {
-                  'mb-1': isMobile,
-                },
+                'w-full flex flex-row items-center mx-1 h-full gap-2 bg-transparent',
               )}
-              onClick={() => onSend(input)}
-              disabled={
-                disabled || (!input.trim() && selectedImages.length === 0)
-              }
             >
-              <SendIcon className="text-white" size={20} />
-            </button>
+              <textarea
+                className="flex-grow h-full bg-transparent border-none outline-none text-lg placeholder-gray-400 px-2 py-1 resize-none focus:ring-0 placeholder-gray-600"
+                placeholder={t('chat.askAnything')}
+                value={input}
+                onChange={(e) => onInputChange(e.target.value)}
+                onKeyDown={onKeyPress}
+                ref={textAreaRef}
+                style={{
+                  minHeight: '60px',
+                  maxHeight: '100%',
+                  overflow: 'auto',
+                }}
+                rows={isMobile ? 2 : 4}
+                disabled={disabled}
+              />
+              {/* Image upload */}
+              <div className="flex flex-row items-center place-self-end">
+                {isHome && (
+                  <ImageUploader
+                    onImageUpload={onImageUpload}
+                    fetchImages={selectedImages}
+                    className={cn(
+                      'flex text-gray-200 rounded-full cursor-pointer align-items-end',
+                      { 'size-8': isMobile, 'size-10': !isMobile },
+                    )}
+                    allowMultiple={true}
+                    disabled={disabled}
+                  >
+                    <Image
+                      src="/assets/image_uploader_icon.svg"
+                      alt="Upload"
+                      width={isMobile ? 28 : 32}
+                      height={isMobile ? 28 : 32}
+                    />
+                  </ImageUploader>
+                )}
+                {/* Voice button */}
+                <VoiceButtonForm
+                  language="en-US"
+                  onTranscribe={onVoiceTranscribe}
+                  existingTexts={input}
+                  className={cn(
+                    'flex flex-end text-gray-600 bg-transparent rounded-full cursor-pointer self-center border items-center',
+                    { 'size-6 pb-1': isMobile, 'size-10': !isMobile },
+                  )}
+                  customIcon={<FaMicrophone className="size-5" />}
+                  asModal
+                  disabled={disabled}
+                />
+                {/* Send button */}
+                <button
+                  className={cn(
+                    `flex shrink-0 ml-1 rounded-md bg-orange-500 hover:bg-orange-600 text-white cursor-pointer p-[6px] size-[28px]`,
+                    {
+                      'mb-1': isMobile,
+                    },
+                  )}
+                  onClick={() => onSend(input)}
+                  disabled={
+                    disabled || (!input.trim() && selectedImages.length === 0)
+                  }
+                >
+                  <SendIcon className="text-white" size={20} />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+      )}
+    </Translation>
   );
 };
 const SendIcon: React.FC<{ className?: string; size?: number }> = ({

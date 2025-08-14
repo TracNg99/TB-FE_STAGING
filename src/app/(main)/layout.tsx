@@ -4,12 +4,16 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 import React, { useMemo } from 'react';
 
+import { LanguageSwitcher } from '@/components/language-switcher';
 import MobileNavbar from '@/components/layouts/mobile-nav-layout';
 import Navbar from '@/components/layouts/side-navbar';
 import { SidebarProvider } from '@/contexts/sidebar-provider';
+import { cn } from '@/utils/class';
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
+  const isHomePage = pathname === '/';
+
   const transitionKey = useMemo(() => {
     if (!pathname) return 'root';
     // Group stories list and create pages to avoid transition animation between them
@@ -59,9 +63,6 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
         {/* Main content area */}
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
           {/* Desktop header */}
-          <header className="hidden md:flex flex-shrink-0">
-            {/* Desktop header content can be added here if needed */}
-          </header>
 
           {/* Main content */}
           <main className="flex-1 overflow-y-auto">
@@ -77,6 +78,18 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
                 }}
                 className="h-full relative"
               >
+                <div
+                  className={cn(
+                    `hidden md:flex flex-shrink-0 justify-end items-center p-2 transition-all duration-300`,
+                    {
+                      'absolute z-2000 top-0 right-[2dvw] bg-transparent border-transparent backdrop-blur-sm':
+                        isHomePage,
+                      'border-b border-gray-200 bg-white': !isHomePage,
+                    },
+                  )}
+                >
+                  <LanguageSwitcher variant="compact" size="sm" />
+                </div>
                 {children}
               </motion.div>
             </AnimatePresence>

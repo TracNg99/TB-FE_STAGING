@@ -7,6 +7,7 @@ import { IconBrandGoogle, IconBrandX } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
+import { Translation } from '@/components/translation';
 import {
   useAuthWithGoogleMutation,
   useAuthWithXMutation,
@@ -69,26 +70,30 @@ export default function AuthLayout({
   };
 
   return (
-    <div className="flex flex-col items-center justify-start min-h-lvh gap-4 px-5 py-10 sm:justify-center">
-      <div className="max-w-sm mx-auto w-full space-y-4">
-        {children}
-        <Divider label="Or sign in with" />
-        <div className="flex flex-col gap-4 w-full">
-          {oauthProviders.map(({ icon: Icon, key }, index) => (
-            <Button
-              variant="outline"
-              key={index}
-              onClick={() => {
-                setIsClicked(true);
-                onOauthLogin(key);
-              }}
-              disabled={isLoadingGgle || isLoadingX || isClicked}
-            >
-              <Icon />
-            </Button>
-          ))}
+    <Translation>
+      {(t) => (
+        <div className="flex flex-col items-center justify-start min-h-lvh gap-4 px-5 py-10 sm:justify-center">
+          <div className="max-w-sm mx-auto w-full space-y-4">
+            {children}
+            <Divider label={t('auth.signInWith')} />
+            <div className="flex flex-col gap-4 w-full">
+              {oauthProviders.map(({ icon: Icon, key }, index) => (
+                <Button
+                  variant="outline"
+                  key={index}
+                  onClick={() => {
+                    setIsClicked(true);
+                    onOauthLogin(key);
+                  }}
+                  disabled={isLoadingGgle || isLoadingX || isClicked}
+                >
+                  <Icon />
+                </Button>
+              ))}
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+    </Translation>
   );
 }

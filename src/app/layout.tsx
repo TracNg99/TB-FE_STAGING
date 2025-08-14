@@ -7,7 +7,10 @@ import { Oswald, Poppins, Roboto } from 'next/font/google';
 
 import AuthProvider from '@/contexts/auth-provider';
 import { ChatProvider } from '@/contexts/chat-provider';
+import { I18nProvider } from '@/contexts/i18n-provider';
 import ReduxProvider from '@/contexts/redux-provider';
+// Initialize i18n
+import '@/lib/i18n';
 
 import './globals.css';
 
@@ -92,14 +95,16 @@ export default function RootLayout({
       >
         <ReduxProvider>
           <AuthProvider>
-            <ChatProvider>
-              <MantineProvider theme={theme} defaultColorScheme="light">
-                <ModalsProvider>
-                  <Notifications />
-                  {children}
-                </ModalsProvider>
-              </MantineProvider>
-            </ChatProvider>
+            <I18nProvider>
+              <ChatProvider>
+                <MantineProvider theme={theme} defaultColorScheme="light">
+                  <ModalsProvider>
+                    <Notifications />
+                    {children}
+                  </ModalsProvider>
+                </MantineProvider>
+              </ChatProvider>
+            </I18nProvider>
           </AuthProvider>
         </ReduxProvider>
       </body>

@@ -10,6 +10,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { Translation } from '@/components/translation';
 import { useLogInMutation } from '@/store/redux/slices/user/auth';
 
 const loginSchema = z.object({
@@ -91,49 +92,55 @@ export function LoginForm({ redirectUrl, onSuccess }: LoginFormProps) {
   };
 
   return (
-    <>
-      <header className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold">Welcome to Travel Buddy</h1>
-        <p className="text-sm">
-          Don&apos;t have an account?{' '}
-          <Link href="/auth/register" className="underline">
-            Register
-          </Link>
-        </p>
-      </header>
-      <form
-        className="flex flex-col gap-4"
-        onSubmit={form.handleSubmit(onSubmit)}
-      >
-        <TextInput
-          {...form.register('email')}
-          label="Email"
-          placeholder="email@example.com"
-          error={form.formState.errors.email?.message}
-        />
-        <div className="flex flex-col gap-2">
-          <PasswordInput
-            {...form.register('password')}
-            label="Password"
-            placeholder="******"
-            error={form.formState.errors.password?.message}
-          />
-          <Link
-            href="/auth/forgot-password"
-            className="underline text-xs text-neutral-600"
+    <Translation>
+      {(t) => (
+        <>
+          <header className="flex flex-col gap-1">
+            <h1 className="text-2xl font-semibold">
+              {t('chat.landingPageWelcome')}
+            </h1>
+            <p className="text-sm">
+              {t('auth.dontHaveAccount')}{' '}
+              <Link href="/auth/register" className="underline">
+                {t('auth.register')}
+              </Link>
+            </p>
+          </header>
+          <form
+            className="flex flex-col gap-4"
+            onSubmit={form.handleSubmit(onSubmit)}
           >
-            Forgot password?
-          </Link>
-        </div>
-        <Button
-          type="submit"
-          disabled={!form.formState.isValid}
-          loading={loading}
-        >
-          Login
-        </Button>
-      </form>
-    </>
+            <TextInput
+              {...form.register('email')}
+              label={t('auth.email')}
+              placeholder="email@example.com"
+              error={form.formState.errors.email?.message}
+            />
+            <div className="flex flex-col gap-2">
+              <PasswordInput
+                {...form.register('password')}
+                label={t('auth.password')}
+                placeholder="******"
+                error={form.formState.errors.password?.message}
+              />
+              <Link
+                href="/auth/forgot-password"
+                className="underline text-xs text-neutral-600"
+              >
+                {t('auth.forgotPassword')}
+              </Link>
+            </div>
+            <Button
+              type="submit"
+              disabled={!form.formState.isValid}
+              loading={loading}
+            >
+              {t('auth.login')}
+            </Button>
+          </form>
+        </>
+      )}
+    </Translation>
   );
 }
 
