@@ -46,7 +46,9 @@ const AiButton = ({
           )}
           {...props}
         >
-          {altIcon || (
+          {altIcon ? (
+            altIcon
+          ) : (
             <Image src="/assets/story.svg" alt="Story" width={40} height={40} />
           )}
           {displayText}

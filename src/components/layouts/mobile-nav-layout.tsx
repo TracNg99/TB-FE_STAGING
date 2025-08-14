@@ -88,7 +88,7 @@ const Navbar = () => {
   };
 
   const handleStoriesClicked = () => {
-    setActiveTab('/stories');
+    setActiveTab('/stories/new');
     if (!user) {
       notifications.show({
         title: 'Member-only feature',

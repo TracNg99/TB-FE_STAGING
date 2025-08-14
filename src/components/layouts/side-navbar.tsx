@@ -34,7 +34,7 @@ const navbarLinks = [
   },
   {
     title: 'navigation.stories',
-    href: 'stories',
+    href: '/stories/new',
     icon: IconStory,
   },
 ];
@@ -106,7 +106,7 @@ const Navbar = () => {
       router.push('/auth/login');
       return;
     }
-    setActiveTab('stories');
+    setActiveTab('/stories/new');
     router.push('/stories/new');
     setIsSidebarOpen(true);
   };
@@ -132,7 +132,7 @@ const Navbar = () => {
               (link, index) => (
                 <UnstyledButton
                   onClick={() =>
-                    link.title === 'Stories'
+                    link.title === 'navigation.stories'
                       ? handleStoriesClicked()
                       : handleTabChange(link.href ?? '/')
                   }
@@ -143,7 +143,7 @@ const Navbar = () => {
                   )}
                   key={index}
                 >
-                  {link.title !== 'Stories' && (
+                  {link.title !== 'navigation.stories' && (
                     <div className="flex items-center justify-center w-full">
                       <IconHandler
                         IconComponent={link.icon}
@@ -151,14 +151,14 @@ const Navbar = () => {
                       />
                     </div>
                   )}
-                  {link.title === 'Stories' && (
+                  {link.title === 'navigation.stories' && (
                     <div className="flex items-center justify-center w-full">
                       <AiButton
                         className="flex cursor-pointer"
                         altIcon={
                           <IconHandler
                             IconComponent={link.icon}
-                            className={cn('size-6 text-gray-700')}
+                            className={cn('size-[30px] text-gray-700')}
                           />
                         }
                       />
