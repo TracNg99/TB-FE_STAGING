@@ -440,6 +440,55 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
     console.log('isSubmitting changed to:', isSubmitting);
   }, [isSubmitting]);
 
+  const uploadIconicPhotosToSupabase = async (
+    new_images: string[],
+  ): Promise<{ iconicPhotoUrl: string; iconicPhotoId: string }[]> => {
+    setIsSubmitting(true);
+    const result: { iconicPhotoUrl: string; iconicPhotoId: string }[] = [];
+    const uploadedUrls = (
+      await Promise.all(
+        new_images.map(async (photo) => {
+          try {
+            const payload = {
+              media: {
+                mimeType: 'image/jpeg',
+                body: photo,
+              },
+              bucket_name: 'destination',
+            };
+            const { url } = await uploadImageCloudRun(payload).unwrap();
+            return url;
+          } catch (error) {
+            console.error('Error uploading iconic photo:', error);
+            return null;
+          }
+        }),
+      )
+    ).filter((url) => url !== null) as string[];
+
+    // Create media assets for uploaded URLs
+    for (const imageUrl of uploadedUrls) {
+      const mediaAssetResponse = await createMediaAsset({
+        signedUrl: imageUrl,
+        mimeType: 'image',
+        usage: 'iconic_photo',
+      }).unwrap();
+
+      const imageId = mediaAssetResponse?.data?.id;
+      if (imageId && imageUrl) {
+        result.push({ iconicPhotoUrl: imageUrl, iconicPhotoId: imageId });
+      }
+    }
+    setIsSubmitting(false);
+    return result;
+  };
+
+  const handleDeleteActivity = (activityId: string) => {
+    setActivities((prev) =>
+      prev.filter((activity) => activity.id !== activityId),
+    );
+  };
+
   // Publish final experience
   const publishExperience = async ({ status }: { status: string }) => {
     console.log('Before setIsSubmitting(true), isSubmitting:', isSubmitting);
@@ -612,16 +661,31 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
           image_id = mediaAssetResponse.data.id || '';
         }
 
+        if (activity.activity_iconic_photos.length > 0) {
+          const images = activity.activity_iconic_photos
+            .filter((file: any) => file && file.image && file.name)
+            .map((file: any) => file.image!);
+          const iconicPhotos = await uploadIconicPhotosToSupabase(images);
+          iconicPhotoUrls.push(
+            ...iconicPhotos.map((photo) => photo.iconicPhotoUrl),
+          );
+          iconicPhotoIds.push(
+            ...iconicPhotos.map((photo) => photo.iconicPhotoId),
+          );
+        }
+
         const { data: newActivityData } = await createActivity({
           experience_id: experienceId!,
           title: activity.activity_title,
           address: activity.activity_address || '',
-          hours: activity.activity_hours || '',
+          hours: activity.activity_visiting_time || '',
           description: activity.activity_description || '',
           description_thumbnail: activity.activity_thumbnail_description || '',
           primary_photo: thumbnailUrl,
           primary_photo_id: image_id,
           highlights: activity.activity_highlights || [],
+          photos: iconicPhotoUrls,
+          photo_ids: iconicPhotoIds,
         });
 
         console.log('New Activity', newActivityData);
@@ -956,7 +1020,7 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
                           />
                           {/* Action Buttons */}
                           <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button
+                            {/* <button
                               type="button"
                               className="bg-white/90 p-1.5 rounded-md shadow-sm hover:bg-white transition-colors"
                               onClick={(e) => {
@@ -971,22 +1035,19 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
                                 alt="Edit"
                                 className="w-6 h-6"
                               />
-                            </button>
+                            </button> */}
                             <button
-                              className="bg-white/90 p-1.5 rounded-md shadow-sm hover:bg-white transition-colors"
+                              type="button"
+                              className="p-1.5 rounded-md hover:bg-white transition-colors"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                // TODO: Handle view photo
-                                console.log(
-                                  'Move activity around:',
-                                  activity.activity_thumbnail_image.image,
-                                );
+                                handleDeleteActivity(activity.id);
                               }}
-                              title="Move activity around"
+                              title="Delete Activity"
                             >
                               <img
-                                src="/assets/drag_and_move.svg"
-                                alt="Move activity around"
+                                src="/assets/delete.svg"
+                                alt="Delete activity"
                                 className="w-6 h-6"
                               />
                             </button>

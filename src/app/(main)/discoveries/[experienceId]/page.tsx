@@ -96,6 +96,10 @@ const ExperienceDetailPage = () => {
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(
     null,
   );
+
+  useEffect(() => {
+    console.log('Selected Activity', selectedActivity);
+  }, [selectedActivity]);
   const { open: openAudio, Drawer: AudioDrawerPortal } = useAudioDrawer();
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(
     null,
@@ -279,6 +283,7 @@ const ExperienceDetailPage = () => {
                   location: selectedActivity.address || '',
                   address: selectedActivity.address || '',
                   hours: selectedActivity.hours || '',
+                  highlights: selectedActivity.highlights || [],
                 }}
                 experience_name={experience.name}
                 language={language}

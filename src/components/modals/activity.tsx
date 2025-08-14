@@ -18,6 +18,7 @@ type ActivityModalProps = {
     address: string;
     hours: string;
     photos: string[];
+    highlights: string[];
   };
   experience_name: string;
   language: string;
@@ -210,13 +211,7 @@ const ActivityModal = ({
                 Highlights
               </h2>
               <div className="flex flex-wrap gap-2 mb-5">
-                {[
-                  '360° City Views',
-                  'Signature Cocktails',
-                  'Live DJ',
-                  'Instagram Worthy',
-                  'Romantic Atmosphere',
-                ].map((tag, index) => (
+                {activity.highlights?.map((tag, index) => (
                   <span
                     key={index}
                     className="bg-orange-600 text-white px-3 py-2 rounded-full text-sm font-medium"

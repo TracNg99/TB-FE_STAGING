@@ -821,7 +821,7 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
           activityData.activity_thumbnail_image.image ||
           '',
         highlights: activityData.activity_highlights || [],
-        photos: newPhotos?.map((photo) => photo.iconicPhotoUrl) || [],
+        photos: newPhotos?.map((photo: any) => photo.iconicPhotoUrl) || [],
       });
       activityForm.reset();
       refetchActivities();

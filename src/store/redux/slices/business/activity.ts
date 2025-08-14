@@ -10,6 +10,7 @@ export interface Activity {
   primary_photo: string;
   primary_photo_id?: string;
   photos?: string[];
+  photo_ids?: string[];
   hours?: string;
   address?: string;
   primary_keyword?: string;
@@ -40,7 +41,9 @@ const ActivityBusinessApi = createApi({
         primary_photo,
         primary_photo_id,
         photos,
+        photo_ids,
         hours,
+        address,
         description,
         description_thumbnail,
         order_of_appearance = -1,
@@ -54,7 +57,9 @@ const ActivityBusinessApi = createApi({
           primary_photo,
           primary_photo_id,
           photos,
+          photo_ids,
           hours,
+          address,
           description,
           description_thumbnail,
           order_of_appearance,
