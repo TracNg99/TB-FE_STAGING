@@ -32,23 +32,32 @@ const ExperienceDetailPage = () => {
   const { experienceId } = useParams();
   const router = useRouter();
   const isMobile = useMediaQuery('(max-width: 768px)');
+
+  // QR Modal state
+  const [qrOpen, setQrOpen] = useState(false);
+  const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
+  const [language, setLanguage] = useState('en-US');
+
+  const searchParams = useSearchParams();
+  const isFromQRScan = searchParams.get('fromQR') === 'true';
+
+  const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(false);
+
   const {
     data: experience,
     isLoading,
     error,
   } = useGetExperiencePublicQuery({
     id: experienceId as string,
+    language: language.split('-')[0],
   });
 
-  // QR Modal state
-  const [qrOpen, setQrOpen] = useState(false);
-  const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
-  const [language, setLanguage] = useState('');
-
-  const searchParams = useSearchParams();
-  const isFromQRScan = searchParams.get('fromQR') === 'true';
-
-  const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(false);
+  // Fetch activities for this experience
+  const { data: activities = [], isLoading: isLoadingActivities } =
+    useGetActivitiesInExperiencePublicQuery({
+      experience_id: experienceId as string,
+      language: language.split('-')[0],
+    });
 
   useEffect(() => {
     const languageState = sessionStorage.getItem('language');
@@ -83,12 +92,6 @@ const ExperienceDetailPage = () => {
     setLanguage(language);
     setIsWelcomeModalOpen(false);
   };
-
-  // Fetch activities for this experience
-  const { data: activities = [], isLoading: isLoadingActivities } =
-    useGetActivitiesInExperiencePublicQuery({
-      experience_id: experienceId as string,
-    });
 
   // Fetch iconic photos for this experience
   const { data: iconicPhotos = [], isLoading: isLoadingIconicPhotos } =

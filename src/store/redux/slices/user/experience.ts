@@ -188,10 +188,13 @@ const ExperienceApi = createApi({
       }),
       transformResponse: (res: ExperienceResponseList) => res.data,
     }),
-    getExperiencePublic: builder.query<Experience, { id: string }>({
-      query: ({ id }) => ({
+    getExperiencePublic: builder.query<
+      Experience,
+      { id: string; language?: string }
+    >({
+      query: ({ id, language }) => ({
         url: `/experiences/public`,
-        params: { 'experience-id': id },
+        params: { 'experience-id': id, language: language || 'en' },
       }),
       transformResponse: (res: ExperienceResponse) => res.data,
     }),

@@ -27,11 +27,11 @@ const ActivityUserApi = createApi({
 
     getActivitiesInExperiencePublic: builder.query<
       Activity[],
-      { experience_id: string }
+      { experience_id: string; language?: string }
     >({
-      query: ({ experience_id }) => ({
+      query: ({ experience_id, language }) => ({
         url: `/experiences/public/activities`,
-        params: { 'experience-id': experience_id },
+        params: { 'experience-id': experience_id, language: language || 'en' },
         method: 'GET',
       }),
       transformResponse: (response: GetActivityResponse): Activity[] =>
