@@ -98,8 +98,8 @@ The API remains exactly the same, but now it will properly respond to language c
 
 If you prefer to use hooks instead of the render prop pattern, you can still use:
 
-- `useTranslation()` from `@/hooks/use-translation`
-- `useT()` from `@/hooks/use-translation`
+- `useTranslation()` from `react-i18next`
+- `useI18n()` from `@/contexts/i18n-provider`
 - `withTranslation()` HOC from `@/hoc/with-translation`
 
 These are already integrated with your context and will work seamlessly.

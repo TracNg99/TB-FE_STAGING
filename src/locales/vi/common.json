@@ -107,10 +107,11 @@
       "Live DJ",
       "Instagram Worthy",
       "Romantic Atmosphere"
-    ]
+    ],
+    "noExperiencesFound": "Không tìm thấy trải nghiệm nào cho địa chỉ này."
   },
   "stories": {
-    "title": "Câu chuyện",
+    "title": "Kể câu chuyện du lịch của bạn",
     "newStory": "Câu chuyện mới",
     "myStories": "Câu chuyện du lịch của tôi",
     "publishedStories": "Câu chuyện đã xuất bản",
@@ -134,7 +135,12 @@
     "pickYourPhotos": "Chọn hình ảnh của bạn",
     "errorBrowserNotSupported": "Lỗi: Trình duyệt không được hỗ trợ",
     "errorBrowserNotSupportedMessage": "Trình duyệt này không hỗ trợ nhận dạng giọng nói",
-    "selectExperience": "Chọn trải nghiệm"
+    "selectExperience": "Chọn trải nghiệm",
+    "noStoriesFound": "Không tìm thấy câu chuyện nào",
+    "noStoriesFoundAllStories": "Bạn chưa tạo câu chuyện du lịch nào. Hãy bắt đầu chia sẻ cuộc phiêu lưu của bạn!",
+    "noStoriesFoundFilter": "Không tìm thấy câu chuyện nào cho bộ lọc này.",
+    "untitledStory": "Câu chuyện không có tiêu đề",
+    "createYourFirstStory": "Tạo câu chuyện đầu tiên của bạn"
   },
   "chat": {
     "askAnything": "Hỏi bất cứ điều gì...",
@@ -185,7 +191,9 @@
     "notFound": "Không tìm thấy tài nguyên được yêu cầu.",
     "validation": "Vui lòng kiểm tra thông tin nhập và thử lại.",
     "serverError": "Lỗi máy chủ. Vui lòng thử lại sau.",
-    "general": "Đã xảy ra lỗi. Vui lòng thử lại."
+    "general": "Có gì đó đã xảy ra. Vui lòng thử lại.",
+    "noImage": "Không có hình ảnh",
+    "noDescriptionAvailable": "Không có mô tả"
   },
   "success": {
     "saved": "Lưu thành công!",
@@ -195,5 +203,10 @@
     "uploaded": "Tải lên thành công!",
     "created": "Tạo thành công!",
     "sent": "Gửi thành công!"
+  },
+  "utils": {
+    "selectUpTo10Photos": "Chọn tối đa 10 ảnh",
+    "selectAPhoto": "Chọn ảnh",
+    "browseFile": "Chọn tệp"
   }
 }

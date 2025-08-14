@@ -29,8 +29,7 @@ src/
 │   └── i18n-provider.tsx       # i18n Context Provider
 ├── hoc/
 │   └── with-translation.tsx    # Higher-Order Components
-├── hooks/
-│   └── use-translation.ts      # Custom translation hooks
+
 ├── components/
 │   └── language-switcher/      # Language switcher component
 └── types/
@@ -42,7 +41,7 @@ src/
 ### 1. Using Hooks (Recommended)
 
 ```tsx
-import { useT, useTranslation } from '@/hooks/use-translation';
+import { useTranslation } from 'react-i18next';
 
 // Full hook with language management
 const MyComponent = () => {
@@ -61,7 +60,7 @@ const MyComponent = () => {
 
 // Simple translation-only hook
 const SimpleComponent = () => {
-  const t = useT();
+  const { t } = useTranslation();
   return <h1>{t('common.welcome')}</h1>;
 };
 ```
@@ -140,8 +139,8 @@ import { LanguageSwitcher } from '@/components/language-switcher';
 2. **Group related translations**: Keep navigation items under `navigation.*`
 3. **Use interpolation for dynamic content**: `"welcome": "Hello {{name}}!"`
 4. **Provide fallbacks**: Always ensure English translations exist
-5. **Use the useT hook** for simple translation-only needs
-6. **Use the full useTranslation hook** when you need language switching
+5. **Use the useTranslation hook** for translation needs
+6. **Use the useI18n hook** from context when you need language switching
 7. **Use HOCs** for class components or when you prefer the HOC pattern
 
 ## Language Codes

@@ -110,10 +110,11 @@
       "DJ en direct",
       "Instagram Worthy",
       "Atmosphère romantique"
-    ]
+    ],
+    "noExperiencesFound": "Aucune expérience trouvée pour cette adresse."
   },
   "stories": {
-    "title": "Histoires",
+    "title": "Racontez votre récit de voyage",
     "newStory": "Nouvelle histoire",
     "myStories": "Mes histoires de voyage",
     "publishedStories": "Histoires publiées",
@@ -137,7 +138,12 @@
     "pickYourPhotos": "Choisissez vos photos",
     "errorBrowserNotSupported": "Erreur : Navigateur non supporté",
     "errorBrowserNotSupportedMessage": "Ce navigateur ne supporte pas la reconnaissance vocale",
-    "selectExperience": "Sélectionner une expérience"
+    "selectExperience": "Sélectionner l'expérience",
+    "noStoriesFound": "Aucune histoire trouvée",
+    "noStoriesFoundAllStories": "Vous n'avez pas encore créé d'histoires de voyage. Commencez à partager vos aventures !",
+    "noStoriesFoundFilter": "Aucune histoire trouvée pour ce filtre.",
+    "untitledStory": "Histoire sans titre",
+    "createYourFirstStory": "Créez votre première histoire"
   },
   "chat": {
     "askAnything": "Demandez n'importe quoi...",
@@ -188,7 +194,9 @@
     "notFound": "La ressource demandée n'a pas été trouvée.",
     "validation": "Veuillez vérifier votre saisie et réessayer.",
     "serverError": "Erreur serveur. Veuillez réessayer plus tard.",
-    "general": "Une erreur s'est produite. Veuillez réessayer."
+    "general": "Quelque chose s'est mal passé. Veuillez réessayer.",
+    "noImage": "Aucune image",
+    "noDescriptionAvailable": "Aucune description disponible"
   },
   "success": {
     "saved": "Enregistré avec succès !",
@@ -198,5 +206,10 @@
     "uploaded": "Téléchargé avec succès !",
     "created": "Créé avec succès !",
     "sent": "Envoyé avec succès !"
+  },
+  "utils": {
+    "selectUpTo10Photos": "Sélectionnez jusqu'à 10 photos",
+    "selectAPhoto": "Sélectionnez une photo",
+    "browseFile": "Parcourir le fichier"
   }
 }

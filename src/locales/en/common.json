@@ -105,10 +105,11 @@
       "Live DJ",
       "Instagram Worthy",
       "Romantic Atmosphere"
-    ]
+    ],
+    "noExperiencesFound": "No experiences found for this address."
   },
   "stories": {
-    "title": "Stories",
+    "title": "Tell Your Travel Tale",
     "newStory": "New Story",
     "myStories": "My Travel Stories",
     "publishedStories": "Published Stories",
@@ -132,7 +133,12 @@
     "pickYourPhotos": "Pick your photos",
     "errorBrowserNotSupported": "Error: Browser not supported",
     "errorBrowserNotSupportedMessage": "This browser does not support speech recognition",
-    "selectExperience": "Select Experience"
+    "selectExperience": "Select Experience",
+    "noStoriesFound": "No Stories Found",
+    "noStoriesFoundAllStories": "You haven't created any travel stories yet. Start sharing your adventures!",
+    "noStoriesFoundFilter": "No stories found for.",
+    "untitledStory": "Untitled Story",
+    "createYourFirstStory": "Create your first story"
   },
   "chat": {
     "askAnything": "Ask anything...",
@@ -183,7 +189,9 @@
     "notFound": "The requested resource was not found.",
     "validation": "Please check your input and try again.",
     "serverError": "Server error. Please try again later.",
-    "general": "Something went wrong. Please try again."
+    "general": "Something went wrong. Please try again.",
+    "noImage": "No image",
+    "noDescriptionAvailable": "No description available"
   },
   "success": {
     "saved": "Successfully saved!",
@@ -193,5 +201,10 @@
     "uploaded": "Successfully uploaded!",
     "created": "Successfully created!",
     "sent": "Successfully sent!"
+  },
+  "utils": {
+    "selectUpTo10Photos": "Select up to 10 photos",
+    "selectAPhoto": "Select a photo",
+    "browseFile": "Browse File"
   }
 }

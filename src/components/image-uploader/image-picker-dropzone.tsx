@@ -3,6 +3,7 @@ import { Dropzone, DropzoneIdle } from '@mantine/dropzone';
 import { IconCloudUpload } from '@tabler/icons-react';
 import React from 'react';
 
+import { Translation } from '@/components/translation';
 import { cn } from '@/utils/class';
 
 import ImageDisplayBaseGrid from './image-display-base-grid';
@@ -67,76 +68,85 @@ const DropzoneUploader: React.FC<ImageSubcomponentProps> = ({
   };
 
   return (
-    <div className="flex flex-col lg:mx gap-4">
-      <Dropzone
-        multiple={allowMultiple}
-        accept={{
-          'image/*': ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.heic'],
-        }}
-        className="border-solid mb-4 lg:mb-0"
-        onDrop={(files) => {
-          console.log('Dropzone onDrop called with files:', files);
-          handleImageUpload({
-            acceptedFiles: files,
-            ...paramObj,
-          });
-        }}
-        onReject={(files) => {
-          console.log('Dropzone onReject called with files:', files);
-        }}
-      >
-        {selectedImages.length > 0 ? (
-          <ImageDisplayBaseGrid
-            allowAddNew={allowAddNew}
-            allowMultiple={allowMultiple}
-            selectedImages={selectedImages}
-            imageError={imageError}
-            setImageError={setImageError}
-            handleRemoveImage={handleRemoveImage}
-            loadingFiles={loadingFiles}
-            onAdd={() => {
-              // Trigger file input click
-              const input = document.createElement('input');
-              input.type = 'file';
-              input.multiple = allowMultiple;
-              input.accept = 'image/*';
-              input.onchange = (e) => {
-                const files = (e.target as HTMLInputElement).files;
-                if (files) {
-                  console.log('File input onchange called with files:', files);
-                  handleImageUpload({
-                    acceptedFiles: files,
-                    ...paramObj,
-                  });
-                }
-              };
-              input.click();
+    <Translation>
+      {(t) => (
+        <div className="flex flex-col lg:mx gap-4">
+          <Dropzone
+            multiple={allowMultiple}
+            accept={{
+              'image/*': ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.heic'],
             }}
-          />
-        ) : (
-          <DropzoneIdle>
-            <div
-              className={cn(
-                'flex flex-col items-center justify-center h-80',
-                dropzoneClassName,
-              )}
-            >
-              {children ?? <IconCloudUpload className="size-6" />}
-              <p className="mt-2 text-base-black/50 text-md">
-                {`Select ${allowMultiple ? 'up to 10 photos' : 'a photo'}`}
-              </p>
-              <Button
-                variant="outline"
-                className="bg-orange-50 text-orange-500 mt-6"
-                type="button"
-              >
-                Browse File
-              </Button>
-            </div>
-          </DropzoneIdle>
-        )}
-      </Dropzone>
-    </div>
+            className="border-solid mb-4 lg:mb-0"
+            onDrop={(files) => {
+              console.log('Dropzone onDrop called with files:', files);
+              handleImageUpload({
+                acceptedFiles: files,
+                ...paramObj,
+              });
+            }}
+            onReject={(files) => {
+              console.log('Dropzone onReject called with files:', files);
+            }}
+          >
+            {selectedImages.length > 0 ? (
+              <ImageDisplayBaseGrid
+                allowAddNew={allowAddNew}
+                allowMultiple={allowMultiple}
+                selectedImages={selectedImages}
+                imageError={imageError}
+                setImageError={setImageError}
+                handleRemoveImage={handleRemoveImage}
+                loadingFiles={loadingFiles}
+                onAdd={() => {
+                  // Trigger file input click
+                  const input = document.createElement('input');
+                  input.type = 'file';
+                  input.multiple = allowMultiple;
+                  input.accept = 'image/*';
+                  input.onchange = (e) => {
+                    const files = (e.target as HTMLInputElement).files;
+                    if (files) {
+                      console.log(
+                        'File input onchange called with files:',
+                        files,
+                      );
+                      handleImageUpload({
+                        acceptedFiles: files,
+                        ...paramObj,
+                      });
+                    }
+                  };
+                  input.click();
+                }}
+              />
+            ) : (
+              <DropzoneIdle>
+                <div
+                  className={cn(
+                    'flex flex-col items-center justify-center h-80',
+                    dropzoneClassName,
+                  )}
+                >
+                  {children ?? <IconCloudUpload className="size-6" />}
+                  <p className="mt-2 text-base-black/50 text-md">
+                    {t(
+                      `utils.select${allowMultiple ? 'UpTo10Photos' : 'APhoto'}`,
+                    )}
+                  </p>
+                  <Button
+                    variant="outline"
+                    className="bg-orange-50 text-orange-500 mt-6"
+                    type="button"
+                  >
+                    {t('utils.browseFile')}
+                  </Button>
+                </div>
+              </DropzoneIdle>
+            )}
+          </Dropzone>
+        </div>
+      )}
+    </Translation>
   );
 };
 

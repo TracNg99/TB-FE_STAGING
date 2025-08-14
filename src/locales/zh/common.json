@@ -110,10 +110,11 @@
       "现场DJ",
       "Instagramworthy",
       "浪漫氛围"
-    ]
+    ],
+    "noExperiencesFound": "未找到此地址的体验。"
   },
   "stories": {
-    "title": "故事",
+    "title": "讲述您的旅行故事",
     "newStory": "新故事",
     "myStories": "我的旅行故事",
     "publishedStories": "已发布故事",
@@ -137,7 +138,12 @@
     "pickYourPhotos": "选择您的照片",
     "errorBrowserNotSupported": "错误：不支持的浏览器",
     "errorBrowserNotSupportedMessage": "此浏览器不支持语音识别",
-    "selectExperience": "选择体验"
+    "selectExperience": "选择体验",
+    "noStoriesFound": "未找到故事",
+    "noStoriesFoundAllStories": "您还没有创建任何旅行故事。开始分享您的冒险吧！",
+    "noStoriesFoundFilter": "未找到该筛选器的故事。",
+    "untitledStory": "无标题故事",
+    "createYourFirstStory": "创建您的第一个故事"
   },
   "chat": {
     "askAnything": "询问任何问题...",
@@ -188,7 +194,9 @@
     "notFound": "未找到请求的资源。",
     "validation": "请检查您的输入并重试。",
     "serverError": "服务器错误。请稍后重试。",
-    "general": "出现问题，请重试。"
+    "general": "出了点问题。请再试一次。",
+    "noImage": "无图像",
+    "noDescriptionAvailable": "无可用描述"
   },
   "success": {
     "saved": "保存成功！",
@@ -198,5 +206,10 @@
     "uploaded": "上传成功！",
     "created": "创建成功！",
     "sent": "发送成功！"
+  },
+  "utils": {
+    "selectUpTo10Photos": "最多选择10张照片",
+    "selectAPhoto": "选择照片",
+    "browseFile": "浏览文件"
   }
 }

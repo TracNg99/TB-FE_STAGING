@@ -109,10 +109,11 @@
       "Live DJ",
       "Instagram Worthy",
       "Romantic Atmosphere"
-    ]
+    ],
+    "noExperiencesFound": "この住所の体験が見つかりませんでした。"
   },
   "stories": {
-    "title": "ストーリー",
+    "title": "旅行の物語を語ってください",
     "newStory": "新しいストーリー",
     "myStories": "私の旅行ストーリー",
     "publishedStories": "公開済みストーリー",
@@ -136,7 +137,12 @@
     "pickYourPhotos": "写真を選択してください",
     "errorBrowserNotSupported": "エラー：ブラウザがサポートされていません",
     "errorBrowserNotSupportedMessage": "このブラウザは音声認識をサポートしていません",
-    "selectExperience": "体験を選択"
+    "selectExperience": "体験を選択",
+    "noStoriesFound": "ストーリーが見つかりません",
+    "noStoriesFoundAllStories": "まだ旅行ストーリーを作成していません。冒険をシェアしてみましょう！",
+    "noStoriesFoundFilter": "このフィルターのストーリーが見つかりません。",
+    "untitledStory": "タイトルなしのストーリー",
+    "createYourFirstStory": "最初のストーリーを作成"
   },
   "chat": {
     "askAnything": "何でもお聞きください...",
@@ -187,7 +193,9 @@
     "notFound": "要求されたリソースが見つかりませんでした。",
     "validation": "入力を確認してもう一度お試しください。",
     "serverError": "サーバーエラーです。後でもう一度お試しください。",
-    "general": "問題が発生しました。もう一度お試しください。"
+    "general": "何か問題が発生しました。もう一度お試しください。",
+    "noImage": "画像なし",
+    "noDescriptionAvailable": "説明がありません"
   },
   "success": {
     "saved": "正常に保存されました！",
@@ -197,5 +205,10 @@
     "uploaded": "正常にアップロードされました！",
     "created": "正常に作成されました！",
     "sent": "正常に送信されました！"
+  },
+  "utils": {
+    "selectUpTo10Photos": "10枚までの写真を選択してください",
+    "selectAPhoto": "写真を選択してください",
+    "browseFile": "ファイルを閲覧"
   }
 }
