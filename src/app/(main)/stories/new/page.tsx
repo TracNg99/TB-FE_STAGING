@@ -144,10 +144,9 @@ const NewStoryPage = () => {
     try {
       const payload = {
         experience_id: matchedExperience?.id || matchExperienceId,
-        // reporter_id: reporterId,
         notes: userInputs.notes || '',
         media: mediaUrls.map((item) => item.id),
-        // channel_type_list: 'travel_buddy',
+        language: sessionStorage.getItem('language') || 'en-US',
       };
       const result = await uploadStory({ payload }).unwrap();
       if (result?.data?.id) {

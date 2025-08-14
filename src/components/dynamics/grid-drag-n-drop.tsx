@@ -18,13 +18,18 @@ import { CSS } from '@dnd-kit/utilities';
 import React from 'react';
 
 // The props for each individual sortable item
-interface SortableItemProps {
+interface SortableItemProps<T extends { id: string | number }> {
   id: string | number;
-  children: React.ReactNode;
+  item: T;
+  renderItem: (item: T, listeners: any) => React.ReactNode;
 }
 
 // The component that will be made draggable
-function SortableItem({ id, children }: SortableItemProps) {
+function SortableItem<T extends { id: string | number }>({
+  id,
+  item,
+  renderItem,
+}: SortableItemProps<T>) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id });
 
@@ -39,8 +44,8 @@ function SortableItem({ id, children }: SortableItemProps) {
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      {children}
+    <div ref={setNodeRef} style={style} {...attributes}>
+      {renderItem(item, listeners)}
     </div>
   );
 }
@@ -49,7 +54,7 @@ function SortableItem({ id, children }: SortableItemProps) {
 interface CustomizableDragDropProps<T extends { id: string | number }> {
   items: T[];
   onItemsChange: (items: T[]) => void;
-  renderItem: (item: T) => React.ReactNode;
+  renderItem: (item: T, listeners: any) => React.ReactNode;
   columns?: number;
 }
 
@@ -63,7 +68,11 @@ export default function CustomizableDragDrop<
   columns = 3, // Default to 3 columns
 }: CustomizableDragDropProps<T>) {
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 10, // Require 10px movement to start a drag
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     }),
@@ -73,14 +82,8 @@ export default function CustomizableDragDrop<
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
-      console.log('Active', active);
-      console.log('Over', over);
       const oldIndex = items.findIndex((item) => item.id === active.id);
       const newIndex = items.findIndex((item) => item.id === over.id);
-
-      console.log('Old Index', oldIndex);
-      console.log('New Index', newIndex);
-
       const newItems = arrayMove(items, oldIndex, newIndex);
       onItemsChange(newItems);
     }
@@ -105,9 +108,12 @@ export default function CustomizableDragDrop<
       >
         <div style={gridStyle}>
           {items.map((item) => (
-            <SortableItem key={item.id} id={item.id}>
-              {renderItem(item)}
-            </SortableItem>
+            <SortableItem
+              key={item.id}
+              id={item.id}
+              renderItem={renderItem}
+              item={item}
+            />
           ))}
         </div>
       </SortableContext>

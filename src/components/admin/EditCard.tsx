@@ -3,11 +3,13 @@ import {
   Button,
   Input,
   InputWrapper,
+  Loader,
   Select,
   Text,
   TextInput,
   Textarea,
   Title,
+  Tooltip,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { Link, RichTextEditor } from '@mantine/tiptap';
@@ -16,11 +18,12 @@ import { useEditor } from '@tiptap/react';
 import { Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from 'next/image';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import IconicPhotoDisplay from '@/components/admin/IconicPhotoDisplay';
+import CustomizableDragDrop from '@/components/dynamics/grid-drag-n-drop';
 import ImageUploader from '@/components/image-uploader/image-picker';
 import {
   useCreateActivityMutation,
@@ -191,10 +194,14 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
   }, [experienceFull]);
 
   // Fetch activities for this experience
-  const { data: activitiesCurrent = [], refetch: refetchActivities } =
-    useGetActivitiesInExperiencePublicQuery({
-      experience_id: experience.id,
-    });
+  const {
+    data: activitiesCurrent = [],
+    isLoading: isActivitiesLoading,
+    isFetching: isActivitiesFetching,
+    refetch: refetchActivities,
+  } = useGetActivitiesInExperiencePublicQuery({
+    experience_id: experience.id,
+  });
 
   useEffect(() => {
     if (activitiesCurrent && activitiesCurrent.length > 0) {
@@ -298,37 +305,40 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
   const activityEditors = useRef<Record<string, Editor>>({});
 
   // 2. Function to get or create an editor for an activity
-  const getActivityEditor = (activityId: string) => {
-    if (!activityEditors.current[activityId]) {
-      activityEditors.current[activityId] = new Editor({
-        extensions: [
-          StarterKit.configure({
-            bulletList: {
-              HTMLAttributes: {
-                class: 'list-disc pl-6',
+  const getActivityEditor = useCallback(
+    (activityId: string) => {
+      if (!activityEditors.current[activityId]) {
+        activityEditors.current[activityId] = new Editor({
+          extensions: [
+            StarterKit.configure({
+              bulletList: {
+                HTMLAttributes: {
+                  class: 'list-disc pl-6',
+                },
               },
-            },
-            orderedList: {
-              HTMLAttributes: {
-                class: 'list-decimal pl-6',
+              orderedList: {
+                HTMLAttributes: {
+                  class: 'list-decimal pl-6',
+                },
               },
-            },
-          }),
-          Link.configure({
-            openOnClick: false,
-          }),
-          Underline,
-        ],
-        content: activityForm.watch('activity_description') || '',
-        onUpdate: ({ editor }: { editor: Editor }) => {
-          activityForm.setValue('activity_description', editor.getHTML(), {
-            shouldValidate: true,
-          });
-        },
-      });
-    }
-    return activityEditors.current[activityId];
-  };
+            }),
+            Link.configure({
+              openOnClick: false,
+            }),
+            Underline,
+          ],
+          content: activityForm.watch('activity_description') || '',
+          onUpdate: ({ editor }: { editor: Editor }) => {
+            activityForm.setValue('activity_description', editor.getHTML(), {
+              shouldValidate: true,
+            });
+          },
+        });
+      }
+      return activityEditors.current[activityId];
+    },
+    [activityForm],
+  );
 
   // 3. When adding a new activity
   const handleAddActivity = () => {
@@ -849,6 +859,64 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
     }
   };
 
+  const updateActivityOrder = async (
+    updates: { id: string; order_of_appearance: number }[],
+  ) => {
+    updates.forEach(async (update) => {
+      try {
+        const { error } = await updateActivity({
+          id: update.id,
+          data: {
+            order_of_appearance: update.order_of_appearance,
+          },
+        });
+
+        if (error) {
+          throw error;
+        }
+
+        console.log('Activity order updated successfully.');
+        refetchActivities();
+        // notifications.show({
+        //   title: 'Success',
+        //   message: 'Activity order updated successfully.',
+        //   color: 'green',
+        // });
+      } catch (error: any) {
+        console.log('Failed to update activity order.', error);
+        // notifications.show({
+        //   title: 'Error',
+        //   message: error.message || 'Failed to update activity order.',
+        //   color: 'red',
+        // });
+      }
+    });
+  };
+
+  const onDragEnd = (result: Activity[]) => {
+    const items = Array.from(activities);
+    const reorderedItem = result
+      .map((activity, index) => {
+        const item = items.find(
+          (item, originalIndex) =>
+            originalIndex !== index && activity.id === item.id,
+        );
+        if (item) {
+          return {
+            id: activity.id,
+            order_of_appearance: index,
+          };
+        }
+        return;
+      })
+      .filter((item) => item !== undefined);
+
+    if (reorderedItem.length > 0) {
+      setActivities(result);
+      updateActivityOrder(reorderedItem);
+    }
+  };
+
   const handleCancel = () => {
     console.log('🚫 Cancel clicked');
 
@@ -1210,15 +1278,21 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
                 </div>
 
                 {/* Existing Activities */}
-                {activitiesCurrent && activitiesCurrent.length > 0 && (
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {activitiesCurrent.map((activity) => (
+                {isActivitiesLoading ||
+                  isActivitiesFetching ||
+                  (activities.length === 0 && (
+                    <div className="flex flex-col items-center justify-center">
+                      <Loader />
+                    </div>
+                  ))}
+                {activities && activities.length > 0 && (
+                  <CustomizableDragDrop
+                    items={activities}
+                    onItemsChange={onDragEnd}
+                    columns={4}
+                    renderItem={(activity: Activity, listeners: any) => (
                       <div
-                        key={activity.id}
-                        onClick={() => {
-                          handleEditActivity(activity);
-                          setCurrentStep('activity'); // Navigate to edit mode
-                        }}
+                        {...listeners}
                         className="group relative rounded-lg overflow-hidden border border-gray-200 hover:shadow-md transition-shadow"
                       >
                         <div className="relative aspect-square">
@@ -1231,7 +1305,7 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
                           {/* Action Buttons */}
                           <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button
-                              className="hover:bg-white transition-colors"
+                              className="hover:bg-white/50 transition-colors p-1 cursor-pointer rounded-md"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleEditActivity(activity);
@@ -1246,24 +1320,33 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
                                 className="w-6 h-6"
                               />
                             </button>
-                            <button
-                              className="hover:bg-white transition-colors"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                // TODO: Handle view photo
-                                console.log(
-                                  'Move activity around:',
-                                  activity.primary_photo,
-                                );
-                              }}
-                              title="Move activity around"
+                            <Tooltip
+                              label="Move activity around"
+                              position="bottom"
+                              withArrow
                             >
-                              <img
-                                src="/assets/drag_and_move.svg"
-                                alt="Move activity around"
-                                className="w-6 h-6"
-                              />
-                            </button>
+                              <button
+                                {...listeners}
+                                data-tooltip-target="tooltip"
+                                className="hover:bg-white/50 transition-colors p-1 cursor-pointer rounded-md"
+                                // onClick={(e) => {
+                                //   e.stopPropagation();
+                                //   // TODO: Handle view photo
+                                //   // console.log(
+                                //   //   'Move activity around:',
+                                //   //   activity.primary_photo,
+                                //   // );
+                                // }}
+                                title="Move activity around"
+                                disabled
+                              >
+                                <img
+                                  src="/assets/drag_and_move.svg"
+                                  alt="Move activity around"
+                                  className="w-6 h-6"
+                                />
+                              </button>
+                            </Tooltip>
                           </div>
                         </div>
                         <div className="p-2">
@@ -1280,8 +1363,8 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
                           )}
                         </div>
                       </div>
-                    ))}
-                  </div>
+                    )}
+                  />
                 )}
 
                 {/* Add Activity Button */}
