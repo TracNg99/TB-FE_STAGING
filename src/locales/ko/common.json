@@ -72,8 +72,10 @@
   "profile": {
     "firstName": "이름",
     "lastName": "성",
-    "phoneNumber": "전화번호",
-    "updateProfile": "프로필 업데이트"
+    "phone": "전화번호",
+    "updateProfile": "프로필 업데이트",
+    "joinedOn": "가입일",
+    "personalInformation": "개인 정보"
   },
   "experiences": {
     "title": "여행을 즐기세요!",

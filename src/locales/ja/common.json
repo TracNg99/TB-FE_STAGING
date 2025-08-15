@@ -71,8 +71,10 @@
   "profile": {
     "firstName": "名前",
     "lastName": "姓",
-    "phoneNumber": "電話番号",
-    "updateProfile": "プロフィール更新"
+    "phone": "電話番号",
+    "updateProfile": "プロフィールを更新",
+    "joinedOn": "登録日",
+    "personalInformation": "個人情報"
   },
   "experiences": {
     "title": "冒険を楽しもう！",

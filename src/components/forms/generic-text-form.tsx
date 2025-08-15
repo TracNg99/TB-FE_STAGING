@@ -17,6 +17,8 @@ import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import useFormPersist from 'react-hook-form-persist';
 
+import { Translation } from '@/components/translation';
+
 export interface SingleTextFieldProps {
   name: string;
   label: string;
@@ -42,6 +44,7 @@ interface EditorFormProps {
   selections?: SingleSelectionProps[];
   buttonColor?: any;
   className?: string;
+  localizeMapping?: { [x: string]: string };
 }
 
 const TextForm: React.FC<EditorFormProps> = ({
@@ -55,6 +58,7 @@ const TextForm: React.FC<EditorFormProps> = ({
   buttonText,
   buttonColor,
   className,
+  localizeMapping,
 }) => {
   const {
     handleSubmit,
@@ -101,106 +105,112 @@ const TextForm: React.FC<EditorFormProps> = ({
   }, [selections]);
 
   return (
-    <Paper className={className ?? 'p-3 rounded-lg w-full overflow-y-auto'}>
-      {mainTitle && (
-        <Title order={2} className="font-bold mb-6">
-          {mainTitle}
-        </Title>
-      )}
+    <Translation>
+      {(t) => (
+        <Paper className={className ?? 'p-3 rounded-lg w-full overflow-y-auto'}>
+          {mainTitle && (
+            <Title order={2} className="font-bold mb-6">
+              {mainTitle}
+            </Title>
+          )}
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <Stack>
-          {mapping.map((field) => (
-            <Box key={field.name}>
-              <Text size="sm" className="mb-2 font-bold">
-                {field.label}
-                {field.required && (
-                  <Text component="span" className="ml-1 text-red-500">
-                    *
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <Stack>
+              {mapping.map((field) => (
+                <Box key={field.name}>
+                  <Text size="sm" className="mb-2 font-bold">
+                    {localizeMapping
+                      ? t(localizeMapping[field.name])
+                      : field.label}
+                    {field.required && (
+                      <Text component="span" className="ml-1 text-red-500">
+                        *
+                      </Text>
+                    )}
                   </Text>
-                )}
-              </Text>
-              {field.rows && field.rows > 1 ? (
-                <Textarea
-                  {...register(field.name)}
-                  defaultValue={field.contents}
-                  // id={field.name}
-                  resize="vertical"
-                  classNames={{
-                    input: 'pb-20 pt-4',
-                  }}
-                  error={errors.name?.message}
-                />
-              ) : (
-                <TextInput
-                  {...register(field.name)}
-                  // id={field.name}
-                  placeholder={field.placeholder}
-                  defaultValue={field.contents}
-                  error={errors.name?.message}
-                />
-              )}
-            </Box>
-          ))}
+                  {field.rows && field.rows > 1 ? (
+                    <Textarea
+                      {...register(field.name)}
+                      defaultValue={field.contents}
+                      // id={field.name}
+                      resize="vertical"
+                      classNames={{
+                        input: 'pb-20 pt-4',
+                      }}
+                      error={errors.name?.message}
+                    />
+                  ) : (
+                    <TextInput
+                      {...register(field.name)}
+                      // id={field.name}
+                      placeholder={field.placeholder}
+                      defaultValue={field.contents}
+                      error={errors.name?.message}
+                    />
+                  )}
+                </Box>
+              ))}
 
-          {availableTypes.length > 0 ? (
-            <Box>
-              <Group>
-                <Text className="font-bold">Channel type </Text>
-                <Text className="text-red-500">*</Text>
-              </Group>
+              {availableTypes.length > 0 ? (
+                <Box>
+                  <Group>
+                    <Text className="font-bold">Channel type </Text>
+                    <Text className="text-red-500">*</Text>
+                  </Group>
 
-              <Group className="mt-2">
-                {availableTypes.map((card, index) => (
-                  <Card
-                    key={index}
-                    onClick={() => setValue('channel_type', card.name)}
-                    className={`
+                  <Group className="mt-2">
+                    {availableTypes.map((card, index) => (
+                      <Card
+                        key={index}
+                        onClick={() => setValue('channel_type', card.name)}
+                        className={`
                       cursor-pointer p-4 border-2 border-orange-200 hover:bg-orange-100
                       ${type === card.name ? 'bg-orange-200' : ''}
                     `}
+                      >
+                        <Group>
+                          {card.icon}
+                          <Text className="text-orange-400 font-bold">
+                            {card.name}
+                          </Text>
+                        </Group>
+                      </Card>
+                    ))}
+                  </Group>
+                </Box>
+              ) : (
+                <></>
+              )}
+
+              <Group className="mt-6 justify-end">
+                {onCancel && (
+                  <Button
+                    variant="outline"
+                    onClick={onCancel}
+                    disabled={isLoading}
+                    color={buttonColor || 'gray'}
                   >
-                    <Group>
-                      {card.icon}
-                      <Text className="text-orange-400 font-bold">
-                        {card.name}
-                      </Text>
-                    </Group>
-                  </Card>
-                ))}
-              </Group>
-            </Box>
-          ) : (
-            <></>
-          )}
+                    Cancel
+                  </Button>
+                )}
 
-          <Group className="mt-6 justify-end">
-            {onCancel && (
-              <Button
-                variant="outline"
-                onClick={onCancel}
-                disabled={isLoading}
-                color={buttonColor || 'gray'}
-              >
-                Cancel
-              </Button>
-            )}
-
-            <Button
-              type="submit"
-              fullWidth={!onCancel}
-              className={`
+                <Button
+                  type="submit"
+                  fullWidth={!onCancel}
+                  className={`
                   text-lg py-2 px-4
                   ${isLoading ? 'bg-gray-500' : 'bg-orange'}
                 `}
-              disabled={isLoading}
-            >
-              {isLoading ? <Loader size="sm" /> : (buttonText ?? 'Confirm')}
-            </Button>
-          </Group>
-        </Stack>
-      </form>
-    </Paper>
+                  disabled={isLoading}
+                >
+                  {isLoading ? <Loader size="sm" /> : (buttonText ?? 'Confirm')}
+                </Button>
+              </Group>
+            </Stack>
+          </form>
+        </Paper>
+      )}
+    </Translation>
   );
 };
 

@@ -41,6 +41,13 @@ const userInfo = {
   phone: 'Phone',
 };
 
+const localizeMapping = {
+  firstname: 'profile.firstName',
+  lastname: 'profile.lastName',
+  email: 'auth.email',
+  phone: 'profile.phone',
+};
+
 const InfoSkeleton = () => (
   <Box className="flex flex-col gap-4">
     <Skeleton height={20} radius="xl" width="40%" />
@@ -58,9 +65,6 @@ const ProfilePage = () => {
 
   const [isEditingName, setIsEdtingName] = useState<boolean>(false);
   const [isClicked, setIsClicked] = useState<boolean>(false);
-  const [editingLabels, setEditingLabels] = useState<{ [key: string]: string }>(
-    {},
-  );
   const [sessionLanguage, setSessionLanguage] = useState<string>('en-US');
 
   const [profileValues, setProfileValues] = useState<{
@@ -427,7 +431,7 @@ const ProfilePage = () => {
               <Translation>
                 {(t) => (
                   <Text>
-                    {t('profile.joinedOn')}
+                    {t('profile.joinedOn') + ' '}
                     <time dateTime={profileValues.createdAt}>
                       {new Date(profileValues.createdAt).toLocaleDateString(
                         sessionLanguage,
@@ -450,7 +454,7 @@ const ProfilePage = () => {
 
   const sectionsList = [
     {
-      label: editingLabels.language,
+      label: 'Language',
       icon: <IconLanguage />,
       content: isFetchingProfile ? (
         <InfoSkeleton />
@@ -467,7 +471,7 @@ const ProfilePage = () => {
       ),
     },
     {
-      label: editingLabels.personalInformation,
+      label: 'Personal Information',
       icon: <IconUserCircle />,
       content: isFetchingProfile ? (
         <InfoSkeleton />
@@ -478,24 +482,27 @@ const ProfilePage = () => {
           isLoading={isClicked}
           buttonText="Save"
           buttonColor={'orange'}
+          localizeMapping={localizeMapping}
         />
       ),
     },
   ];
 
   return (
-    <Container className="flex flex-col items-center w-full min-h-screen py-8 px-4 mb-10 gap-3 sm:px-6 lg:px-8">
-      <AvatarSection />
-      <Translation>
-        {(t) => {
-          setEditingLabels({
-            language: t('common.language'),
-            personalInformation: t('profile.personalInformation'),
-          });
-          return <AccordionLists list={sectionsList} />;
-        }}
-      </Translation>
-    </Container>
+    <Translation>
+      {(t) => (
+        <Container className="flex flex-col items-center w-full min-h-screen py-8 px-4 mb-10 gap-3 sm:px-6 lg:px-8">
+          <AvatarSection />
+          <AccordionLists
+            list={sectionsList}
+            labelAlternatives={[
+              t('common.language'),
+              t('profile.personalInformation'),
+            ]}
+          />
+        </Container>
+      )}
+    </Translation>
   );
 };
 

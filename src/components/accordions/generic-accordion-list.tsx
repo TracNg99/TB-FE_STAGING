@@ -10,13 +10,18 @@ type AccordionListProps = {
     label: string;
     content: string | React.ReactNode;
   }[];
+  labelAlternatives?: string[];
 };
 
-const AccordionLists = ({ className, list = [] }: AccordionListProps) => {
+const AccordionLists = ({
+  className,
+  list = [],
+  labelAlternatives,
+}: AccordionListProps) => {
   const items = list.map((item, index) => (
     <Accordion.Item key={index} value={item.label}>
       <Accordion.Control icon={item?.icon ?? undefined}>
-        {item.label.toUpperCase()}
+        {labelAlternatives?.[index] || item.label.toUpperCase()}
       </Accordion.Control>
       <Accordion.Panel>{item.content}</Accordion.Panel>
     </Accordion.Item>

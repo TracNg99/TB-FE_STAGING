@@ -72,8 +72,10 @@
   "profile": {
     "firstName": "Prénom",
     "lastName": "Nom de famille",
-    "phoneNumber": "Numéro de téléphone",
-    "updateProfile": "Mettre à jour le profil"
+    "phone": "Numéro de téléphone",
+    "updateProfile": "Mettre à jour le profil",
+    "joinedOn": "Inscrit le",
+    "personalInformation": "Informations personnelles"
   },
   "experiences": {
     "title": "Partez à l'aventure avec ces expériences cool !",

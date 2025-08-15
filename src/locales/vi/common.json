@@ -69,8 +69,10 @@
   "profile": {
     "firstName": "Tên",
     "lastName": "Họ",
-    "phoneNumber": "Số điện thoại",
-    "updateProfile": "Cập nhật hồ sơ"
+    "phone": "Số điện thoại",
+    "updateProfile": "Cập nhật hồ sơ",
+    "joinedOn": "Tham gia ngày",
+    "personalInformation": "Thông tin cá nhân"
   },
   "experiences": {
     "title": "Tham gia những cuộc phiêu lưu thú vị này!",

@@ -72,8 +72,10 @@
   "profile": {
     "firstName": "Имя",
     "lastName": "Фамилия",
-    "phoneNumber": "Номер телефона",
-    "updateProfile": "Обновить профиль"
+    "phone": "Номер телефона",
+    "updateProfile": "Обновить профиль",
+    "joinedOn": "Дата регистрации",
+    "personalInformation": "Личная информация"
   },
   "experiences": {
     "title": "Отправляйтесь в приключения с этими крутыми впечатлениями!",

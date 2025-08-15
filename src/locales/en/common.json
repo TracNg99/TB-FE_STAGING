@@ -69,7 +69,7 @@
   "profile": {
     "firstName": "First Name",
     "lastName": "Last Name",
-    "phoneNumber": "Phone Number",
+    "phone": "Phone Number",
     "updateProfile": "Update Profile",
     "joinedOn": "Joined on",
     "personalInformation": "Personal Information"
