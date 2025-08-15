@@ -188,6 +188,7 @@
     }
   },
   "errors": {
+    "failure": "Échec",
     "generic": "Une erreur s'est produite. Veuillez réessayer.",
     "network": "Erreur réseau. Veuillez vérifier votre connexion.",
     "unauthorized": "Vous n'êtes pas autorisé à effectuer cette action.",
@@ -196,16 +197,21 @@
     "serverError": "Erreur serveur. Veuillez réessayer plus tard.",
     "general": "Quelque chose s'est mal passé. Veuillez réessayer.",
     "noImage": "Aucune image",
-    "noDescriptionAvailable": "Aucune description disponible"
+    "noDescriptionAvailable": "Aucune description disponible",
+    "profileUpdateFailure": "Échec de la mise à jour du profil ! Veuillez réessayer !",
+    "avatarUpdateFailure": "Échec de la mise à jour de l'avatar ! Veuillez réessayer !"
   },
   "success": {
+    "success": "Succès",
     "saved": "Enregistré avec succès !",
     "updated": "Mis à jour avec succès !",
     "deleted": "Supprimé avec succès !",
     "shared": "Partagé avec succès !",
     "uploaded": "Téléchargé avec succès !",
     "created": "Créé avec succès !",
-    "sent": "Envoyé avec succès !"
+    "sent": "Envoyé avec succès !",
+    "profileUpdateSuccess": "Profil mis à jour avec succès !",
+    "avatarUpdateSuccess": "Avatar mis à jour avec succès !"
   },
   "utils": {
     "selectUpTo10Photos": "Sélectionnez jusqu'à 10 photos",

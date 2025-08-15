@@ -185,6 +185,7 @@
     }
   },
   "errors": {
+    "failure": "Thất bại",
     "generic": "Đã xảy ra lỗi. Vui lòng thử lại.",
     "network": "Lỗi mạng. Vui lòng kiểm tra kết nối của bạn.",
     "unauthorized": "Bạn không được phép thực hiện hành động này.",
@@ -193,16 +194,21 @@
     "serverError": "Lỗi máy chủ. Vui lòng thử lại sau.",
     "general": "Có gì đó đã xảy ra. Vui lòng thử lại.",
     "noImage": "Không có hình ảnh",
-    "noDescriptionAvailable": "Không có mô tả"
+    "noDescriptionAvailable": "Không có mô tả",
+    "profileUpdateFailure": "Cập nhật hồ sơ thất bại! Vui lòng thử lại!",
+    "avatarUpdateFailure": "Cập nhật avatar thất bại! Vui lòng thử lại!"
   },
   "success": {
+    "success": "Thành công",
     "saved": "Lưu thành công!",
     "updated": "Cập nhật thành công!",
     "deleted": "Xóa thành công!",
     "shared": "Chia sẻ thành công!",
     "uploaded": "Tải lên thành công!",
     "created": "Tạo thành công!",
-    "sent": "Gửi thành công!"
+    "sent": "Gửi thành công!",
+    "profileUpdateSuccess": "Cập nhật hồ sơ thành công!",
+    "avatarUpdateSuccess": "Cập nhật avatar thành công!"
   },
   "utils": {
     "selectUpTo10Photos": "Chọn tối đa 10 ảnh",

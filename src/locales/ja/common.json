@@ -187,6 +187,7 @@
     }
   },
   "errors": {
+    "failure": "失敗",
     "generic": "問題が発生しました。もう一度お試しください。",
     "network": "ネットワークエラーです。接続を確認してください。",
     "unauthorized": "この操作を実行する権限がありません。",
@@ -195,16 +196,21 @@
     "serverError": "サーバーエラーです。後でもう一度お試しください。",
     "general": "何か問題が発生しました。もう一度お試しください。",
     "noImage": "画像なし",
-    "noDescriptionAvailable": "説明がありません"
+    "noDescriptionAvailable": "説明がありません",
+    "profileUpdateFailure": "プロフィールの更新に失敗しました！もう一度お試しください！",
+    "avatarUpdateFailure": "アバターの更新に失敗しました！もう一度お試しください！"
   },
   "success": {
+    "success": "成功",
     "saved": "正常に保存されました！",
     "updated": "正常に更新されました！",
     "deleted": "正常に削除されました！",
     "shared": "正常に共有されました！",
     "uploaded": "正常にアップロードされました！",
     "created": "正常に作成されました！",
-    "sent": "正常に送信されました！"
+    "sent": "正常に送信されました！",
+    "profileUpdateSuccess": "プロフィールが正常に更新されました！",
+    "avatarUpdateSuccess": "アバターが正常に更新されました！"
   },
   "utils": {
     "selectUpTo10Photos": "10枚までの写真を選択してください",

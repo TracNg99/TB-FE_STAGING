@@ -188,6 +188,7 @@
     }
   },
   "errors": {
+    "failure": "失败",
     "generic": "出现问题，请重试。",
     "network": "网络错误，请检查您的连接。",
     "unauthorized": "您无权执行此操作。",
@@ -196,16 +197,21 @@
     "serverError": "服务器错误。请稍后重试。",
     "general": "出了点问题。请再试一次。",
     "noImage": "无图像",
-    "noDescriptionAvailable": "无可用描述"
+    "noDescriptionAvailable": "无可用描述",
+    "profileUpdateFailure": "更新个人资料失败！请再试一次！",
+    "avatarUpdateFailure": "更新头像失败！请再试一次！"
   },
   "success": {
+    "success": "成功",
     "saved": "保存成功！",
     "updated": "更新成功！",
     "deleted": "删除成功！",
     "shared": "分享成功！",
     "uploaded": "上传成功！",
     "created": "创建成功！",
-    "sent": "发送成功！"
+    "sent": "发送成功！",
+    "profileUpdateSuccess": "个人资料更新成功！",
+    "avatarUpdateSuccess": "头像更新成功！"
   },
   "utils": {
     "selectUpTo10Photos": "最多选择10张照片",

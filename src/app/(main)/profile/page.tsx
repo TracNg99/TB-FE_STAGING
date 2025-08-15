@@ -18,6 +18,8 @@ import TextForm from '@/components/forms/generic-text-form';
 import AvatarUploader from '@/components/image-uploader/avatar-picker';
 import { languageOptions } from '@/components/modals/WelcomeModal';
 import Selector from '@/components/selector';
+import { Translation } from '@/components/translation';
+import { useI18n } from '@/contexts/i18n-provider';
 import { useUploadImageMutation } from '@/store/redux/slices/storage/upload';
 import {
   useGetProfileQuery,
@@ -49,12 +51,17 @@ const InfoSkeleton = () => (
 );
 
 const ProfilePage = () => {
+  const { changeLanguage } = useI18n();
   const [uploadImage] = useUploadImageMutation();
   const [updateProfile] = useUpdateProfileMutation();
   const [uploadAvatar] = useUpdateAvatarMutation();
 
   const [isEditingName, setIsEdtingName] = useState<boolean>(false);
   const [isClicked, setIsClicked] = useState<boolean>(false);
+  const [editingLabels, setEditingLabels] = useState<{ [key: string]: string }>(
+    {},
+  );
+  const [sessionLanguage, setSessionLanguage] = useState<string>('en-US');
 
   const [profileValues, setProfileValues] = useState<{
     username: string;
@@ -69,6 +76,13 @@ const ProfilePage = () => {
     createdAt: string;
     language: string;
   }>(defaultValues);
+
+  useEffect(() => {
+    const language = sessionStorage.getItem('language');
+    if (language) {
+      setSessionLanguage(language);
+    }
+  }, []);
 
   const localizedLanguageChangeMessage = [
     {
@@ -286,7 +300,7 @@ const ProfilePage = () => {
       ...profileValues,
       language,
     });
-
+    changeLanguage(language.split('-')[0]);
     sessionStorage.setItem('language', language);
     try {
       const result = await updateProfile({
@@ -410,19 +424,23 @@ const ProfilePage = () => {
                   <IconEdit size="15px" color="grey" />
                 </Button>
               </Box>
-              <Text>
-                {'Joined on '}
-                <time dateTime={profileValues.createdAt}>
-                  {new Date(profileValues.createdAt).toLocaleDateString(
-                    'en-US',
-                    {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    },
-                  )}
-                </time>
-              </Text>
+              <Translation>
+                {(t) => (
+                  <Text>
+                    {t('profile.joinedOn')}
+                    <time dateTime={profileValues.createdAt}>
+                      {new Date(profileValues.createdAt).toLocaleDateString(
+                        sessionLanguage,
+                        {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        },
+                      )}
+                    </time>
+                  </Text>
+                )}
+              </Translation>
             </Box>
           </>
         )}
@@ -432,7 +450,7 @@ const ProfilePage = () => {
 
   const sectionsList = [
     {
-      label: 'Language',
+      label: editingLabels.language,
       icon: <IconLanguage />,
       content: isFetchingProfile ? (
         <InfoSkeleton />
@@ -449,7 +467,7 @@ const ProfilePage = () => {
       ),
     },
     {
-      label: 'Personal Information',
+      label: editingLabels.personalInformation,
       icon: <IconUserCircle />,
       content: isFetchingProfile ? (
         <InfoSkeleton />
@@ -468,7 +486,15 @@ const ProfilePage = () => {
   return (
     <Container className="flex flex-col items-center w-full min-h-screen py-8 px-4 mb-10 gap-3 sm:px-6 lg:px-8">
       <AvatarSection />
-      <AccordionLists list={sectionsList} />
+      <Translation>
+        {(t) => {
+          setEditingLabels({
+            language: t('common.language'),
+            personalInformation: t('profile.personalInformation'),
+          });
+          return <AccordionLists list={sectionsList} />;
+        }}
+      </Translation>
     </Container>
   );
 };

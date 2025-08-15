@@ -25,6 +25,14 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({ children }) => {
   const [i18nInitialized, setI18nInitialized] = useState(false);
 
   useEffect(() => {
+    const sessionLanguage = sessionStorage.getItem('language');
+    if (!sessionLanguage) {
+      sessionStorage.setItem('language', 'en-US');
+      setCurrentLanguage('en');
+    }
+  }, []);
+
+  useEffect(() => {
     const initializeI18n = async () => {
       try {
         // Only initialize once
@@ -62,7 +70,7 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({ children }) => {
 
         i18n.on('languageChanged', handleLanguageChange);
 
-        // Load saved language from localStorage
+        // Load saved language from sessionStorage
         const savedLanguage = sessionStorage.getItem('language');
         if (
           savedLanguage &&

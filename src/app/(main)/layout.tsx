@@ -4,15 +4,16 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 import React, { useMemo } from 'react';
 
-import { LanguageSwitcher } from '@/components/language-switcher';
+// import { LanguageSwitcher } from '@/components/language-switcher';
 import MobileNavbar from '@/components/layouts/mobile-nav-layout';
 import Navbar from '@/components/layouts/side-navbar';
 import { SidebarProvider } from '@/contexts/sidebar-provider';
-import { cn } from '@/utils/class';
+
+// import { cn } from '@/utils/class';
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
-  const isHomePage = pathname === '/';
+  // const isHomePage = pathname === '/';
 
   const transitionKey = useMemo(() => {
     if (!pathname) return 'root';
@@ -78,7 +79,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
                 }}
                 className="h-full relative"
               >
-                <div
+                {/* <div
                   className={cn(
                     `hidden md:flex flex-shrink-0 justify-end items-center p-2 transition-all duration-300`,
                     {
@@ -89,7 +90,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
                   )}
                 >
                   <LanguageSwitcher variant="compact" size="sm" />
-                </div>
+                </div> */}
                 {children}
               </motion.div>
             </AnimatePresence>

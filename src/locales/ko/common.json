@@ -188,6 +188,7 @@
     }
   },
   "errors": {
+    "failure": "실패",
     "generic": "문제가 발생했습니다. 다시 시도해주세요.",
     "network": "네트워크 오류입니다. 연결을 확인해주세요.",
     "unauthorized": "이 작업을 수행할 권한이 없습니다.",
@@ -196,16 +197,21 @@
     "serverError": "서버 오류입니다. 나중에 다시 시도해주세요.",
     "general": "문제가 발생했습니다. 다시 시도해주세요.",
     "noImage": "이미지 없음",
-    "noDescriptionAvailable": "설명을 사용할 수 없습니다"
+    "noDescriptionAvailable": "설명을 사용할 수 없습니다",
+    "profileUpdateFailure": "프로필 업데이트에 실패했습니다! 다시 시도해주세요!",
+    "avatarUpdateFailure": "아바타 업데이트에 실패했습니다! 다시 시도해주세요!"
   },
   "success": {
+    "success": "성공",
     "saved": "성공적으로 저장되었습니다!",
     "updated": "성공적으로 업데이트되었습니다!",
     "deleted": "성공적으로 삭제되었습니다!",
     "shared": "성공적으로 공유되었습니다!",
     "uploaded": "성공적으로 업로드되었습니다!",
     "created": "성공적으로 생성되었습니다!",
-    "sent": "성공적으로 전송되었습니다!"
+    "sent": "성공적으로 전송되었습니다!",
+    "profileUpdateSuccess": "프로필이 성공적으로 업데이트되었습니다!",
+    "avatarUpdateSuccess": "아바타가 성공적으로 업데이트되었습니다!"
   },
   "utils": {
     "selectUpTo10Photos": "10개 이하의 사진을 선택해주세요",

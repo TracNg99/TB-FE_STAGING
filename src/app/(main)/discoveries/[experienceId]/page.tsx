@@ -18,6 +18,7 @@ import ActivityModal from '@/components/modals/activity';
 import NewCarousel from '@/components/new-carousel';
 import QRModal from '@/components/qr-code/qr-modal';
 import { Translation } from '@/components/translation';
+import { useI18n } from '@/contexts/i18n-provider';
 import { useGetActivitiesInExperiencePublicQuery } from '@/store/redux/slices/user/activity';
 import type { Activity } from '@/store/redux/slices/user/experience';
 import {
@@ -29,6 +30,7 @@ const SECTION_TITLE_CLASS =
   'text-[#222] text-[20px] font-semibold flex items-center gap-2';
 
 const ExperienceDetailPage = () => {
+  const { changeLanguage } = useI18n();
   const { experienceId } = useParams();
   const router = useRouter();
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -89,6 +91,7 @@ const ExperienceDetailPage = () => {
   }) => {
     sessionStorage.setItem('email', email);
     sessionStorage.setItem('language', language);
+    changeLanguage(language.split('-')[0]);
     setLanguage(language);
     setIsWelcomeModalOpen(false);
   };
