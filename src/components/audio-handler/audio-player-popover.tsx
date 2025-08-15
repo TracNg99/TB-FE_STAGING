@@ -584,20 +584,24 @@ export function AudioDrawer({
                     <>
                       <span>Curated by</span>
                       <span className="font-semibold">
-                        {content.created_by}
+                        {/* {content.created_by} */}
+                        {`Steven Jahng, General Manager`}
                       </span>
                     </>
                   )}
                   {content.owner && (
                     <>
-                      <span>from</span>
+                      <span>of</span>
                       <span className="inline-flex items-center gap-2">
                         <img
                           src="/assets/wink_logo.png"
                           alt="WINK"
                           className="w-6 h-6 rounded-full object-contain"
                         />
-                        <span className="font-semibold">{content.owner}</span>
+                        <span className="font-semibold">
+                          {/* {content.owner} */}
+                          {`the Wink Hotels In Da Nang`}
+                        </span>
                       </span>
                     </>
                   )}
