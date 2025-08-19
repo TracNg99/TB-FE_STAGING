@@ -63,6 +63,10 @@ export default function DiscoveriesLayout({
     : null;
   const companyId = sessionStorage.getItem('company_id') || '';
 
+  const language = useMemo(() => {
+    return sessionStorage.getItem('language') || '';
+  }, []);
+
   const {
     isSidebarOpen,
     setIsSidebarOpen,
@@ -74,6 +78,7 @@ export default function DiscoveriesLayout({
   const { data: addressMap } = useGetAddressExperienceMapByCompanyIdQuery(
     {
       companies: companies || [companyId],
+      language: language.split('-')[0],
     },
     {
       skip: !!role && role === 'business',

@@ -281,11 +281,11 @@ const ExperienceApi = createApi({
 
     getAddressExperienceMapByCompanyId: builder.query<
       Record<string, Experience[]>,
-      { companies: string[] }
+      { companies: string[]; language: string }
     >({
-      query: ({ companies }) => ({
+      query: ({ companies, language }) => ({
         url: '/experiences/public/address',
-        params: { companies },
+        params: { companies, language },
       }),
       transformResponse: (res: {
         data: { address: string; experience_data: Experience[] }[];

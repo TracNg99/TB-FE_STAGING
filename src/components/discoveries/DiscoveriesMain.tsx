@@ -55,6 +55,11 @@ const DiscoveriesMain: React.FC = () => {
     return null;
   }, []);
 
+  const language = useMemo(() => {
+    const language_code = sessionStorage.getItem('language') || '';
+    return language_code.split('-')[0];
+  }, [sessionStorage.getItem('language')]);
+
   const selectedAddress =
     searchParams.get('address') || (role === 'business' ? 'All' : 'For you');
   const router = useRouter();
@@ -65,6 +70,7 @@ const DiscoveriesMain: React.FC = () => {
   } = useGetAddressExperienceMapByCompanyIdQuery(
     {
       companies: companies || [companyId],
+      language,
     },
     {
       skip: !!role && role === 'business',

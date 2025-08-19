@@ -1,7 +1,11 @@
 // Your API slices
 import { configureStore } from '@reduxjs/toolkit';
 
-import { BuddyAgentApi, streamBuddyApi } from './slices/agents/buddy';
+import {
+  BuddyAgentApi,
+  CustomBuddyHistoryApi,
+  streamBuddyApi,
+} from './slices/agents/buddy';
 import { SearchAgentApi } from './slices/agents/search';
 import { ttsApi } from './slices/agents/text-to-speech';
 import { ActivityBusinessApi } from './slices/business/activity';
@@ -63,6 +67,7 @@ export const store = configureStore({
     [StorageCloudRunApi.reducerPath]: StorageCloudRunApi.reducer,
     [streamStoryApi.reducerPath]: streamStoryApi.reducer,
     [ttsApi.reducerPath]: ttsApi.reducer,
+    [CustomBuddyHistoryApi.reducerPath]: CustomBuddyHistoryApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -94,5 +99,6 @@ export const store = configureStore({
       .concat(streamBuddyApi.middleware)
       .concat(StorageCloudRunApi.middleware)
       .concat(streamStoryApi.middleware)
-      .concat(ttsApi.middleware),
+      .concat(ttsApi.middleware)
+      .concat(CustomBuddyHistoryApi.middleware),
 });

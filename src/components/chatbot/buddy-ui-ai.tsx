@@ -22,7 +22,8 @@ import { useChat } from '@/contexts/chat-provider';
 import { useSidebar } from '@/contexts/sidebar-provider';
 import {
   useBuddyStreamMutation,
-  useGetAllChatThreadsQuery,
+  useGetCustomBuddyHistoryQuery,
+  // useGetAllChatThreadsQuery,
   useGetInitialSuggestionsQuery,
   useGetThreadByIdQuery,
   useResetChatMemoryQuery,
@@ -352,12 +353,21 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
     },
   );
 
+  // const {
+  //   data: historyData,
+  //   refetch: refetchHistoryData,
+  //   isLoading: isHistoryLoading,
+  //   isFetching: isHistoryFetching,
+  // } = useGetAllChatThreadsQuery(undefined, {
+  //   skip: !user,
+  // });
+
   const {
     data: historyData,
     refetch: refetchHistoryData,
     isLoading: isHistoryLoading,
     isFetching: isHistoryFetching,
-  } = useGetAllChatThreadsQuery(undefined, {
+  } = useGetCustomBuddyHistoryQuery(undefined, {
     skip: !user,
   });
 

@@ -775,7 +775,7 @@ export function AudioDrawer({
                   max={duration}
                   step={1}
                   className="w-full"
-                  onValueChange={(value) => jumpToTime(value[0])}
+                  onValueChange={(value: any[]) => jumpToTime(value[0])}
                 />
                 <div className="flex justify-between text-sm text-white/80 mt-1">
                   <span>{formatTime(currentTime)}</span>

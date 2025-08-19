@@ -1,6 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 
-import { baseQueryAgent } from '../baseQuery';
+import { baseQuery, baseQueryAgent } from '../baseQuery';
 
 // Define TypeScript interfaces for the request and response data
 export interface BuddyAgentReq {
@@ -147,6 +147,19 @@ const BuddyAgentApi = createApi({
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${localStorage.getItem('jwt')}`,
         },
+      }),
+    }),
+  }),
+});
+
+const CustomBuddyHistoryApi = createApi({
+  reducerPath: 'customBuddyHistoryApi',
+  baseQuery: baseQuery,
+  endpoints: (builder) => ({
+    getCustomBuddyHistory: builder.query<BuddyHistoryRes, void>({
+      query: () => ({
+        url: `agents/chat/history`,
+        method: 'GET',
       }),
     }),
   }),
@@ -356,5 +369,7 @@ export const {
   useGetInitialSuggestionsQuery,
 } = BuddyAgentApi;
 
+export const { useGetCustomBuddyHistoryQuery } = CustomBuddyHistoryApi;
+
 export const { useBuddyStreamMutation } = streamBuddyApi;
-export { BuddyAgentApi, streamBuddyApi };
+export { BuddyAgentApi, streamBuddyApi, CustomBuddyHistoryApi };
