@@ -1,7 +1,7 @@
 {
   "navigation": {
     "home": "홈",
-    "discover": "발견",
+    "discover": "둘러보기",
     "stories": "스토리",
     "profile": "프로필",
     "settings": "설정",
@@ -38,7 +38,7 @@
     "dashboard": "대시보드",
     "overview": "개요",
     "insightsAtGlance": "한눈에 보는 인사이트",
-    "explorersVisited": "탐험가 방문",
+    "explorersVisited": "명의 탐험가들이 방문했어요",
     "create": "생성",
     "update": "업데이트",
     "activitiesYoullExperience": "체험할 수 있는 활동",
@@ -78,7 +78,7 @@
     "personalInformation": "개인 정보"
   },
   "experiences": {
-    "title": "여행을 즐기세요!",
+    "title": "멋진 모험을 떠나보세요!",
     "newExperience": "새로운 경험",
     "myExperiences": "내 경험",
     "sharedExperiences": "공유된 경험",
@@ -107,11 +107,11 @@
     "moreImages": "더 많은 이미지",
     "details": "상세 정보",
     "highlightsItems": [
-      "360° City Views",
-      "Signature Cocktails",
-      "Live DJ",
-      "Instagram Worthy",
-      "Romantic Atmosphere"
+      "360도 파노라마 시티뷰",
+      "시그니처 칵테일",
+      "라이브 DJ",
+      "인스타그래머블",
+      "로맨틱한 분위기"
     ],
     "noExperiencesFound": "이 주소에 대한 경험을 찾을 수 없습니다."
   },
@@ -218,6 +218,6 @@
   "utils": {
     "selectUpTo10Photos": "10개 이하의 사진을 선택해주세요",
     "selectAPhoto": "사진을 선택해주세요",
-    "browseFile": "파일을 선택해주세요"
+    "browseFile": "파일 찾아보기"
   }
 }

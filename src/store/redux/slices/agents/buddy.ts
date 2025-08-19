@@ -121,14 +121,15 @@ const BuddyAgentApi = createApi({
 
     getInitialSuggestions: builder.query<
       { data: string[] },
-      { experienceId: string; companyId: string }
+      { experienceId: string; companyId: string; language: string }
     >({
-      query: ({ experienceId, companyId }) => ({
+      query: ({ experienceId, companyId, language }) => ({
         url: `/chat/suggestions`,
         method: 'GET',
         params: {
           experience_id: experienceId,
           company_id: companyId,
+          language: language,
         },
       }),
     }),

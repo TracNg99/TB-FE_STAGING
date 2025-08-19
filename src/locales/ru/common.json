@@ -1,7 +1,7 @@
 {
   "navigation": {
     "home": "Главная",
-    "discover": "Открытия",
+    "discover": "Обзор",
     "stories": "Истории",
     "profile": "Профиль",
     "settings": "Настройки",
@@ -34,7 +34,7 @@
     "create": "Создать",
     "update": "Обновить",
     "language": "Язык",
-    "time": "время",
+    "time": "Время",
     "welcome": "Добро пожаловать",
     "dashboard": "Панель управления",
     "overview": "Обзор",
@@ -48,7 +48,7 @@
     "copyLinkToClipboard": "Скопировать ссылку в буфер обмена",
     "playAudio": "Воспроизвести аудио",
     "linkCopiedToClipboard": "Ссылка скопирована в буфер обмена!",
-    "followUpQuestions": "Формулы"
+    "followUpQuestions": "Дополнительные вопросы"
   },
   "auth": {
     "login": "Войти",
@@ -78,7 +78,7 @@
     "personalInformation": "Личная информация"
   },
   "experiences": {
-    "title": "Отправляйтесь в приключения с этими крутыми впечатлениями!",
+    "title": "Откройте для себя новые впечатления!",
     "newExperience": "Новый опыт",
     "myExperiences": "Мои впечатления",
     "sharedExperiences": "Общие впечатления",
@@ -110,10 +110,10 @@
       "Панорамные виды на 360°",
       "Фирменные коктейли",
       "Живой диджей",
-      "Достойно Instagram",
+      "Идеально для Инстаграм",
       "Романтическая атмосфера"
     ],
-    "noExperiencesFound": "Не найдено опыта для этого адреса."
+    "noExperiencesFound": "По этому адресу впечатлений не найдено."
   },
   "stories": {
     "title": "Расскажите свою историю путешествия",
@@ -134,13 +134,13 @@
     "draftStory": "Сохранить как черновик",
     "posted": "опубликовано",
     "shareYourTravelStory": "Поделитесь своей историей путешествия",
-    "defaultExperienceOption": "Опыт не выбран",
+    "defaultExperienceOption": "Впечатление не выбрано",
     "generateAIAssistedStory": "Создать историю с помощью AI",
     "anythingToAdd": "Что-нибудь добавить?",
     "pickYourPhotos": "Выберите ваши фотографии",
     "errorBrowserNotSupported": "Ошибка: Браузер не поддерживается",
     "errorBrowserNotSupportedMessage": "Этот браузер не поддерживает распознавание речи",
-    "selectExperience": "Выбрать опыт",
+    "selectExperience": "Выбрать впечатление",
     "noStoriesFound": "Истории не найдены",
     "noStoriesFoundAllStories": "Вы еще не создали ни одной истории путешествия. Начните делиться своими приключениями!",
     "noStoriesFoundFilter": "Не найдено историй для этого фильтра.",
@@ -151,7 +151,7 @@
     "askAnything": "Спросите что угодно...",
     "sendMessage": "Отправить сообщение",
     "chatHistory": "История чата",
-    "threads": "Нити",
+    "threads": "Диалоги",
     "clearHistory": "Очистить историю",
     "typing": "Печатает...",
     "suggestions": "Предложения",
@@ -160,7 +160,7 @@
     "answer": "Ответ",
     "sources": "Источники",
     "landingPageWelcome": "Добро пожаловать в Travel Buddy",
-    "followUpTo": "Продолжить",
+    "followUpTo": "В продолжение",
     "threadLoginPhrase": "Войдите в систему, чтобы увидеть ваши предыдущие разговоры"
   },
   "modals": {
@@ -218,6 +218,6 @@
   "utils": {
     "selectUpTo10Photos": "Выберите до 10 фотографий",
     "selectAPhoto": "Выберите фотографию",
-    "browseFile": "Просмотр файла"
+    "browseFile": "Выбрать файл"
   }
 }

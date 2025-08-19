@@ -346,16 +346,7 @@ const BuddyResponse: React.FC<BuddyResponseProps> = ({
                                   >
                                     {source.url}
                                   </a>
-                                  <MarkdownViewer
-                                    content={
-                                      msg.from === 'assistant' &&
-                                      i === messages.length - 1 &&
-                                      displayText &&
-                                      displayText !== ''
-                                        ? displayText
-                                        : msg.text
-                                    }
-                                  />
+                                  <MarkdownViewer content={source.snippet} />
                                 </div>
                               ))}
                             </div>

@@ -37,8 +37,8 @@
     "welcome": "Chào mừng",
     "dashboard": "Bảng điều khiển",
     "overview": "Tổng quan",
-    "insightsAtGlance": "Thông tin chi tiết của bạn trong nháy mắt",
-    "explorersVisited": "nhà thám hiểm đã ghé thăm",
+    "insightsAtGlance": "Dữ liệu nổi bật",
+    "explorersVisited": "người khám phá đã ghé thăm",
     "create": "Tạo",
     "update": "Cập nhật",
     "activitiesYoullExperience": "Các hoạt động bạn sẽ trải nghiệm",
@@ -75,7 +75,7 @@
     "personalInformation": "Thông tin cá nhân"
   },
   "experiences": {
-    "title": "Tham gia những cuộc phiêu lưu thú vị này!",
+    "title": "Khám phá những chuyến phiêu lưu độc đáo!",
     "newExperience": "Trải nghiệm mới",
     "myExperiences": "Trải nghiệm của tôi",
     "sharedExperiences": "Trải nghiệm được chia sẻ",
@@ -104,11 +104,11 @@
     "moreImages": "Thêm nhiều hình ảnh",
     "details": "Chi tiết",
     "highlightsItems": [
-      "360° City Views",
-      "Signature Cocktails",
-      "Live DJ",
-      "Instagram Worthy",
-      "Romantic Atmosphere"
+      "Tầm nhìn 360° toàn cảnh thành phố",
+      "Cocktail đặc trưng",
+      "Nhạc sống DJ",
+      "Lý tưởng để check-in Instagram",
+      "Không gian lãng mạn"
     ],
     "noExperiencesFound": "Không tìm thấy trải nghiệm nào cho địa chỉ này."
   },
@@ -148,7 +148,7 @@
     "askAnything": "Hỏi bất cứ điều gì...",
     "sendMessage": "Gửi tin nhắn",
     "chatHistory": "Lịch sử trò chuyện",
-    "threads": "Các chủ đề",
+    "threads": "Các hội thoại",
     "clearHistory": "Xóa lịch sử",
     "typing": "Đang nhập...",
     "suggestions": "Gợi ý",
@@ -157,13 +157,13 @@
     "answer": "Trả lời",
     "sources": "Nguồn",
     "landingPageWelcome": "Chào mừng bạn đến với Travel Buddy",
-    "followUpTo": "Tiếp theo",
+    "followUpTo": "Tiếp nối chủ đề",
     "threadLoginPhrase": "Đăng nhập để xem các cuộc trò chuyện trước đây"
   },
   "modals": {
     "welcome": {
       "title": "Chào mừng đến với Travel Buddy",
-      "subtitle": "Người bạn đồng hành du lịch được hỗ trợ bởi AI",
+      "subtitle": "Bạn đồng hành du lịch AI của bạn",
       "description": "Khám phá những địa điểm tuyệt vời, chia sẻ trải nghiệm của bạn và nhận được những gợi ý du lịch được cá nhân hóa.",
       "getStarted": "Bắt đầu"
     },

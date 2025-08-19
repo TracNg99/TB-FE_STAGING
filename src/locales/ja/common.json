@@ -39,8 +39,8 @@
     "dashboard": "ダッシュボード",
     "overview": "概要",
     "insightsAtGlance": "一目でわかるインサイト",
-    "explorersVisited": "探検者が訪問",
-    "about": "について",
+    "explorersVisited": "人の探検者が訪れました",
+    "about": "アプリ情報",
     "activitiesYoullExperience": "体験できるアクティビティ",
     "iconicPhotos": "象徴的な写真",
     "experienceNotFound": "体験が見つかりません。",
@@ -106,11 +106,11 @@
     "moreImages": "さらに画像を追加",
     "details": "詳細",
     "highlightsItems": [
-      "360° City Views",
-      "Signature Cocktails",
-      "Live DJ",
-      "Instagram Worthy",
-      "Romantic Atmosphere"
+      "360度のパノラマビュー",
+      "シグネチャーカクテル",
+      "ライブDJ",
+      "インスタ映え",
+      "ロマンチックな雰囲気"
     ],
     "noExperiencesFound": "この住所の体験が見つかりませんでした。"
   },
@@ -142,7 +142,7 @@
     "selectExperience": "体験を選択",
     "noStoriesFound": "ストーリーが見つかりません",
     "noStoriesFoundAllStories": "まだ旅行ストーリーを作成していません。冒険をシェアしてみましょう！",
-    "noStoriesFoundFilter": "このフィルターのストーリーが見つかりません。",
+    "noStoriesFoundFilter": "指定された条件のストーリーは見つかりませんでした。",
     "untitledStory": "タイトルなしのストーリー",
     "createYourFirstStory": "最初のストーリーを作成"
   },
@@ -159,7 +159,7 @@
     "answer": "答え",
     "sources": "ソース",
     "landingPageWelcome": "Travel Buddyへようこそ",
-    "followUpTo": "フォローアップ",
+    "followUpTo": "関連する質問",
     "threadLoginPhrase": "過去の会話を見るにはログインしてください"
   },
   "modals": {

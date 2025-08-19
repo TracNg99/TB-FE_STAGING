@@ -37,8 +37,8 @@
     "welcome": "欢迎",
     "dashboard": "仪表板",
     "overview": "概述",
-    "insightsAtGlance": "您的见解一目了然",
-    "explorersVisited": "探索者访问",
+    "insightsAtGlance": "精彩数据一览",
+    "explorersVisited": "位探险家已访问",
     "create": "创建",
     "update": "更新",
     "activitiesYoullExperience": "您将体验的活动",
@@ -78,7 +78,7 @@
     "personalInformation": "个人信息"
   },
   "experiences": {
-    "title": "来一场精彩的冒险吧！",
+    "title": "探索独一无二的精彩体验！",
     "newExperience": "新体验",
     "myExperiences": "我的体验",
     "sharedExperiences": "共享体验",
@@ -107,10 +107,10 @@
     "moreImages": "添加更多图片",
     "details": "详情",
     "highlightsItems": [
-      "360°城市景观",
+      "360°全景城市景观",
       "特色鸡尾酒",
       "现场DJ",
-      "Instagramworthy",
+      "网红打卡点",
       "浪漫氛围"
     ],
     "noExperiencesFound": "未找到此地址的体验。"
@@ -151,7 +151,7 @@
     "askAnything": "询问任何问题...",
     "sendMessage": "发送消息",
     "chatHistory": "聊天记录",
-    "threads": "线程",
+    "threads": "对话",
     "clearHistory": "清除记录",
     "typing": "输入中...",
     "suggestions": "建议",
@@ -160,7 +160,7 @@
     "answer": "答案",
     "sources": "来源",
     "landingPageWelcome": "欢迎来到Travel Buddy",
-    "followUpTo": "后续问题",
+    "followUpTo": "继续话题",
     "threadLoginPhrase": "登录以查看您的历史对话"
   },
   "modals": {
@@ -218,6 +218,6 @@
   "utils": {
     "selectUpTo10Photos": "最多选择10张照片",
     "selectAPhoto": "选择照片",
-    "browseFile": "浏览文件"
+    "browseFile": "选择文件"
   }
 }

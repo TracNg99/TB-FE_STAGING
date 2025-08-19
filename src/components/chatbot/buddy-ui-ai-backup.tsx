@@ -233,6 +233,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
     {
       experienceId: experienceId as string,
       companyId: companyId ?? (experienceData?.owned_by as string),
+      language: sessionStorage.getItem('language') || 'en-US',
     },
     {
       skip: !isHome,

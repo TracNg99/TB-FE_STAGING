@@ -11,7 +11,13 @@ import {
   useRouter,
   useSearchParams,
 } from 'next/navigation';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import Chatbox from '@/components/chatbot/chatbox';
 import { base64ToUnicode } from '@/components/chatbot/streaming-hook';
@@ -325,6 +331,10 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
 
   const concatenateStreamingMessage = useRef<string>('');
 
+  const language = useMemo(() => {
+    return sessionStorage.getItem('language') || 'en-US';
+  }, []);
+
   const [threadsList, setThreadsList] = useState<
     {
       id: string;
@@ -394,6 +404,7 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
     {
       experienceId: experienceId as string,
       companyId: companyId ?? (experienceData?.owned_by as string),
+      language,
     },
     {
       skip: !isHome,

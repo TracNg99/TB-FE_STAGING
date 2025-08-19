@@ -2,7 +2,7 @@
   "navigation": {
     "home": "Accueil",
     "discover": "Découvrir",
-    "stories": "Histoires",
+    "stories": "Récits",
     "profile": "Profil",
     "settings": "Paramètres",
     "logout": "Déconnexion"
@@ -78,7 +78,7 @@
     "personalInformation": "Informations personnelles"
   },
   "experiences": {
-    "title": "Partez à l'aventure avec ces expériences cool !",
+    "title": "Vivez des aventures uniques !",
     "newExperience": "Nouvelle expérience",
     "myExperiences": "Mes expériences",
     "sharedExperiences": "Expériences partagées",
@@ -93,7 +93,7 @@
     "featuredExperiences": "Expériences mises en avant",
     "discover": "Découvrez des endroits incroyables",
     "exploreNow": "Explorez maintenant",
-    "bookNow": "Reservez maintenant",
+    "bookNow": "Réservez maintenant",
     "viewDetails": "Voir les détails",
     "addToWishlist": "Ajouter à la liste des souhaits",
     "shareExperience": "Partager l'expérience",
@@ -110,7 +110,7 @@
       "Vues panoramiques",
       "Cocktails signature",
       "DJ en direct",
-      "Instagram Worthy",
+      "Instagrammable",
       "Atmosphère romantique"
     ],
     "noExperiencesFound": "Aucune expérience trouvée pour cette adresse."
@@ -143,7 +143,7 @@
     "selectExperience": "Sélectionner l'expérience",
     "noStoriesFound": "Aucune histoire trouvée",
     "noStoriesFoundAllStories": "Vous n'avez pas encore créé d'histoires de voyage. Commencez à partager vos aventures !",
-    "noStoriesFoundFilter": "Aucune histoire trouvée pour ce filtre.",
+    "noStoriesFoundFilter": "Aucun récit trouvé pour les filtres sélectionnés.",
     "untitledStory": "Histoire sans titre",
     "createYourFirstStory": "Créez votre première histoire"
   },
@@ -153,7 +153,7 @@
     "chatHistory": "Historique des conversations",
     "threads": "Fils de discussion",
     "clearHistory": "Effacer l'historique",
-    "typing": "En cours de frappe...",
+    "typing": "Écrit...",
     "suggestions": "Suggestions",
     "clearChat": "Effacer la conversation",
     "newConversation": "Nouvelle conversation",
@@ -218,6 +218,6 @@
   "utils": {
     "selectUpTo10Photos": "Sélectionnez jusqu'à 10 photos",
     "selectAPhoto": "Sélectionnez une photo",
-    "browseFile": "Parcourir le fichier"
+    "browseFile": "Parcourir..."
   }
 }
