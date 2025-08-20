@@ -13,7 +13,9 @@ interface ImageDisplayProps {
     image: string | null;
     name: string | null;
     isExisting?: boolean;
+    isLoading?: boolean;
   }>;
+  withUploader?: boolean;
   imageError?: boolean;
   setImageError?: (state: boolean) => void;
   className?: string;
@@ -33,6 +35,7 @@ const BaseImageGridDisplay: React.FC<ImageDisplayProps> = ({
   allowAddNew = true,
   allowMultiple = false,
   selectedImages,
+  withUploader = false,
   imageError,
   className,
   singleImageClassName,
@@ -100,75 +103,104 @@ const BaseImageGridDisplay: React.FC<ImageDisplayProps> = ({
         </Box>
       ))}
       {selectedImages.map((img, index) => (
-        <React.Fragment key={index}>
-          {CustomChildren ? (
-            <CustomChildren
-              index={index}
-              image={img.image}
-              name={img.name}
-              handleRemoveImage={handleRemoveImage}
-            />
-          ) : (
+        <>
+          {!!img.isLoading && withUploader && (
             <Box
               data-image-container="true"
               className={
                 singleImageClassName ??
-                `relative overflow-hidden rounded-md border border-gray-300 flex items-center justify-center w-20 h-20 md:w-30 md:h-30 lg:w-35 lg:h-35`
+                `relative 
+            overflow-hidden 
+            rounded-md border 
+            border-gray-300 
+            flex items-center justify-center 
+            w-20 h-20 md:w-30 md:h-30 lg:w-35 lg:h-35`
               }
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
               }}
             >
-              <ImageDisplay
-                src={
-                  imageError || !img.image
-                    ? 'https://via.placeholder.com/100x100?text=No+Image'
-                    : img.image
-                }
-                alt={img.name || 'Uploaded'}
-                onError={() => setImageError?.(true)}
-                style={{
-                  objectFit: 'contain',
-                  height: '100%',
-                  width: '100%',
-                  maxHeight: '100%',
-                  maxWidth: '100%',
-                  display: 'block',
-                }}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
-              />
-
-              {allowAddNew && (
-                <Tooltip label="Remove">
-                  <button
+              <div className="w-full h-full flex items-center justify-center">
+                <div className="flex flex-col items-center gap-1">
+                  <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                  <p className="text-xs text-gray-500">Uploading...</p>
+                </div>
+              </div>
+            </Box>
+          )}
+          {!img.isLoading && (
+            <React.Fragment key={index}>
+              {CustomChildren ? (
+                <CustomChildren
+                  index={index}
+                  image={img.image}
+                  name={img.name}
+                  handleRemoveImage={handleRemoveImage}
+                />
+              ) : (
+                <Box
+                  data-image-container="true"
+                  className={
+                    singleImageClassName ??
+                    `relative overflow-hidden rounded-md border border-gray-300 flex items-center justify-center w-20 h-20 md:w-30 md:h-30 lg:w-35 lg:h-35`
+                  }
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                >
+                  <ImageDisplay
+                    src={
+                      imageError || !img.image
+                        ? 'https://via.placeholder.com/100x100?text=No+Image'
+                        : img.image
+                    }
+                    alt={img.name || 'Uploaded'}
+                    onError={() => setImageError?.(true)}
+                    style={{
+                      objectFit: 'contain',
+                      height: '100%',
+                      width: '100%',
+                      maxHeight: '100%',
+                      maxWidth: '100%',
+                      display: 'block',
+                    }}
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      handleRemoveImage(index);
                     }}
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                    }}
-                    className={`
+                  />
+
+                  {allowAddNew && (
+                    <Tooltip label="Remove">
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleRemoveImage(index);
+                        }}
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                        }}
+                        className={`
                    absolute top-[-5px] right-[-5px] 
                    p-1 text-black bg-white/70 
                    hover:bg-white/80 z-[10]
                    rounded-full cursor-pointer
                    pointer-events-auto remove-button
                  `}
-                  >
-                    <IconX size="0.8rem" />
-                  </button>
-                </Tooltip>
+                      >
+                        <IconX size="0.8rem" />
+                      </button>
+                    </Tooltip>
+                  )}
+                </Box>
               )}
-            </Box>
+            </React.Fragment>
           )}
-        </React.Fragment>
+        </>
       ))}
     </div>
   );

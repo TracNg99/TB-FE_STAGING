@@ -1,7 +1,9 @@
 // import { Button } from '@mantine/core';
 import { IconCloudUpload } from '@tabler/icons-react';
 import heic2any from 'heic2any';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+
+import { useUploadImageCloudRunMutation } from '@/store/redux/slices/storage/upload';
 
 import DropzoneUploader from './image-picker-dropzone';
 
@@ -97,6 +99,8 @@ interface UploadHandlerProps {
     image: string | null;
     name: string | null;
     isExisting?: boolean;
+    isLoading?: boolean;
+    id?: string | null;
   }>;
   setImageError?: (state: boolean) => void;
   setSelectedImages: (
@@ -104,6 +108,8 @@ interface UploadHandlerProps {
       image: string | null;
       name: string | null;
       isExisting?: boolean;
+      isLoading?: boolean;
+      id?: string | null;
     }>,
   ) => void;
   onImageUpload: (
@@ -112,6 +118,16 @@ interface UploadHandlerProps {
   withResize?: boolean;
   allowMultiple?: boolean;
   setLoadingFiles?: (updater: React.SetStateAction<{ name: string }[]>) => void;
+  handleMediaUploadToStorage?: (
+    item: {
+      image: string | null;
+      name: string | null;
+      isExisting?: boolean;
+      isLoading?: boolean;
+      id?: string | null;
+    }[],
+  ) => void;
+  withUploader?: boolean;
 }
 
 export const handleImageUpload = ({
@@ -119,13 +135,14 @@ export const handleImageUpload = ({
   withResize,
   allowMultiple,
   selectedImages,
+  withUploader,
   setImageError,
   setSelectedImages,
   onImageUpload,
-  asBlob = false,
   setLoadingFiles,
+  handleMediaUploadToStorage,
+  asBlob = false,
 }: UploadHandlerProps) => {
-  console.log('handleImageUpload called with acceptedFiles:', acceptedFiles);
   if (acceptedFiles && acceptedFiles.length > 0) {
     const files =
       typeof acceptedFiles === 'object'
@@ -190,29 +207,59 @@ export const handleImageUpload = ({
       const updatedImages = allowMultiple
         ? [...selectedImages, ...validImages]
         : validImages.slice(0, 1); // Only take the first image if allowMultiple is false
-      setSelectedImages(updatedImages);
-      if (validImages.length < uploadedImages.length) {
-        setImageError?.(true);
+
+      if (withUploader) {
+        console.log('uploading to storage');
+        setSelectedImages(
+          updatedImages.map((img: any, index: number) => {
+            return {
+              image: img.image,
+              name: `img-${index}-${img.name}`,
+              isExisting: img.isExisting ?? false,
+              isLoading: img.isLoading ?? true,
+              id: img.id || null,
+            };
+          }),
+        );
+        handleMediaUploadToStorage?.(
+          updatedImages as {
+            image: string | null;
+            name: string | null;
+            isExisting?: boolean;
+            isLoading?: boolean;
+            id?: string | null;
+          }[],
+        );
       } else {
-        setImageError?.(false);
-      }
-
-      const updatedFiles = updatedImages.map((image) => {
-        if (asBlob && image.image) {
-          const file = base64ToBlob(image.image);
-          return file;
+        console.log('not uploading to storage');
+        setSelectedImages(updatedImages);
+        if (validImages.length < uploadedImages.length) {
+          setImageError?.(true);
+        } else {
+          setImageError?.(false);
         }
-        return image; // Return the image object directly if not asBlob
-      });
 
-      onImageUpload(updatedFiles as any); // Notify parent component
+        const updatedFiles = updatedImages.map((image) => {
+          if (asBlob && image.image) {
+            const file = base64ToBlob(image.image as string);
+            return file;
+          }
+          return image; // Return the image object directly if not asBlob
+        });
+
+        onImageUpload(updatedFiles as any); // Notify parent component
+      }
     });
   }
 };
 
 interface ImageUploaderProps {
   onImageUpload: (
-    images: (File & { image: string | null; name: string | null })[],
+    images: (File & {
+      image: string | null;
+      name: string | null;
+      id?: string | null;
+    })[],
   ) => void;
   withDropzone?: boolean;
   dropzoneClassName?: string;
@@ -229,6 +276,7 @@ interface ImageUploaderProps {
   className?: string;
   children?: React.ReactNode;
   disabled?: boolean;
+  withUploader?: boolean;
 }
 
 const ImageUploader: React.FC<ImageUploaderProps> = ({
@@ -243,17 +291,106 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   withResize = false,
   isStandalone = false,
   disabled = false,
+  withUploader = false,
 }) => {
   const [selectedImages, setSelectedImages] = useState<
     {
       image: string | null;
       name: string | null;
+      id?: string | null;
       isExisting?: boolean;
+      isLoading?: boolean;
+      isError?: boolean;
     }[]
   >([]);
   const [imageError, setImageError] = useState(false);
   const [loadingFiles, setLoadingFiles] = useState<{ name: string }[]>([]);
   const [isCleared, setIsCleared] = useState<boolean>(false);
+
+  const [uploadImageCloudRun] = useUploadImageCloudRunMutation();
+
+  const handleMediaUploadToStorage = useCallback(
+    (
+      item: {
+        image: string | null;
+        name: string | null;
+        isExisting?: boolean;
+        isLoading?: boolean;
+        id?: string | null;
+      }[],
+    ) => {
+      const existingImages = item.filter((img) => img.isExisting);
+      const uploadedImages: {
+        image: string | null;
+        name: string | null;
+        id?: string | null;
+      }[] = existingImages;
+      const nonExistingImages = item.filter((img) => !img.isExisting);
+      nonExistingImages.forEach((img, index) => {
+        const payload = {
+          media: {
+            mimeType: 'image/jpeg',
+            body: img.image as string,
+          },
+          bucket_name: 'story',
+        };
+
+        uploadImageCloudRun(payload)
+          .unwrap()
+          .then(({ url, id }) => {
+            setSelectedImages((prev) => {
+              return prev.map((img) => {
+                if (
+                  img.isLoading &&
+                  !img.id &&
+                  img.name?.includes(`${index}`)
+                ) {
+                  return {
+                    ...img,
+                    isLoading: false,
+                    isExisting: true,
+                    image: url,
+                    id,
+                  };
+                }
+                return img;
+              });
+            });
+            uploadedImages.push({
+              image: url as string,
+              name: img.name as string,
+              id,
+            });
+            onImageUpload(uploadedImages as any);
+          })
+          .catch((error) => {
+            console.error('Error uploading image:', error);
+            // notifications.show({
+            //   title: 'Error uploading image',
+            //   message: 'Failed to upload one or more images.',
+            //   color: 'yellow',
+            // });
+            setImageError(true);
+            setSelectedImages((prev) => {
+              return prev.map((img) => {
+                if (img.isLoading || !img.id) {
+                  return {
+                    ...img,
+                    isLoading: false,
+                    isExisting: false,
+                    image: null,
+                    id: null,
+                    isError: true,
+                  };
+                }
+                return img;
+              });
+            });
+          });
+      });
+    },
+    [onImageUpload, uploadImageCloudRun],
+  );
 
   const handleRemoveImage = (index: number) => {
     const updatedImages = selectedImages.filter((_, i) => i !== index);
@@ -261,7 +398,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
 
     const updatedFiles = updatedImages.map((image) => {
       if (asBlob && image.image) {
-        const file = base64ToBlob(image.image);
+        const file = base64ToBlob(image.image as string);
         return file;
       }
       // Ensure the returned object has the expected structure
@@ -295,11 +432,13 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     withResize,
     allowMultiple,
     selectedImages,
+    withUploader,
     asBlob,
     setImageError,
     setSelectedImages,
     onImageUpload,
     setLoadingFiles,
+    handleMediaUploadToStorage,
   };
 
   return isStandalone ? (

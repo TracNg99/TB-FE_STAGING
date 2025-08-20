@@ -28,6 +28,7 @@ interface ImageSubcomponentProps {
     image: string | null;
     name: string | null;
     isExisting?: boolean;
+    isLoading?: boolean;
   }>;
   imageError: boolean;
   asBlob?: boolean;
@@ -37,25 +38,37 @@ interface ImageSubcomponentProps {
       image: string | null;
       name: string | null;
       isExisting?: boolean;
+      isLoading?: boolean;
     }>,
   ) => void;
   handleRemoveImage: (index: number) => void;
+  withUploader?: boolean;
+  handleMediaUploadToStorage?: (
+    item: {
+      image: string | null;
+      name: string | null;
+      isExisting?: boolean;
+      isLoading?: boolean;
+    }[],
+  ) => void;
 }
 
 const DropzoneUploader: React.FC<ImageSubcomponentProps> = ({
   dropzoneClassName,
   onImageUpload,
   children,
+  selectedImages,
+  imageError,
+  loadingFiles,
   allowAddNew = true,
   allowMultiple = false,
   withResize = false,
   asBlob = false,
-  selectedImages,
-  imageError,
-  loadingFiles,
+  withUploader = false,
   setImageError,
   setSelectedImages,
   handleRemoveImage,
+  handleMediaUploadToStorage,
 }) => {
   const paramObj = {
     withResize,
@@ -65,6 +78,8 @@ const DropzoneUploader: React.FC<ImageSubcomponentProps> = ({
     setSelectedImages,
     onImageUpload,
     asBlob,
+    withUploader,
+    handleMediaUploadToStorage,
   };
 
   return (
@@ -78,7 +93,7 @@ const DropzoneUploader: React.FC<ImageSubcomponentProps> = ({
             }}
             className="border-solid mb-4 lg:mb-0"
             onDrop={(files) => {
-              console.log('Dropzone onDrop called with files:', files);
+              // console.log('Dropzone onDrop called with files:', files);
               handleImageUpload({
                 acceptedFiles: files,
                 ...paramObj,
@@ -97,6 +112,7 @@ const DropzoneUploader: React.FC<ImageSubcomponentProps> = ({
                 setImageError={setImageError}
                 handleRemoveImage={handleRemoveImage}
                 loadingFiles={loadingFiles}
+                withUploader={withUploader}
                 onAdd={() => {
                   // Trigger file input click
                   const input = document.createElement('input');

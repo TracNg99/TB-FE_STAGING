@@ -22,7 +22,7 @@ import ImageUploader from '@/components/image-uploader/image-picker';
 import Section from '@/components/layouts/section';
 import StoryCreationLoading from '@/components/loading/StoryCreationLoading';
 import { Translation } from '@/components/translation';
-import { useUploadImageCloudRunMutation } from '@/store/redux/slices/storage/upload';
+// import { useUploadImageCloudRunMutation } from '@/store/redux/slices/storage/upload';
 import { useGetAllExperiencesQuery } from '@/store/redux/slices/user/experience';
 import { useUploadStoryAgentMutation } from '@/store/redux/slices/user/storyAgent';
 
@@ -33,7 +33,11 @@ const storySchema = z.object({
     .array(
       z.union([
         z.instanceof(Blob),
-        z.object({ image: z.string(), name: z.string() }),
+        z.object({
+          image: z.string(),
+          name: z.string(),
+          id: z.string(),
+        }),
       ]),
     )
     .min(1, 'Must upload at least 1 photo'),
@@ -50,7 +54,7 @@ const NewStoryPage = () => {
   const [uploadStory, { isLoading: isUploading }] =
     useUploadStoryAgentMutation();
 
-  const [uploadImageCloudRun] = useUploadImageCloudRunMutation();
+  // const [uploadImageCloudRun] = useUploadImageCloudRunMutation();
   const { data: experiencesData } = useGetAllExperiencesQuery();
 
   useEffect(() => {
@@ -103,52 +107,52 @@ const NewStoryPage = () => {
       return;
     }
 
-    const mediaUrls = (
-      await Promise.all(
-        userInputs.media.map(async (item) => {
-          if (typeof item === 'string') {
-            return item; // Already a URL
-          }
-          try {
-            const payload = {
-              media: {
-                mimeType: 'image/jpeg',
-                body: (item as { image: string; name: string }).image,
-              },
-              bucket_name: 'story',
-            };
-            const { url, id } = await uploadImageCloudRun(payload).unwrap();
-            return { url, id };
-          } catch (error) {
-            console.error('Error uploading image:', error);
-            notifications.show({
-              title: 'Error uploading image',
-              message: 'Failed to upload one or more images.',
-              color: 'red',
-            });
-            setIsConfirmClicked(false);
-            return null;
-          }
-        }),
-      )
-    ).filter((item) => item !== null) as { url: string; id: string }[];
+    // const mediaUrls = (
+    //   await Promise.all(
+    //     userInputs.media.map(async (item) => {
+    //       if (typeof item === 'string') {
+    //         return item; // Already a URL
+    //       }
+    //       try {
+    //         const payload = {
+    //           media: {
+    //             mimeType: 'image/jpeg',
+    //             body: (item as { image: string; name: string }).image,
+    //           },
+    //           bucket_name: 'story',
+    //         };
+    //         const { url, id } = await uploadImageCloudRun(payload).unwrap();
+    //         return { url, id };
+    //       } catch (error) {
+    //         console.error('Error uploading image:', error);
+    //         notifications.show({
+    //           title: 'Error uploading image',
+    //           message: 'Failed to upload one or more images.',
+    //           color: 'red',
+    //         });
+    //         setIsConfirmClicked(false);
+    //         return null;
+    //       }
+    //     }),
+    //   )
+    // ).filter((item) => item !== null) as { url: string; id: string }[];
 
-    if (mediaUrls.length === 0) {
-      notifications.show({
-        title: 'Error uploading image',
-        message: 'Failed to upload one or more images.',
-        color: 'red',
-      });
-      setIsConfirmClicked(false);
-      return;
-    }
+    // if (mediaUrls.length === 0) {
+    //   notifications.show({
+    //     title: 'Error uploading image',
+    //     message: 'Failed to upload one or more images.',
+    //     color: 'red',
+    //   });
+    //   setIsConfirmClicked(false);
+    //   return;
+    // }
 
     // Use RTK Query mutation to upload story
     try {
       const payload = {
         experience_id: matchedExperience?.id || matchExperienceId,
         notes: userInputs.notes || '',
-        media: mediaUrls.map((item) => item.id),
+        media: userInputs.media.map((item: any) => item.id),
         language: sessionStorage.getItem('language') || 'en-US',
       };
       const result = await uploadStory({ payload }).unwrap();
@@ -261,15 +265,30 @@ const NewStoryPage = () => {
                         allowMultiple={true}
                         // withResize={true}
                         // asBlob={true}
+                        withUploader={true}
                         isStandalone={true}
                         fetchImages={watchedMedia.map((item) => {
                           if (typeof item === 'string') {
-                            return { image: item, name: 'image' };
+                            return {
+                              image: item,
+                              name: 'image',
+                              isExisting: false,
+                            };
                           }
                           if (item instanceof Blob) {
-                            return { image: null, name: 'blob' };
+                            return {
+                              image: null,
+                              name: 'blob',
+                              isExisting: false,
+                            };
                           }
-                          return { image: item.image, name: item.name };
+                          return {
+                            image: item.image,
+                            name: item.name,
+                            isExisting: true,
+                            isLoading: false,
+                            id: item.id,
+                          };
                         })}
                       >
                         <ImageUploadIcon
