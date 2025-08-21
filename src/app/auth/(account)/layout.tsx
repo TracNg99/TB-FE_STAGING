@@ -4,7 +4,7 @@ import { Button, Divider } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { Provider } from '@supabase/supabase-js';
 import { IconBrandGoogle, IconBrandX } from '@tabler/icons-react';
-import { useRouter } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { Translation } from '@/components/translation';
@@ -29,9 +29,9 @@ const oauthProviders = [
 
 export default function AuthLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   const router = useRouter();
   const [isClicked, setIsClicked] = useState(false);
   const [loginWithGgle, { isLoading: isLoadingGgle }] =
@@ -77,10 +77,10 @@ export default function AuthLayout({
             {children}
             <Divider label={t('auth.signInWith')} />
             <div className="flex flex-col gap-4 w-full">
-              {oauthProviders.map(({ icon: Icon, key }, index) => (
+              {oauthProviders.map(({ icon: Icon, key }) => (
                 <Button
                   variant="outline"
-                  key={index}
+                  key={key}
                   onClick={() => {
                     setIsClicked(true);
                     onOauthLogin(key);
@@ -90,6 +90,14 @@ export default function AuthLayout({
                   <Icon />
                 </Button>
               ))}
+              <Button
+                variant="outline"
+                onClick={() =>
+                  redirect('/')
+                }
+              >
+                Continue as guest
+              </Button>
             </div>
           </div>
         </div>

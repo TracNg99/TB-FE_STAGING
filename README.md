@@ -6,8 +6,8 @@ Travel Buddy is a modern, AI-powered web application designed to make trip plann
 
 This section provides a technical overview of the key features of the Travel Buddy application.
 
-- [🤖 AI-Powered Chatbot](#-ai-powered-chatbot)
-- [🔐 Secure Authentication](#-secure-authentication)
+- [🤖 AI-Powered Chatbot](#ai-powered-chatbot)
+- [🔐 Secure Authentication](#secure-authentication)
 - [📝 Itinerary & Story Management](#-itinerary--story-management)
 - [📸 Image & Media Handling](#-image--media-handling)
 - [🎤 Voice-to-Text](#-voice-to-text)

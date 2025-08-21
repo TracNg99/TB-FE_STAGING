@@ -6,6 +6,7 @@ import {
   SetStateAction,
   createContext,
   useContext,
+  useMemo,
   useState,
 } from 'react';
 
@@ -21,15 +22,16 @@ const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 export const SidebarProvider = ({ children }: { children: ReactNode }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [experiencesStatus, setExperiencesStatus] = useState('active');
+  const sidebarCtxValue = useMemo(() => ({
+    isSidebarOpen,
+    setIsSidebarOpen,
+    experiencesStatus,
+    setExperiencesStatus,
+  }), [isSidebarOpen, setIsSidebarOpen, experiencesStatus, setExperiencesStatus]);
 
   return (
     <SidebarContext.Provider
-      value={{
-        isSidebarOpen,
-        setIsSidebarOpen,
-        experiencesStatus,
-        setExperiencesStatus,
-      }}
+      value={sidebarCtxValue}
     >
       {children}
     </SidebarContext.Provider>

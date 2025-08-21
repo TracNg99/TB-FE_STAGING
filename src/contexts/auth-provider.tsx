@@ -7,12 +7,12 @@ import {
   use,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
 
 import { BusinessProfile } from '@/store/redux/slices/business/profile';
-// import { jwtDecode } from "jwt-decode";
 import {
   useLogOutMutation,
   useRefreshSessionMutation,
@@ -95,7 +95,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (!isSessionExpired.current) {
       router.replace('/auth/login');
     }
-    return;
+
   }, [logOut, pathname, router]);
 
   useEffect(() => {
@@ -138,7 +138,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             return;
           } else if (
             !PUBLIC_ROUTES.find((route) => pathname.includes(route)) &&
-            !(pathname === '/')
+            pathname !== '/'
           ) {
             localStorage.clear();
             notifications.show({
@@ -173,7 +173,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (
           (PUBLIC_ROUTES.find((route) => pathname?.includes(route)) &&
             pathname !== '/') ||
-          pathname!.includes(experienceId as string)
+          pathname.includes(experienceId)
         ) {
           setIsCheckingAuth(false);
           return;
@@ -182,20 +182,20 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // If the role is 'user'
         if (
           role === 'user' &&
-          (pathname!.includes('business') ||
-            (pathname!.includes('experiences') && pathname!.includes('edit')) ||
-            (pathname!.includes('experiences') &&
-              pathname!.includes('create')) ||
-            (pathname!.includes('activities') && pathname!.includes('create')))
+          (pathname.includes('business') ||
+            (pathname.includes('experiences') && pathname.includes('edit')) ||
+            (pathname.includes('experiences') &&
+              pathname.includes('create')) ||
+            (pathname.includes('activities') && pathname.includes('create')))
         ) {
           router.replace('/auth/login/business'); // Redirect to a login
           return;
         }
 
         // Allow access to valid role-based or general routes
-        const isRoleBasedPath = pathname!.includes(role);
+        const isRoleBasedPath = pathname.includes(role);
         const isGeneralPath =
-          !pathname!.includes('/business') && !pathname!.includes('/user');
+          !pathname.includes('/business') && !pathname.includes('/user');
 
         if (isRoleBasedPath || isGeneralPath) {
           setIsCheckingAuth(false);
@@ -203,7 +203,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
 
         // Redirect to role-based dashboard if accessing invalid role-specific path
-        if (!pathname!.includes(role)) {
+        if (!pathname.includes(role)) {
           router.replace(role === 'user' ? `/` : `/dashboard/business`);
         }
       } catch (error) {
@@ -236,6 +236,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const expTime = Number(expiresAt) * 1000 - 60 * 5 * 1000;
       const isExpired = Date.now() > expTime;
       if ((!isExpired || !expiresAt) && isValid) return;
+
       console.log('Session expired, refreshing...');
       try {
         const { access_token, refresh_token, expires_at, user_id } =
@@ -272,7 +273,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         isSessionExpired.current = true;
         logout();
         router.push('/');
-        return;
       }
     };
 
@@ -306,6 +306,13 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     refreshSession,
   ]);
 
+  const authCtxValues = useMemo(() => ({
+    user,
+    isDefault,
+    setIsDefault,
+    logout,
+  }), [user, isDefault, setIsDefault, logout]);
+
   // Show a loading state while checking authentication
   if (isCheckingAuth) {
     return (
@@ -317,12 +324,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <AuthContext
-      value={{
-        user,
-        isDefault,
-        setIsDefault,
-        logout,
-      }}
+      value={authCtxValues}
     >
       {children}
       {/* <Suspense>

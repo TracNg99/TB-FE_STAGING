@@ -28,7 +28,7 @@ interface LoginFormProps {
   onSuccess?: () => void;
 }
 
-export function LoginForm({ redirectUrl, onSuccess }: LoginFormProps) {
+export function LoginForm({ redirectUrl, onSuccess }: Readonly<LoginFormProps>) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
