@@ -19,8 +19,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import IconicPhotoDisplay from '@/components/admin/IconicPhotoDisplay';
 import ImageUploader from '@/components/image-uploader/image-picker';
-import { useCreateActivityMutation } from '@/store/redux/slices/business/activity';
+import {
+  useCreateActivityMutation,
+  useUpdateActivityMutation,
+} from '@/store/redux/slices/business/activity';
 import { useCreateExperienceMutation } from '@/store/redux/slices/business/experience';
 import { useCreateExperienceDetailsMutation } from '@/store/redux/slices/business/experience';
 import {
@@ -57,6 +61,7 @@ const experienceSchema = z.object({
 
 // Activity schema (Step 2)
 const activitySchema = z.object({
+  id: z.string().min(1).optional(),
   activity_title: z.string().min(1, 'Activity title is required'),
   activity_thumbnail_description: z
     .string()
@@ -86,6 +91,11 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
   //   opened = false,
   onClose,
 }) => {
+  const experienceSectionRef = useRef<HTMLDivElement>(null);
+  const topPageRef = useRef<HTMLDivElement>(null);
+  const [shouldScrollToExperience, setShouldScrollToExperience] =
+    useState(false);
+
   const [currentStep, setCurrentStep] = useState<'experience' | 'activity'>(
     'experience',
   );
@@ -94,12 +104,14 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
   );
   const [activities, setActivities] = useState<any[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activityAddState, setActivityAddState] = useState(false);
 
   const [uploadImageCloudRun] = useUploadImageCloudRunMutation();
   const [createMediaAsset] = useCreateMediaAssetMutation();
   const [createExperience] = useCreateExperienceMutation();
   const [createExperienceDetails] = useCreateExperienceDetailsMutation();
   const [createActivity] = useCreateActivityMutation();
+  const [updateActivity] = useUpdateActivityMutation();
 
   //   console.log('Card opened:', opened);
 
@@ -234,12 +246,24 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
 
   // 3. When adding a new activity
   const handleAddActivity = () => {
-    activityForm.reset();
     const newActivityId = `activity-${Date.now()}`;
+    setActivityAddState(true);
+    activityForm.reset({
+      id: newActivityId,
+      activity_title: '',
+      activity_thumbnail_description: '',
+      activity_description: '',
+      activity_thumbnail_image: { image: '', name: 'activity-image' },
+      activity_visiting_time: '',
+      activity_address: '',
+      activity_highlights: [],
+      activity_iconic_photos: [],
+    });
     setCurrentActivityId(newActivityId);
     // Create editor for new activity
     getActivityEditor(newActivityId);
     // Rest of your add activity logic
+    topPageRef.current?.scrollIntoView();
   };
 
   useEffect(() => {
@@ -358,6 +382,14 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
     }
   }, [activityForm, activityEditor]);
 
+  // Scroll to experience section when step changes to 'experience'
+  useEffect(() => {
+    if (shouldScrollToExperience && experienceSectionRef.current) {
+      experienceSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+      setShouldScrollToExperience(false); // Reset after scrolling
+    }
+  }, [shouldScrollToExperience]);
+
   // Step 1: Create placeholder experience (only on first activity)
   const createPlaceholderExperience = async (data: ExperienceFormData) => {
     if (!createdExperienceId) {
@@ -380,33 +412,6 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
     }
     setCurrentStep('activity');
   };
-
-  // Step 2: Add activity and return to experience
-  const addActivityToExperience = async (data: ActivityFormData) => {
-    console.log('🎯 STEP 2: Adding activity to experience...');
-    console.log('📊 Activity data:', data);
-    console.log('🔗 Experience ID:', createdExperienceId);
-
-    const mockActivityId = `act_${Date.now()}`;
-    const newActivity = {
-      id: mockActivityId,
-      experience_id: createdExperienceId,
-      ...data,
-    };
-
-    // console.log('✅ Activity created:', newActivity);
-    // console.log('🗄️ SQL would be:');
-    // console.log(`INSERT INTO activities (id, experience_id, title, description_thumbnail, description)
-    //                  VALUES ('${mockActivityId}', '${createdExperienceId}', '${data.activity_title}',
-    //                         '${data.activity_thumbnail_description}', '${data.activity_description}')`);
-
-    setActivities((prev) => [...prev, newActivity]);
-    setCurrentStep('experience'); // Return to experience step
-  };
-
-  useEffect(() => {
-    console.log('isSubmitting changed to:', isSubmitting);
-  }, [isSubmitting]);
 
   const uploadIconicPhotosToSupabase = async (
     new_images: string[],
@@ -455,6 +460,56 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
     setActivities((prev) =>
       prev.filter((activity) => activity.id !== activityId),
     );
+  };
+
+  const handleAddToExperience = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (!activityAddState) {
+      e.preventDefault();
+      // 1. Save current activity data
+      const formData = activityForm.getValues();
+      // 2. Add to activities list
+      setActivities((prev) =>
+        prev.map((activity) =>
+          activity.id === currentActivityId ? formData : activity,
+        ),
+      );
+      console.log('Edit old Activity', activities);
+      // 4. Go back to experience
+      setShouldScrollToExperience(true);
+      setCurrentStep('experience');
+      topPageRef.current?.scrollIntoView();
+    } else {
+      e.preventDefault();
+      // 1. Save current activity data
+      const formData = activityForm.getValues();
+      // 2. Add to activities list
+      setActivities((prev) => [
+        ...prev,
+        {
+          id: currentActivityId!,
+          ...formData,
+        },
+      ]);
+      console.log('New Activity', activities);
+      // 4. Go back to experience
+      setShouldScrollToExperience(true);
+      setCurrentStep('experience');
+      topPageRef.current?.scrollIntoView();
+    }
+  };
+
+  const handleDeleteMorePhotos = (index: number) => {
+    const updatedPhotos = [...activityForm.watch('activity_iconic_photos')];
+    updatedPhotos.splice(index, 1);
+    activityForm.setValue('activity_iconic_photos', updatedPhotos);
+    if (currentActivityId) {
+      updateActivity({
+        id: currentActivityId,
+        data: {
+          photos: updatedPhotos,
+        },
+      });
+    }
   };
 
   // Publish final experience
@@ -654,6 +709,7 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
           highlights: activity.activity_highlights || [],
           photos: iconicPhotoUrls,
           photo_ids: iconicPhotoIds,
+          status: 'active',
         });
 
         console.log('New Activity', newActivityData);
@@ -701,6 +757,73 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
     setIsVisible(false);
   };
 
+  const mapActivityToForm = (activity: any): ActivityFormData => {
+    return {
+      id: activity.id,
+      activity_title: activity.activity_title || '',
+      activity_thumbnail_description:
+        activity.activity_thumbnail_description || '',
+      activity_description: activity.activity_description || '',
+      activity_thumbnail_image: {
+        image: activity.activity_thumbnail_image.image || '',
+        name: activity.activity_thumbnail_image.name || 'activity-image',
+      },
+      activity_visiting_time: activity.activity_visiting_time || '',
+      activity_address: activity.activity_address || '',
+      activity_highlights: activity.activity_highlights || [],
+      activity_iconic_photos:
+        (activity.activity_iconic_photos || []).map((photo: any) => ({
+          image: photo.image,
+          name: photo.name || 'activity-image',
+        })) || [],
+    };
+  };
+
+  const handleEditActivity = (activity: any) => {
+    try {
+      setActivityAddState(false);
+      console.log('Editing activity:', activity);
+      const formData = mapActivityToForm(activity);
+      console.log('Mapped form data:', formData);
+
+      setCurrentActivityId(activity.id);
+
+      // reset iconic photos
+      activityForm.reset({
+        activity_iconic_photos: [],
+      });
+
+      // Reset the form with the activity data
+      activityForm.reset(formData);
+
+      // Navigate to the activity step first
+      setCurrentStep('activity');
+
+      // Use a timeout to ensure the editor is mounted
+      setTimeout(() => {
+        try {
+          const editor = getActivityEditor(activity.id);
+          if (editor && !editor.isDestroyed) {
+            editor.commands.setContent(activity.activity_description || '');
+            activityForm.setValue(
+              'activity_description',
+              activity.activity_description || '',
+              {
+                shouldValidate: true,
+                shouldDirty: true,
+              },
+            );
+          }
+        } catch (error) {
+          console.error('Error setting editor content:', error);
+        }
+      }, 100);
+    } catch (error) {
+      console.error('Error in handleEditActivity:', error);
+      setCurrentStep('activity');
+    }
+  };
+
   const goBackToExperience = () => {
     console.log('⬅️ Going back to experience form');
     setCurrentStep('experience');
@@ -722,378 +845,376 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
       {/* Overlay (non-blocking) */}
       <div className="fixed inset-0 bg-black/50 z-40 pointer-events-none" />
       {/* Floating Card (scrolls with page) */}
-      <div className="absolute top-5 left-0 right-0 mx-auto z-50 w-full max-w-4xl p-4">
+      <div
+        ref={topPageRef}
+        className="absolute top-5 left-0 right-0 mx-auto z-50 w-full max-w-4xl p-4"
+      >
         <div className="bg-[#FCFCF9] rounded-lg shadow-xl p-6 w-full">
           {/* Header */}
-          {currentStep === 'experience' ? (
-            <div className="flex pb-6 items-start justify-between">
-              <Title order={2} className={styles.formTitle}>
-                Create an Experience
-              </Title>
-              <div className="flex gap-2">
-                <Button
-                  variant="filled"
-                  color="gray"
-                  onClick={handleCancel}
-                  className={styles.buttonText}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="outline"
-                  color="orange"
-                  onClick={() => publishExperience({ status: 'internal' })}
-                  loading={isSubmitting}
-                  className={styles.buttonText}
-                >
-                  Save as Draft
-                </Button>
-                <Button
-                  color="orange"
-                  onClick={() => publishExperience({ status: 'active' })}
-                  disabled={activities.length === 0 || !expIsValid}
-                  loading={isSubmitting}
-                  className={styles.buttonText}
-                >
-                  Publish
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="flex pb-6 items-start justify-between">
-              <Title order={2} className={styles.formTitle}>
-                Create an Activity
-              </Title>
-              <div className="flex gap-2">
-                <Button
-                  variant="filled"
-                  color="gray"
-                  onClick={goBackToExperience}
-                  className={styles.buttonText}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="filled"
-                  color="orange"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    // 1. Save current activity data
-                    const formData = activityForm.getValues();
-                    // 2. Add to activities list
-                    setActivities((prev) => [
-                      ...prev,
-                      {
-                        id: currentActivityId!,
-                        ...formData,
-                      },
-                    ]);
-                    console.log('Activities', activities);
-                    // 4. Go back to experience
-                    setCurrentStep('experience');
-                  }}
-                  className={styles.buttonText}
-                >
-                  Add to Experience
-                </Button>
-              </div>
-            </div>
-          )}
-          {currentStep === 'experience' ? (
-            // STEP 1: Experience Form
-            <form
-              onSubmit={experienceForm.handleSubmit(
-                createPlaceholderExperience,
-              )}
-            >
-              {/* <div className="space-y-4"> */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <TextInput
-                    label="Experience Title"
-                    placeholder="Enter experience title"
-                    required
-                    {...experienceForm.register('experience_title')}
-                    error={expErrors.experience_title?.message}
-                    classNames={{
-                      label: styles.formLabel,
-                      input: styles.inputField,
-                    }}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Select
-                    label="City"
-                    placeholder="Select a city"
-                    required
-                    data={CITIES}
-                    value={experienceForm.watch('address')}
-                    onChange={(value) => {
-                      console.log('🏙️ City selected:', value);
-                      experienceForm.setValue('address', value || '', {
-                        shouldValidate: true,
-                      });
-                    }}
-                    error={expErrors.address?.message}
-                    classNames={{
-                      label: styles.formLabel,
-                      input: styles.inputField,
-                    }}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Textarea
-                    label="Short Description"
-                    placeholder="Brief description for thumbnail"
-                    required
-                    minRows={4}
-                    autosize
-                    maxRows={7}
-                    {...experienceForm.register(
-                      'experience_thumbnail_description',
-                    )}
-                    error={expErrors.experience_thumbnail_description?.message}
-                    classNames={{
-                      label: styles.formLabel,
-                      input: styles.inputField,
-                    }}
-                  />
-                </div>
-                <div className="space-y-3">
-                  <InputWrapper
-                    label="Thumbnail Image"
-                    classNames={{
-                      label: styles.formLabel,
-                    }}
-                    required
-                  >
-                    <div>
-                      <ImageUploader
-                        dropzoneClassName="h-[150px] flex flex-col items-center justify-center"
-                        {...(experienceForm.watch(
-                          'experience_thumbnail_image.image',
-                        )
-                          ? {
-                              fetchImages: [
-                                {
-                                  image: experienceForm.watch(
-                                    'experience_thumbnail_image.image',
-                                  ),
-                                  name:
-                                    experienceForm.watch(
-                                      'experience_thumbnail_image.name',
-                                    ) || 'Thumbnail',
-                                  isExisting: true,
-                                },
-                              ],
-                            }
-                          : {})}
-                        onImageUpload={(fileArray) => {
-                          const file = fileArray[0];
-                          if (file && file.image && file.name) {
-                            experienceForm.setValue(
-                              'experience_thumbnail_image',
-                              {
-                                image: file.image!,
-                                name: file.name!,
-                              },
-                            );
-                          } else {
-                            experienceForm.setValue(
-                              'experience_thumbnail_image',
-                              {
-                                image: '',
-                                name: '',
-                              },
-                            );
-                          }
-                        }}
-                        isStandalone={true}
-                        allowMultiple={false}
-                      />
-                    </div>
-                  </InputWrapper>
-                  <Input
-                    type="hidden"
-                    {...experienceForm.register('experience_description')}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="w-full h-px bg-black mt-4 mb-4"></div>
-                <InputWrapper
-                  label="About"
-                  required
-                  classNames={{
-                    label: styles.formLabel,
-                    error: 'text-red-500 text-xs mt-1',
-                  }}
-                >
-                  <RichTextEditor
-                    editor={experienceEditor}
-                    variant="subtle"
-                    classNames={{
-                      content: 'min-h-[120px]',
-                    }}
-                  >
-                    <RichTextEditor.Toolbar className={styles.toolbar}>
-                      <RichTextEditor.ControlsGroup>
-                        <RichTextEditor.Bold />
-                        <RichTextEditor.Italic />
-                        <RichTextEditor.Underline />
-                      </RichTextEditor.ControlsGroup>
-
-                      <RichTextEditor.ControlsGroup>
-                        <RichTextEditor.BulletList />
-                        <RichTextEditor.OrderedList />
-                      </RichTextEditor.ControlsGroup>
-
-                      <RichTextEditor.ControlsGroup>
-                        <RichTextEditor.Link />
-                        <RichTextEditor.Unlink />
-                      </RichTextEditor.ControlsGroup>
-                    </RichTextEditor.Toolbar>
-
-                    <RichTextEditor.Content className={styles.editorContent} />
-                  </RichTextEditor>
-                </InputWrapper>
-
-                {/* Current Activities Section */}
-                <div className="w-full h-px bg-black mt-4 mb-4"></div>
-                <div className="flex items-center justify-between">
-                  <Text className={styles.formLabel}>
-                    Activities ({activities.length})
-                  </Text>
-                </div>
-
-                {/* Existing Activities */}
-                {activities && activities.length > 0 && (
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {activities.map((activity) => (
-                      <div
-                        key={activity.id}
-                        className="group relative rounded-lg overflow-hidden border border-gray-200 hover:shadow-md transition-shadow"
-                      >
-                        <div className="relative aspect-square">
-                          <Image
-                            src={activity.activity_thumbnail_image.image}
-                            alt={activity.activity_title}
-                            fill
-                            className="object-cover"
-                          />
-                          {/* Action Buttons */}
-                          <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            {/* <button
-                              type="button"
-                              className="bg-white/90 p-1.5 rounded-md shadow-sm hover:bg-white transition-colors"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEditActivity(activity);
-                                setCurrentStep('activity');
-                              }}
-                              title="Edit activity"
-                            >
-                              <img
-                                src="/assets/edit.svg"
-                                alt="Edit"
-                                className="w-6 h-6"
-                              />
-                            </button> */}
-                            <button
-                              type="button"
-                              className="p-1.5 rounded-md hover:bg-white transition-colors"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteActivity(activity.id);
-                              }}
-                              title="Delete Activity"
-                            >
-                              <img
-                                src="/assets/delete.svg"
-                                alt="Delete activity"
-                                className="w-6 h-6"
-                              />
-                            </button>
-                          </div>
-                        </div>
-                        <div className="p-2">
-                          <h3
-                            className="text-sm font-medium text-gray-900 line-clamp-2"
-                            title={activity.activity_title}
-                          >
-                            {activity.activity_title}
-                          </h3>
-                          {activity.status === 'inactive' && (
-                            <span className="inline-block mt-1 text-[10px] px-1.5 py-0.5 bg-yellow-100 text-yellow-800 rounded-full">
-                              Inactive
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Add Activity Button */}
-                <div className="flex flex-col items-center justify-center">
+          <div className="sticky top-0 bg-[#FCFCF9] z-50 pt-6 -mt-6">
+            {currentStep === 'experience' ? (
+              <div className="flex pb-6 items-start justify-between">
+                <Title order={2} className={styles.formTitle}>
+                  Create an Experience
+                </Title>
+                <div className="flex gap-2">
                   <Button
-                    type="submit"
-                    variant="outline"
-                    className="bg-orange-50 text-orange-500 mt-6"
-                    // disabled={!expIsValid}
-                    onClick={(e) => {
-                      e.preventDefault(); // Prevent form submission
-                      handleAddActivity(); // Create new activity
-                      setCurrentStep('activity'); // Navigate to activity form
-                    }}
+                    variant="filled"
+                    color="gray"
+                    onClick={handleCancel}
+                    className={styles.buttonText}
                   >
-                    Add an activity
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="outline"
+                    color="orange"
+                    onClick={() => publishExperience({ status: 'internal' })}
+                    loading={isSubmitting}
+                    className={styles.buttonText}
+                  >
+                    Save as Draft
+                  </Button>
+                  <Button
+                    color="orange"
+                    onClick={() => publishExperience({ status: 'active' })}
+                    disabled={activities.length === 0 || !expIsValid}
+                    loading={isSubmitting}
+                    className={styles.buttonText}
+                  >
+                    Publish
                   </Button>
                 </div>
-
-                {/* Iconic Photos */}
-                <div className="w-full h-px bg-black mt-5 mb-5"></div>
-                <div className="space-y-3">
-                  <InputWrapper
-                    label="Iconic Photos"
-                    classNames={{
-                      label: styles.formLabel,
-                    }}
+              </div>
+            ) : (
+              <div className="flex pb-6 items-start justify-between">
+                <Title order={2} className={styles.formTitle}>
+                  {activityAddState ? 'Create an Activity' : 'Edit Activity'}
+                </Title>
+                <div className="flex gap-2">
+                  <Button
+                    variant="filled"
+                    color="gray"
+                    onClick={goBackToExperience}
+                    className={styles.buttonText}
                   >
-                    <div>
-                      <ImageUploader
-                        dropzoneClassName="h-[200px] flex flex-col items-center justify-center"
-                        onImageUpload={(fileArray) => {
-                          if (fileArray && fileArray.length > 0) {
-                            const images = fileArray
-                              .filter((file) => file && file.image && file.name)
-                              .map((file) => ({
-                                image: file.image!,
-                                name: file.name!,
-                              }));
-                            console.log(
-                              '🔍 Setting iconic_photos value:',
-                              images,
-                            );
-                            experienceForm.setValue('iconic_photos', images);
-                          } else {
-                            console.log('🔍 Clearing iconic_photos value');
-                            experienceForm.setValue('iconic_photos', []);
-                          }
-                        }}
-                        isStandalone={true}
-                        allowMultiple={true}
-                        // withResize={true}
-                      />
-                    </div>
-                  </InputWrapper>
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="filled"
+                    color="orange"
+                    onClick={handleAddToExperience}
+                    className={styles.buttonText}
+                  >
+                    {activityAddState ? 'Add to Experience' : 'Confirm'}
+                  </Button>
                 </div>
               </div>
-            </form>
+            )}
+          </div>
+          {currentStep === 'experience' ? (
+            // STEP 1: Experience Form
+            <div ref={experienceSectionRef}>
+              <form
+                onSubmit={experienceForm.handleSubmit(
+                  createPlaceholderExperience,
+                )}
+              >
+                {/* <div className="space-y-4"> */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <TextInput
+                      label="Experience Title"
+                      placeholder="Enter experience title"
+                      required
+                      {...experienceForm.register('experience_title')}
+                      error={expErrors.experience_title?.message}
+                      classNames={{
+                        label: styles.formLabel,
+                        input: styles.inputField,
+                      }}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Select
+                      label="City"
+                      placeholder="Select a city"
+                      required
+                      data={CITIES}
+                      value={experienceForm.watch('address')}
+                      onChange={(value) => {
+                        console.log('🏙️ City selected:', value);
+                        experienceForm.setValue('address', value || '', {
+                          shouldValidate: true,
+                        });
+                      }}
+                      error={expErrors.address?.message}
+                      classNames={{
+                        label: styles.formLabel,
+                        input: styles.inputField,
+                      }}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Textarea
+                      label="Short Description"
+                      placeholder="Brief description for thumbnail"
+                      required
+                      minRows={4}
+                      autosize
+                      maxRows={7}
+                      {...experienceForm.register(
+                        'experience_thumbnail_description',
+                      )}
+                      error={
+                        expErrors.experience_thumbnail_description?.message
+                      }
+                      classNames={{
+                        label: styles.formLabel,
+                        input: styles.inputField,
+                      }}
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    <InputWrapper
+                      label="Thumbnail Image"
+                      classNames={{
+                        label: styles.formLabel,
+                      }}
+                      required
+                    >
+                      <div>
+                        <ImageUploader
+                          dropzoneClassName="h-[150px] flex flex-col items-center justify-center"
+                          {...(experienceForm.watch(
+                            'experience_thumbnail_image.image',
+                          )
+                            ? {
+                                fetchImages: [
+                                  {
+                                    image: experienceForm.watch(
+                                      'experience_thumbnail_image.image',
+                                    ),
+                                    name:
+                                      experienceForm.watch(
+                                        'experience_thumbnail_image.name',
+                                      ) || 'Thumbnail',
+                                    isExisting: true,
+                                  },
+                                ],
+                              }
+                            : {})}
+                          onImageUpload={(fileArray) => {
+                            const file = fileArray[0];
+                            if (file && file.image && file.name) {
+                              experienceForm.setValue(
+                                'experience_thumbnail_image',
+                                {
+                                  image: file.image!,
+                                  name: file.name!,
+                                },
+                              );
+                            } else {
+                              experienceForm.setValue(
+                                'experience_thumbnail_image',
+                                {
+                                  image: '',
+                                  name: '',
+                                },
+                              );
+                            }
+                          }}
+                          isStandalone={true}
+                          allowMultiple={false}
+                        />
+                      </div>
+                    </InputWrapper>
+                    <Input
+                      type="hidden"
+                      {...experienceForm.register('experience_description')}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="w-full h-px bg-black mt-4 mb-4"></div>
+                  <InputWrapper
+                    label="About"
+                    required
+                    classNames={{
+                      label: styles.formLabel,
+                      error: 'text-red-500 text-xs mt-1',
+                    }}
+                  >
+                    <RichTextEditor
+                      editor={experienceEditor}
+                      variant="subtle"
+                      classNames={{
+                        content: 'min-h-[120px]',
+                      }}
+                    >
+                      <RichTextEditor.Toolbar className={styles.toolbar}>
+                        <RichTextEditor.ControlsGroup>
+                          <RichTextEditor.Bold />
+                          <RichTextEditor.Italic />
+                          <RichTextEditor.Underline />
+                        </RichTextEditor.ControlsGroup>
+
+                        <RichTextEditor.ControlsGroup>
+                          <RichTextEditor.BulletList />
+                          <RichTextEditor.OrderedList />
+                        </RichTextEditor.ControlsGroup>
+
+                        <RichTextEditor.ControlsGroup>
+                          <RichTextEditor.Link />
+                          <RichTextEditor.Unlink />
+                        </RichTextEditor.ControlsGroup>
+                      </RichTextEditor.Toolbar>
+
+                      <RichTextEditor.Content
+                        className={styles.editorContent}
+                      />
+                    </RichTextEditor>
+                  </InputWrapper>
+
+                  {/* Current Activities Section */}
+                  <div className="w-full h-px bg-black mt-4 mb-4"></div>
+                  <div className="flex items-center justify-between">
+                    <Text className={styles.formLabel}>
+                      Activities ({activities.length})
+                    </Text>
+                  </div>
+
+                  {/* Existing Activities */}
+                  {activities && activities.length > 0 && (
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                      {activities.map((activity) => (
+                        <div
+                          key={activity.id}
+                          className="group relative rounded-lg overflow-hidden border border-gray-200 hover:shadow-md transition-shadow"
+                        >
+                          <div className="relative aspect-square">
+                            <Image
+                              src={activity.activity_thumbnail_image.image}
+                              alt={activity.activity_title}
+                              fill
+                              className="object-cover"
+                            />
+                            {/* Action Buttons */}
+                            <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button
+                                type="button"
+                                className="bg-white/90 p-1.5 rounded-md shadow-sm hover:bg-white transition-colors"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEditActivity(activity);
+                                  setCurrentStep('activity');
+                                }}
+                                title="Edit activity"
+                              >
+                                <img
+                                  src="/assets/edit.svg"
+                                  alt="Edit"
+                                  className="w-6 h-6"
+                                />
+                              </button>
+                              <button
+                                type="button"
+                                className="p-1.5 rounded-md hover:bg-white transition-colors"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteActivity(activity.id);
+                                }}
+                                title="Delete Activity"
+                              >
+                                <img
+                                  src="/assets/delete.svg"
+                                  alt="Delete activity"
+                                  className="w-6 h-6"
+                                />
+                              </button>
+                            </div>
+                          </div>
+                          <div className="p-2">
+                            <h3
+                              className="text-sm font-medium text-gray-900 line-clamp-2"
+                              title={activity.activity_title}
+                            >
+                              {activity.activity_title}
+                            </h3>
+                            {activity.status === 'inactive' && (
+                              <span className="inline-block mt-1 text-[10px] px-1.5 py-0.5 bg-yellow-100 text-yellow-800 rounded-full">
+                                Inactive
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Add Activity Button */}
+                  <div className="flex flex-col items-center justify-center">
+                    <Button
+                      type="submit"
+                      variant="outline"
+                      className="bg-orange-50 text-orange-500 mt-6"
+                      // disabled={!expIsValid}
+                      onClick={(e) => {
+                        e.preventDefault(); // Prevent form submission
+                        handleAddActivity(); // Create new activity
+                        setCurrentStep('activity'); // Navigate to activity form
+                      }}
+                    >
+                      Add an activity
+                    </Button>
+                  </div>
+
+                  {/* Iconic Photos */}
+                  <div className="w-full h-px bg-black mt-5 mb-5"></div>
+                  <div className="space-y-3">
+                    <InputWrapper
+                      label="Iconic Photos"
+                      classNames={{
+                        label: styles.formLabel,
+                      }}
+                    >
+                      <div>
+                        <ImageUploader
+                          dropzoneClassName="h-[200px] flex flex-col items-center justify-center"
+                          onImageUpload={(fileArray) => {
+                            if (fileArray && fileArray.length > 0) {
+                              const images = fileArray
+                                .filter(
+                                  (file) => file && file.image && file.name,
+                                )
+                                .map((file) => ({
+                                  image: file.image!,
+                                  name: file.name!,
+                                }));
+                              console.log(
+                                '🔍 Setting iconic_photos value:',
+                                images,
+                              );
+                              experienceForm.setValue('iconic_photos', images);
+                            } else {
+                              console.log('🔍 Clearing iconic_photos value');
+                              experienceForm.setValue('iconic_photos', []);
+                            }
+                          }}
+                          isStandalone={true}
+                          allowMultiple={true}
+                          // withResize={true}
+                        />
+                      </div>
+                    </InputWrapper>
+                  </div>
+                </div>
+              </form>
+            </div>
           ) : (
             // STEP 2: Activity Form (Clean, no current activities shown)
-            <form onSubmit={activityForm.handleSubmit(addActivityToExperience)}>
+            <form>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-6 lg:col-span-1">
                   <div className="space-y-2">
@@ -1289,11 +1410,17 @@ const CreateExperienceCard: React.FC<CreateExperienceCardProps> = ({
                 <div className="w-full h-px bg-black mt-4 mb-4"></div>
                 <div className="space-y-3">
                   <InputWrapper
-                    label="Iconic Photos"
+                    label="More Photos"
                     classNames={{
                       label: styles.formLabel,
                     }}
                   >
+                    <IconicPhotoDisplay
+                      photos={activityForm
+                        .watch('activity_iconic_photos')
+                        .map((photo) => photo.image)}
+                      onDelete={(index) => handleDeleteMorePhotos(index)}
+                    />
                     <div>
                       <ImageUploader
                         dropzoneClassName="h-[200px] flex flex-col items-center justify-center"

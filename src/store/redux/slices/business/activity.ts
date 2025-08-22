@@ -21,6 +21,7 @@ export interface Activity {
   activity_info?: ActivityInfo[];
   order_of_appearance?: number;
   highlights?: string[];
+  status?: string;
 }
 
 interface ActivityResponse {
@@ -40,6 +41,7 @@ const ActivityBusinessApi = createApi({
         title,
         primary_photo,
         primary_photo_id,
+        status,
         photos,
         photo_ids,
         hours,
@@ -56,6 +58,7 @@ const ActivityBusinessApi = createApi({
           title,
           primary_photo,
           primary_photo_id,
+          status,
           photos,
           photo_ids,
           hours,

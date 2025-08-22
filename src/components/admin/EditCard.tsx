@@ -4,6 +4,7 @@ import {
   Input,
   InputWrapper,
   Loader,
+  Modal,
   Select,
   Text,
   TextInput,
@@ -956,6 +957,27 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
   const actErrors = activityForm.formState.errors;
 
   const [isVisible, setIsVisible] = useState(true);
+  const [deleteConfirmOpened, setDeleteConfirmOpened] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<{
+    type: 'experience' | 'activity';
+    id: string;
+  } | null>(null);
+
+  const handleDeleteClick = (type: 'experience' | 'activity') => {
+    setItemToDelete({ type, id: type === 'experience' ? experience.id : '' });
+    setDeleteConfirmOpened(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!itemToDelete) return;
+
+    if (itemToDelete.type === 'activity') {
+      handleConfirmActivity({ status: 'deleted' });
+    } else {
+      publishExperience({ status: 'deleted' });
+    }
+    setDeleteConfirmOpened(false);
+  };
 
   if (!isVisible) return null; // Hide the component when closed
 
@@ -977,88 +999,17 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
       >
         <div className="bg-[#FCFCF9] rounded-lg shadow-xl p-6 w-full">
           {/* Header */}
-          {currentStep === 'experience' ? (
-            <div className="flex pb-6 items-start justify-between">
-              <Title order={2} className={styles.formTitle}>
-                Edit Experience
-              </Title>
-              <div className="flex gap-2">
-                <Button
-                  variant="filled"
-                  color="gray"
-                  onClick={handleCancel}
-                  className={styles.buttonText}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="outline"
-                  color="orange"
-                  onClick={() => publishExperience({ status: 'deleted' })}
-                  className={styles.buttonText}
-                  loading={isSubmitting}
-                  disabled={isSubmitting}
-                >
-                  Delete
-                </Button>
-                <Button
-                  variant="outline"
-                  color="orange"
-                  onClick={() =>
-                    publishExperience({
-                      status:
-                        currentStatus === 'active' ? 'inactive' : 'active',
-                    })
-                  }
-                  className={styles.buttonText}
-                  loading={isSubmitting}
-                  disabled={isSubmitting}
-                >
-                  {currentStatus === 'active' ? 'Archive' : 'Activate'}
-                </Button>
-                <Button
-                  color="orange"
-                  onClick={() => publishExperience({ status: currentStatus })}
-                  loading={isSubmitting}
-                  className={styles.buttonText}
-                  disabled={isSubmitting}
-                >
-                  Save Changes
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="flex pb-6 items-start justify-between">
-              <Title order={2} className={styles.formTitle}>
-                {activityAddState ? 'Add New Activity' : 'Edit Activity'}
-              </Title>
-              {activityAddState ? (
+          <div className="sticky top-0 bg-[#FCFCF9] z-50 pt-6 -mt-6">
+            {currentStep === 'experience' ? (
+              <div className="flex pb-6 items-start justify-between">
+                <Title order={2} className={styles.formTitle}>
+                  Edit Experience
+                </Title>
                 <div className="flex gap-2">
                   <Button
                     variant="filled"
                     color="gray"
-                    onClick={goBackToExperience}
-                    className={styles.buttonText}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    color="orange"
-                    // disabled={!actIsValid}
-                    onClick={() => handleConfirmActivity({ status: 'active' })}
-                    className={styles.buttonText}
-                    disabled={isSubmitting}
-                  >
-                    Add to Experience
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex gap-2">
-                  <Button
-                    variant="filled"
-                    color="gray"
-                    onClick={goBackToExperience}
+                    onClick={handleCancel}
                     className={styles.buttonText}
                   >
                     Cancel
@@ -1066,42 +1017,152 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
                   <Button
                     variant="outline"
                     color="orange"
-                    onClick={() => handleConfirmActivity({ status: 'deleted' })}
+                    onClick={() => handleDeleteClick('experience')}
                     className={styles.buttonText}
+                    loading={isSubmitting}
                     disabled={isSubmitting}
                   >
                     Delete
                   </Button>
-                  <Button
-                    variant="outline"
-                    color="orange"
-                    onClick={() =>
-                      handleConfirmActivity({
-                        status:
-                          currentActivityStatus === 'active'
-                            ? 'inactive'
-                            : 'active',
-                      })
-                    }
-                    className={styles.buttonText}
-                    disabled={isSubmitting}
-                  >
-                    {currentActivityStatus === 'active' ? 'Hide' : 'Show'}
-                  </Button>
-                  <Button
-                    type="submit"
-                    color="orange"
-                    // disabled={!actIsValid}
-                    onClick={() => handleConfirmActivity({ status: 'active' })}
-                    className={styles.buttonText}
-                    disabled={isSubmitting}
-                  >
-                    Save Changes
-                  </Button>
+                  {currentStatus !== 'internal' && (
+                    <Button
+                      variant="outline"
+                      color="orange"
+                      onClick={() =>
+                        publishExperience({
+                          status:
+                            currentStatus === 'active' ? 'inactive' : 'active',
+                        })
+                      }
+                      className={styles.buttonText}
+                      loading={isSubmitting}
+                      disabled={isSubmitting}
+                    >
+                      {currentStatus === 'active' ? 'Archive' : 'Activate'}
+                    </Button>
+                  )}
+                  {currentStatus !== 'internal' && (
+                    <Button
+                      color="orange"
+                      onClick={() =>
+                        publishExperience({ status: currentStatus })
+                      }
+                      loading={isSubmitting}
+                      className={styles.buttonText}
+                      disabled={isSubmitting}
+                    >
+                      Save Changes
+                    </Button>
+                  )}
+                  {currentStatus === 'internal' && (
+                    <Button
+                      variant="filled"
+                      color="orange.4"
+                      onClick={() =>
+                        publishExperience({ status: currentStatus })
+                      }
+                      loading={isSubmitting}
+                      className={styles.buttonText}
+                      disabled={isSubmitting}
+                    >
+                      Save Changes
+                    </Button>
+                  )}
+                  {currentStatus === 'internal' && (
+                    <Button
+                      color="orange"
+                      onClick={() => publishExperience({ status: 'active' })}
+                      loading={isSubmitting}
+                      className={styles.buttonText}
+                      disabled={isSubmitting}
+                    >
+                      Publish
+                    </Button>
+                  )}
                 </div>
-              )}
-            </div>
-          )}
+              </div>
+            ) : (
+              <div className="flex pb-6 items-start justify-between">
+                <Title order={2} className={styles.formTitle}>
+                  {activityAddState ? 'Add New Activity' : 'Edit Activity'}
+                </Title>
+                {activityAddState ? (
+                  <div className="flex gap-2">
+                    <Button
+                      variant="filled"
+                      color="gray"
+                      onClick={goBackToExperience}
+                      className={styles.buttonText}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      color="orange"
+                      // disabled={!actIsValid}
+                      onClick={() =>
+                        handleConfirmActivity({ status: 'active' })
+                      }
+                      className={styles.buttonText}
+                      disabled={isSubmitting}
+                    >
+                      Add to Experience
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <Button
+                      variant="filled"
+                      color="gray"
+                      onClick={goBackToExperience}
+                      className={styles.buttonText}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="outline"
+                      color="orange"
+                      onClick={() => handleDeleteClick('activity')}
+                      className={styles.buttonText}
+                      disabled={isSubmitting}
+                    >
+                      Delete
+                    </Button>
+                    <Button
+                      variant="outline"
+                      color="orange"
+                      onClick={() =>
+                        handleConfirmActivity({
+                          status:
+                            currentActivityStatus === 'active'
+                              ? 'inactive'
+                              : 'active',
+                        })
+                      }
+                      className={styles.buttonText}
+                      disabled={isSubmitting}
+                    >
+                      {currentActivityStatus === 'active'
+                        ? 'Archive'
+                        : 'Activate'}
+                    </Button>
+                    <Button
+                      type="submit"
+                      color="orange"
+                      // disabled={!actIsValid}
+                      onClick={() =>
+                        handleConfirmActivity({ status: 'active' })
+                      }
+                      className={styles.buttonText}
+                      disabled={isSubmitting}
+                    >
+                      Save Changes
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
           {currentStep === 'experience' ? (
             // STEP 1: Experience Form
             <form
@@ -1388,6 +1449,7 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
                 <div className="w-full h-px bg-black mt-4 mb-4"></div>
                 <div className="space-y-3">
                   <InputWrapper
+                    label="Iconic Photos"
                     classNames={{
                       label: styles.formLabel,
                     }}
@@ -1667,6 +1729,34 @@ const EditExperienceCard: React.FC<EditExperienceCardProps> = ({
           )}
         </div>
       </div>
+      <Modal
+        opened={deleteConfirmOpened}
+        onClose={() => setDeleteConfirmOpened(false)}
+        title="Confirm Delete"
+        size="sm"
+      >
+        <Text mb="md">
+          Are you sure you want to delete this {itemToDelete?.type}? This action
+          cannot be undone.
+        </Text>
+        <div
+          style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}
+        >
+          <Button
+            variant="default"
+            onClick={() => setDeleteConfirmOpened(false)}
+          >
+            Cancel
+          </Button>
+          <Button
+            color="red"
+            onClick={handleConfirmDelete}
+            loading={isSubmitting}
+          >
+            Delete
+          </Button>
+        </div>
+      </Modal>
     </>
   );
 };

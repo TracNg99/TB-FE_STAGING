@@ -39,17 +39,14 @@ const ExperienceDetailPage = () => {
   const [qrOpen, setQrOpen] = useState(false);
   const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
   const [language, setLanguage] = useState('en-US');
+  console.log('Language is', language);
 
   const searchParams = useSearchParams();
   const isFromQRScan = searchParams.get('fromQR') === 'true';
 
   const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(false);
 
-  const {
-    data: experience,
-    isLoading,
-    error,
-  } = useGetExperiencePublicQuery({
+  const { data: experience, isLoading } = useGetExperiencePublicQuery({
     id: experienceId as string,
     language: language.split('-')[0],
   });
@@ -158,7 +155,7 @@ const ExperienceDetailPage = () => {
 
   if (isLoading || isLoadingActivities || isLoadingIconicPhotos)
     return <div className="flex justify-center py-20">Loading...</div>;
-  if (error || !experience)
+  if (!experience)
     return (
       <div className="text-red-500 text-center py-20">
         Experience not found.
@@ -256,37 +253,46 @@ const ExperienceDetailPage = () => {
                 <span>{t('common.activitiesYoullExperience')}</span>
               </div>
               <div className="relative w-full">
-                <NewCarousel
-                  items={[...activities].sort(
-                    (a, b) => a.order_of_appearance - b.order_of_appearance,
-                  )}
-                  renderItem={(activity) => (
-                    <div
-                      className="min-w-[240px] max-w-[260px] h-full border border-gray-200 rounded-md bg-white overflow-hidden flex-shrink-0 flex flex-col justify-between p-0 cursor-pointer"
-                      onClick={() => setSelectedActivity(activity)}
-                    >
-                      <img
-                        src={
-                          activity.primary_photo ||
-                          '/placeholder.svg?height=192&width=260'
-                        }
-                        alt={activity.title}
-                        className="w-full h-48 object-cover"
-                      />
-                      <div className="p-3 flex-1 flex flex-col ">
-                        <div className="font-bold text-gray-800 text-base mb-1 truncate whitespace-nowrap overflow-hidden">
-                          {activity.title}
-                        </div>
-                        <div className="text-base text-gray-800 line-clamp-3">
-                          {activity.description_thumbnail}
+                {activities.filter((activity) => activity.status === 'active')
+                  .length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    No Active Activities
+                  </div>
+                ) : (
+                  <NewCarousel
+                    items={[...activities]
+                      .sort(
+                        (a, b) => a.order_of_appearance - b.order_of_appearance,
+                      )
+                      .filter((activity) => activity.status === 'active')}
+                    renderItem={(activity) => (
+                      <div
+                        className="min-w-[240px] max-w-[260px] h-full border border-gray-200 rounded-md bg-white overflow-hidden flex-shrink-0 flex flex-col justify-between p-0 cursor-pointer"
+                        onClick={() => setSelectedActivity(activity)}
+                      >
+                        <img
+                          src={
+                            activity.primary_photo ||
+                            '/placeholder.svg?height=192&width=260'
+                          }
+                          alt={activity.title}
+                          className="w-full h-48 object-cover"
+                        />
+                        <div className="p-3 flex-1 flex flex-col">
+                          <div className="font-bold text-gray-800 text-base mb-1 truncate">
+                            {activity.title}
+                          </div>
+                          <div className="text-base text-gray-800 line-clamp-3">
+                            {activity.description_thumbnail}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
-                  className=""
-                  enableInfiniteLoop={false}
-                  slideGap={16}
-                />
+                    )}
+                    className=""
+                    enableInfiniteLoop={false}
+                    slideGap={16}
+                  />
+                )}
                 {selectedActivity && (
                   <ActivityModal
                     isOpen={!!selectedActivity}

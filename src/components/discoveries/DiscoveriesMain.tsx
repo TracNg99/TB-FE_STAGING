@@ -208,6 +208,7 @@ const DiscoveriesMain: React.FC = () => {
                           style={{ borderColor: '#E2E2E2' }}
                           onClick={() =>
                             experiences[0].id &&
+                            experiences[0].status === 'active' &&
                             router.push(`/discoveries/${experiences[0].id}`)
                           }
                         >
@@ -282,7 +283,9 @@ const DiscoveriesMain: React.FC = () => {
                               )}
                               style={{ borderColor: '#E2E2E2' }}
                               onClick={() =>
-                                exp.id && router.push(`/discoveries/${exp.id}`)
+                                exp.id &&
+                                // exp.status === 'active' &&
+                                router.push(`/discoveries/${exp.id}`)
                               }
                             >
                               <div className="aspect-[4/3] overflow-hidden relative">
