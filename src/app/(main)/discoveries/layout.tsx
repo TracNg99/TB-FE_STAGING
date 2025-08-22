@@ -5,9 +5,11 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useMemo, useState } from 'react';
 
 import CreateExperienceCard from '@/components/admin/CreateCard';
+import { firstAddressLanguageMap } from '@/components/discoveries/DiscoveriesMain';
 import PageWrapper from '@/components/layouts/PageWrapper';
 import SubSidebar from '@/components/layouts/SubSidebar';
 import AdminDiscoverySidebar from '@/components/layouts/admin-discovery-bar';
+import { useI18n } from '@/contexts/i18n-provider';
 import { useSidebar } from '@/contexts/sidebar-provider';
 import {
   Experience,
@@ -53,11 +55,17 @@ export default function DiscoveriesLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const { currentLanguage } = useI18n();
   const role = localStorage.getItem('role') || '';
   const [showCard, setShowCard] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const selectedAddress = searchParams.get('address') || ADDRESS_LIST[0];
+  const selectedAddress =
+    searchParams.get('address') ||
+    firstAddressLanguageMap[
+      currentLanguage as keyof typeof firstAddressLanguageMap
+    ] ||
+    ADDRESS_LIST[0];
   const companies = sessionStorage.getItem('companies')
     ? JSON.parse(sessionStorage.getItem('companies') || '')
     : null;
@@ -94,9 +102,13 @@ export default function DiscoveriesLayout({
     if ((!!role && role !== 'business') || !role || role === '') {
       addresses = Object.keys(addressMap || {});
       const numAddresses = addresses.length;
+      const localizedFirstSelection =
+        firstAddressLanguageMap[
+          currentLanguage as keyof typeof firstAddressLanguageMap
+        ];
       return numAddresses === ADDRESS_LIST.length - 1
         ? ADDRESS_LIST
-        : ['For you', ...addresses];
+        : [localizedFirstSelection, ...addresses];
     } else {
       addresses = Object.entries(
         scopedExperiences?.reduce(
@@ -117,7 +129,7 @@ export default function DiscoveriesLayout({
         };
       });
     }
-  }, [addressMap, scopedExperiences, role]);
+  }, [addressMap, scopedExperiences, role, currentLanguage]);
 
   const mapByStatus = useMemo(() => {
     const map = ['active', 'internal', 'inactive'].map((status) => {

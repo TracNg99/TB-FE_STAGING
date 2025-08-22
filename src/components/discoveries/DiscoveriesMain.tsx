@@ -8,6 +8,7 @@ import React, { useMemo, useState } from 'react';
 import QRModal from '@/components/qr-code/qr-modal';
 import StickyTitleChipsHeader from '@/components/sharing/StickyTitleChipsHeader';
 import { Translation } from '@/components/translation';
+import { useI18n } from '@/contexts/i18n-provider';
 import { useSidebar } from '@/contexts/sidebar-provider';
 // import { useTranslation } from 'react-i18next';
 import {
@@ -18,6 +19,16 @@ import { useGetAddressExperienceMapByCompanyIdQuery } from '@/store/redux/slices
 import { cn } from '@/utils/class';
 
 import EditExperienceCard from '../admin/EditCard';
+
+export const firstAddressLanguageMap = {
+  en: 'For you',
+  vi: 'Dành cho bạn',
+  ja: 'あなたにとって',
+  ko: '당신에게',
+  zh: '对您而言',
+  fr: 'Pour vous',
+  ru: 'Для вас',
+};
 
 const ADDRESS_LIST = [
   'For you',
@@ -30,6 +41,7 @@ const ADDRESS_LIST = [
 
 const DiscoveriesMain: React.FC = () => {
   const { experiencesStatus } = useSidebar();
+  const { currentLanguage } = useI18n();
   const searchParams = useSearchParams();
 
   // Initialize state with actual storage values to ensure consistent skip conditions
@@ -61,7 +73,12 @@ const DiscoveriesMain: React.FC = () => {
   }, [sessionStorage.getItem('language')]);
 
   const selectedAddress =
-    searchParams.get('address') || (role === 'business' ? 'All' : 'For you');
+    searchParams.get('address') ||
+    (role === 'business'
+      ? 'All'
+      : firstAddressLanguageMap[
+          currentLanguage as keyof typeof firstAddressLanguageMap
+        ]);
   const router = useRouter();
   const {
     data: addressMap,
@@ -97,6 +114,10 @@ const DiscoveriesMain: React.FC = () => {
   const experiences = useMemo(() => {
     let experiences: Experience[] = [];
     let finalMap: Record<string, Experience[]> = {};
+    const localizedFirstSelection =
+      firstAddressLanguageMap[
+        currentLanguage as keyof typeof firstAddressLanguageMap
+      ];
     if ((!!role && role !== 'business') || !role) {
       finalMap = addressMap || {};
     } else {
@@ -114,22 +135,36 @@ const DiscoveriesMain: React.FC = () => {
       );
       finalMap = scopedExperiencesMap || {};
     }
-    if (selectedAddress === 'For you' || selectedAddress === 'All') {
+    if (
+      selectedAddress === localizedFirstSelection ||
+      selectedAddress === 'All'
+    ) {
       experiences = Object.values(finalMap || {}).flat();
     } else {
       experiences = finalMap?.[selectedAddress] || [];
     }
     return experiences;
-  }, [addressMap, selectedAddress, scopedExperiences, experiencesStatus, role]);
+  }, [
+    addressMap,
+    selectedAddress,
+    scopedExperiences,
+    experiencesStatus,
+    role,
+    currentLanguage,
+  ]);
 
   const actualAddresses = useMemo(() => {
     let addresses: any[] = [];
+    const localizedFirstSelection =
+      firstAddressLanguageMap[
+        currentLanguage as keyof typeof firstAddressLanguageMap
+      ];
     if ((!!role && role !== 'business') || !role || role === '') {
       addresses = Object.keys(addressMap || {});
       const numAddresses = addresses.length;
       return numAddresses === ADDRESS_LIST.length - 1
         ? ADDRESS_LIST
-        : ['For you', ...addresses];
+        : [localizedFirstSelection, ...addresses];
     } else {
       addresses = Object.keys(
         scopedExperiences?.reduce(
@@ -150,7 +185,7 @@ const DiscoveriesMain: React.FC = () => {
       );
       return ['All', ...addresses];
     }
-  }, [addressMap, scopedExperiences, role, experiencesStatus]);
+  }, [addressMap, scopedExperiences, role, experiencesStatus, currentLanguage]);
 
   return (
     <Translation>
