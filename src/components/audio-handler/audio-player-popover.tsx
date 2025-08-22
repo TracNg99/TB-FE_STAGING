@@ -180,6 +180,7 @@ export const languages = [
   { value: 'vi-VN', label: 'Tiếng Việt', flag: '🇻🇳' },
   { value: 'ru-RU', label: 'Русский', flag: '🇷🇺' },
 ];
+
 export function AudioDrawer({
   content,
   isOpen,
@@ -193,7 +194,6 @@ export function AudioDrawer({
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  // Chapters are not used in this design iteration
   const [localTranscript, setLocalTranscript] = useState<TranscriptSegment[]>(
     content.transcript || [],
   );
@@ -571,7 +571,11 @@ export function AudioDrawer({
             <div className="flex flex-col items-center gap-4">
               <Headphones className="w-8 h-8 text-orange-500" />
               <p className="text-orange-500 text-lg italic">
-                Loading voice content...
+                {isLoading ? (
+                  "Loading voice content..."
+                ) : (
+                  `Loading ${languages.find(lang => lang.value === currentLanguage)?.label || currentLanguage}...`
+                )}
               </p>
               <Loader className="flex place-self-center" size={50} />
             </div>
@@ -743,7 +747,7 @@ export function AudioDrawer({
                               className={cn(
                                 'text-left text-sm px-3 py-2 rounded hover:bg-white/10 active:bg-white/20 active:scale-90 text-white transition-all duration-200',
                                 content.id === chapter.id &&
-                                  'bg-orange-500/20 text-orange-400',
+                                'bg-orange-500/20 text-orange-400',
                               )}
                               onClick={() => {
                                 if (onChapterChange) {
@@ -918,7 +922,7 @@ export function AudioDrawer({
                   }
                   title={
                     !content.chapters ||
-                    getCurrentChapterIndex() >= content.chapters.length - 1
+                      getCurrentChapterIndex() >= content.chapters.length - 1
                       ? 'Last chapter'
                       : 'Next chapter'
                   }
