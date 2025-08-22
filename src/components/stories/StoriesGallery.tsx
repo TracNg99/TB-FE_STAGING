@@ -8,6 +8,7 @@ import React, { useMemo } from 'react';
 import StoriesListSkeleton from '@/components/loading/StoriesListSkeleton';
 import Translation from '@/components/translation';
 import { useAuth } from '@/contexts/auth-provider';
+import { Profile } from '@/store/redux/slices/user/profile';
 import {
   StoryProps,
   useGetAllStoryQuery,
@@ -28,8 +29,10 @@ const StoriesGallery: React.FC<StoriesGalleryProps> = ({
   // All user's stories (unfiltered)
   const userStoriesAll: StoryProps[] = useMemo(() => {
     if (!data?.data) return [];
-    return data.data.filter((story) => story.user_id === user?.userid);
-  }, [data?.data, user?.userid]);
+    return data.data.filter(
+      (story) => story.user_id === (user as Profile)?.userid,
+    );
+  }, [data?.data, (user as Profile)?.userid]);
 
   // Currently displayed stories based on selected filter
   const stories: StoryProps[] = useMemo(() => {
@@ -56,7 +59,7 @@ const StoriesGallery: React.FC<StoriesGalleryProps> = ({
   // Build chips list only for filters that have matching stories
   //   const baseFilters = ['Saigon', 'Danang', 'Hoian', 'Hue', 'Hanoi'];
 
-  if (!user?.userid) {
+  if (!user || !(user as Profile)?.userid) {
     return (
       <Translation>
         {(t) => (

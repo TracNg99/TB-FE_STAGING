@@ -13,7 +13,10 @@ import {
 } from 'react';
 
 import { useI18n } from '@/contexts/i18n-provider';
-import { BusinessProfile } from '@/store/redux/slices/business/profile';
+import {
+  BusinessProfile,
+  useGetCurrentBusinessProfileQuery,
+} from '@/store/redux/slices/business/profile';
 import {
   useLogOutMutation,
   useRefreshSessionMutation,
@@ -38,7 +41,7 @@ export const PUBLIC_ROUTES = [
 ];
 
 export type AuthContextType = {
-  user: (Profile & BusinessProfile) | null;
+  user: Profile | BusinessProfile | null | undefined;
   isDefault: boolean;
   setIsDefault: (value: boolean) => void;
   logout: () => void;
@@ -74,7 +77,9 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const experienceId = params?.experienceId;
   const router = useRouter();
   const { changeLanguage } = useI18n();
-  const [user, setUser] = useState<(Profile & BusinessProfile) | null>(null);
+  const [user, setUser] = useState<
+    Profile | BusinessProfile | null | undefined
+  >(null);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [roleTracker, setRoleTracker] = useState<string | null>();
   const isSessionExpired = useRef(false);
@@ -228,8 +233,20 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     refetch,
   } = useGetProfileAltQuery(
     { role: roleTracker as string },
-    { skip: !roleTracker, refetchOnMountOrArgChange: true },
+    {
+      skip: !roleTracker || roleTracker !== 'user',
+      refetchOnMountOrArgChange: true,
+    },
   );
+
+  const {
+    data: businessProfile,
+    // error: businessProfileErr,
+    refetch: businessProfileRefetch,
+  } = useGetCurrentBusinessProfileQuery(undefined, {
+    skip: !roleTracker || roleTracker !== 'business',
+    refetchOnMountOrArgChange: true,
+  });
 
   useEffect(() => {
     const jwt = localStorage.getItem('jwt') || '';
@@ -262,7 +279,11 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           // Will not be wiped on session timeout
           sessionStorage.setItem('refreshToken', refresh_token);
           sessionStorage.setItem('expiresAt', expires_at);
-          refetch();
+          if (roleTracker === 'business') {
+            businessProfileRefetch();
+          } else {
+            refetch();
+          }
         }
         return;
       } catch (error) {
@@ -289,19 +310,33 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     if (jwt) {
       checkAuthValid();
-      if (!profile && roleTracker) refetch();
+      if (!profile && roleTracker) {
+        if (roleTracker === 'business') {
+          businessProfileRefetch();
+        } else {
+          refetch();
+        }
+      }
     }
 
-    if (profile && profile?.data && roleTracker) {
+    if ((profile && profile?.data) || (businessProfile && roleTracker)) {
       const fetchedLanguage = profile?.data.language;
       const storedLanguage = sessionStorage.getItem('language');
       if (fetchedLanguage !== storedLanguage) {
-        refetch();
+        if (roleTracker === 'business') {
+          businessProfileRefetch();
+        } else {
+          refetch();
+        }
       }
-      setUser(profile?.data);
+      setUser(roleTracker === 'user' ? profile?.data : businessProfile);
       sessionStorage.setItem(
         'companies',
-        JSON.stringify(profile?.data.company_ids),
+        JSON.stringify(
+          roleTracker === 'user'
+            ? profile?.data.company_ids
+            : businessProfile?.companies,
+        ),
       );
       if (roleTracker === 'user') {
         sessionStorage.setItem('language', profile?.data?.language || 'en-US');
@@ -318,6 +353,8 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     roleTracker,
     router,
     refreshSession,
+    businessProfile,
+    businessProfileRefetch,
   ]);
 
   const authCtxValues = useMemo(

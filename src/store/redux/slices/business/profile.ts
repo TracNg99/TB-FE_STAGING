@@ -1,11 +1,13 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 
 import { baseQuery } from '../baseQuery';
+import { CompanyProps } from './company';
 
 // Define a type for business profiles
 export interface BusinessProfile {
   businessid: string;
   businessname: string;
+  username?: string;
   email?: string;
   phone?: string;
   description?: string;
@@ -14,6 +16,17 @@ export interface BusinessProfile {
   instagram?: string;
   x?: string;
   type: string;
+  avatar_id: string;
+  media_assets: {
+    url: string;
+  };
+  created?: string;
+  companies?: CompanyProps[];
+  company_members?: {
+    id: string;
+    role: string;
+    company_accounts: CompanyProps[];
+  }[];
 }
 
 interface ProfileReq {

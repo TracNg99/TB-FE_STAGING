@@ -21,6 +21,7 @@ import { Translation } from '@/components/translation';
 import { useAuth } from '@/contexts/auth-provider';
 import { useI18n } from '@/contexts/i18n-provider';
 import { useUploadImageCloudRunMutation } from '@/store/redux/slices/storage/upload';
+import { Profile } from '@/store/redux/slices/user/profile';
 import {
   StoryProps,
   useDeleteStoryMutation,
@@ -208,8 +209,8 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
 
   // Computed flags
   const isStoryOwner = useMemo(() => {
-    return user?.userid === storyUserId;
-  }, [user?.userid, storyUserId]);
+    return (user as Profile)?.userid === storyUserId;
+  }, [(user as Profile)?.userid, storyUserId]);
   const isArchived = storyStatus === 'ARCHIVED';
   const isMobile = useMemo(
     () =>
