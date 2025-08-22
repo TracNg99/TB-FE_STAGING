@@ -1,10 +1,9 @@
 'use client';
 
-import { Skeleton } from '@mantine/core';
-import { Button, TextInput } from '@mantine/core';
+import { Button, Skeleton, TextInput } from '@mantine/core';
 import { IconClock, IconPlus, IconX } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { IoMdSearch } from 'react-icons/io';
 
 export interface ChatThreadProps {

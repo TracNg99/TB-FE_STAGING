@@ -4,7 +4,8 @@ import { Button, Divider } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { Provider } from '@supabase/supabase-js';
 import { IconBrandGoogle, IconBrandX } from '@tabler/icons-react';
-import { redirect, useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { Translation } from '@/components/translation';
@@ -90,9 +91,16 @@ export default function AuthLayout({
                   <Icon />
                 </Button>
               ))}
-              <Button variant="outline" onClick={() => redirect('/')}>
+              <Link
+                href="/"
+                className="underline text-xs text-neutral-600"
+                onClick={() => {
+                  localStorage.setItem('isGuest', 'true');
+                  sessionStorage.removeItem('currentPath');
+                }}
+              >
                 Continue as guest
-              </Button>
+              </Link>
             </div>
           </div>
         </div>

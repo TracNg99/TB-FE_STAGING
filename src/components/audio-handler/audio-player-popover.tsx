@@ -1,6 +1,6 @@
 'use client';
 
-import { Popover } from '@mantine/core';
+import { Loader, Popover } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import {
   ChevronDown,
@@ -571,8 +571,9 @@ export function AudioDrawer({
             <div className="flex flex-col items-center gap-4">
               <Headphones className="w-8 h-8 text-orange-500" />
               <p className="text-orange-500 text-lg italic">
-                Loading voiced content...
+                Loading voice content...
               </p>
+              <Loader className="flex place-self-center" size={50} />
             </div>
             <h1 className="mt-6 text-white text-4xl md:text-5xl font-extrabold leading-tight">
               {content.title}

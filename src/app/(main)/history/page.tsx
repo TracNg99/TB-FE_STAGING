@@ -3,18 +3,18 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-import ChatHistory from '@/components/chatbot/chat-history';
-import { ChatThreadProps } from '@/components/chatbot/chat-history';
+import ChatHistory, {
+  ChatThreadProps,
+} from '@/components/chatbot/chat-history';
 import { useGetAllChatThreadsQuery } from '@/store/redux/slices/agents/buddy';
 
 export default function History() {
   const router = useRouter();
-
   const [threads, setThreads] = useState<ChatThreadProps[]>([]);
-
   const { data: chatHistory, isFetching } = useGetAllChatThreadsQuery();
+
   useEffect(() => {
-    if (chatHistory && chatHistory?.data) {
+    if (chatHistory?.data) {
       setThreads(
         chatHistory.data.map((thread) => ({
           id: thread.id,
@@ -31,5 +31,6 @@ export default function History() {
       );
     }
   }, [chatHistory]);
+
   return <ChatHistory threads={threads} isLoading={isFetching} />;
 }

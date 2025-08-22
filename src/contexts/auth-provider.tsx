@@ -103,8 +103,14 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const checkUserAuth = async () => {
       const jwt = localStorage.getItem('jwt') || '';
       const role = localStorage.getItem('role') || '';
+      const isGuest = localStorage.getItem('isGuest') == 'true';
       try {
-        const isValidJwt = isAuthenticated(jwt);
+        const isValidJwt = await isAuthenticated(jwt);
+        if (isGuest && pathname === '/') {
+          setIsCheckingAuth(false);
+
+          return;
+        }
 
         // Redirect to role-based dashboard if on root path with valid JWT and role
         if (pathname === '/auth/login' && isValidJwt && role) {
@@ -319,6 +325,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }),
     [user, isDefault, setIsDefault, logout],
   );
+
   // Show a loading state while checking authentication
   if (isCheckingAuth) {
     return (
