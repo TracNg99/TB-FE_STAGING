@@ -58,14 +58,13 @@ const InfoSkeleton = () => (
 );
 
 const ProfilePage = () => {
-  const { changeLanguage } = useI18n();
+  const { changeLanguage, supportedLanguages, currentLanguage } = useI18n();
   const [uploadImage] = useUploadImageMutation();
   const [updateProfile] = useUpdateProfileMutation();
   const [uploadAvatar] = useUpdateAvatarMutation();
 
   const [isEditingName, setIsEdtingName] = useState<boolean>(false);
   const [isClicked, setIsClicked] = useState<boolean>(false);
-  const [sessionLanguage, setSessionLanguage] = useState<string>('en-US');
 
   const [profileValues, setProfileValues] = useState<{
     username: string;
@@ -80,13 +79,6 @@ const ProfilePage = () => {
     createdAt: string;
     language: string;
   }>(defaultValues);
-
-  useEffect(() => {
-    const language = sessionStorage.getItem('language');
-    if (language) {
-      setSessionLanguage(language);
-    }
-  }, []);
 
   const localizedLanguageChangeMessage = [
     {
@@ -434,7 +426,9 @@ const ProfilePage = () => {
                     {t('profile.joinedOn') + ' '}
                     <time dateTime={profileValues.createdAt}>
                       {new Date(profileValues.createdAt).toLocaleDateString(
-                        sessionLanguage,
+                        supportedLanguages.find(
+                          (lang) => lang.code === currentLanguage,
+                        )?.long_code,
                         {
                           year: 'numeric',
                           month: 'long',

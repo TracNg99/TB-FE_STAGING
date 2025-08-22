@@ -15,8 +15,10 @@ interface AuthRes {
   access_token?: string;
   refresh_token?: string;
   expires_at?: string;
+  first_time?: boolean;
   user_id?: string;
   userId?: string;
+  user?: any;
   error?: string;
 }
 
@@ -46,7 +48,10 @@ const UserAuthApi = createApi({
       }),
     }),
 
-    fetchUserAfterOAuth: builder.query({
+    fetchUserAfterOAuth: builder.query<
+      AuthRes,
+      { accessToken: string; refreshToken: string }
+    >({
       query: ({ accessToken, refreshToken }) => ({
         url: `/auth/callback`,
         params: { access_token: accessToken, refresh_token: refreshToken },

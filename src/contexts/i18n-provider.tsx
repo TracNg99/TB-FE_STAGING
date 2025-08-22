@@ -113,7 +113,6 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({ children }) => {
     try {
       await i18n.changeLanguage(language);
       setCurrentLanguage(language);
-      sessionStorage.setItem('language', language);
       document.documentElement.lang = language;
     } catch (error) {
       console.error('Failed to change language:', error);

@@ -90,12 +90,7 @@ export default function AuthLayout({
                   <Icon />
                 </Button>
               ))}
-              <Button
-                variant="outline"
-                onClick={() =>
-                  redirect('/')
-                }
-              >
+              <Button variant="outline" onClick={() => redirect('/')}>
                 Continue as guest
               </Button>
             </div>

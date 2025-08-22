@@ -17,7 +17,9 @@ import ImageUploader from '@/components/image-uploader/image-picker';
 import Section from '@/components/layouts/section';
 import IconicPhotoModal from '@/components/modals/IconicPhotoModal';
 import NewCarousel from '@/components/new-carousel';
+import { Translation } from '@/components/translation';
 import { useAuth } from '@/contexts/auth-provider';
+import { useI18n } from '@/contexts/i18n-provider';
 import { useUploadImageCloudRunMutation } from '@/store/redux/slices/storage/upload';
 import {
   StoryProps,
@@ -34,27 +36,31 @@ const EditDeleteMenu = ({
   onDelete: () => void;
 }) => {
   return (
-    <Popover position="bottom-end" withArrow>
-      <Popover.Target>
-        <UnstyledButton className="p-2 text-gray-600 hover:text-gray-900 transition-colors cursor-pointer">
-          <span className="text-xl">⋯</span>
-        </UnstyledButton>
-      </Popover.Target>
-      <Popover.Dropdown className="w-32">
-        <button
-          onClick={onEdit}
-          className="block w-full text-left px-4 py-2 hover:bg-gray-100"
-        >
-          Edit
-        </button>
-        <button
-          onClick={onDelete}
-          className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-red-500"
-        >
-          Delete
-        </button>
-      </Popover.Dropdown>
-    </Popover>
+    <Translation>
+      {(t) => (
+        <Popover position="bottom-end" withArrow>
+          <Popover.Target>
+            <UnstyledButton className="p-2 text-gray-600 hover:text-gray-900 transition-colors cursor-pointer">
+              <span className="text-xl">⋯</span>
+            </UnstyledButton>
+          </Popover.Target>
+          <Popover.Dropdown className="w-32">
+            <button
+              onClick={onEdit}
+              className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+            >
+              {t('common.edit')}
+            </button>
+            <button
+              onClick={onDelete}
+              className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-red-500"
+            >
+              {t('common.delete')}
+            </button>
+          </Popover.Dropdown>
+        </Popover>
+      )}
+    </Translation>
   );
 };
 
@@ -67,6 +73,7 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
   // Hooks
   const router = useRouter();
   const { user } = useAuth();
+  const { currentLanguage, supportedLanguages } = useI18n();
   const [deleteStory, { isLoading: isDeleting }] = useDeleteStoryMutation();
   const [editStory, { isLoading: isEditing }] = useEditStoryMutation();
   const [uploadImageCloudRun] = useUploadImageCloudRunMutation();
@@ -106,13 +113,17 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
   const storyDate = useMemo(
     () =>
       created_at
-        ? new Date(created_at).toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-          })
+        ? new Date(created_at).toLocaleDateString(
+            supportedLanguages.find((lang) => lang.code === currentLanguage)
+              ?.long_code,
+            {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+            },
+          )
         : 'Unknown Date',
-    [created_at],
+    [created_at, currentLanguage, supportedLanguages],
   );
   const storyExperience = useMemo(
     () => experiences?.name || 'Unknown Experience',
@@ -493,457 +504,489 @@ export default function StoryClient({ story, firstAccess }: StoryClientProps) {
     setEditMode,
     setOriginal,
     router,
-    notifications,
   ]);
 
   return (
-    <>
-      <div className="h-full w-full flex flex-col gap-4 py-6 md-py-8">
-        {/* Archived Badge */}
-        {isArchived && isStoryOwner && (
-          <div className="mb-4">
-            <div className="inline-flex items-center px-4 py-2 bg-yellow-100 text-yellow-800 rounded-full text-base font-semibold">
-              <span className="mr-3 text-lg">📁</span>
-              Archived
-            </div>
-          </div>
-        )}
-
-        {/* Playful Archived Message for Guests */}
-        {isArchived && !isStoryOwner && (
-          <div className="max-w-2xl mx-auto p-8 text-center">
-            <div className="mb-6">
-              <div className="text-6xl mb-4">🗑️</div>
-              <h1 className="text-3xl font-bold text-gray-800 mb-4">
-                Oops! This story went on vacation! 🏖️
-              </h1>
-              <p className="text-lg text-gray-600 mb-6">
-                Looks like this travel tale has been archived and is taking a
-                well-deserved break. The author decided to put it in the digital
-                attic for now.
-              </p>
-              <div className="bg-gradient-to-r from-orange-100 to-yellow-100 p-6 rounded-lg border-2 border-dashed border-orange-300">
-                <p className="text-orange-800 font-medium mb-2">
-                  💡 What happened here?
-                </p>
-                <p className="text-orange-700 text-sm">
-                  {`The story owner has archived this content. It's like putting a
-                  book back on the shelf - it's still there, just not on display
-                  for everyone to see!`}
-                </p>
+    <Translation>
+      {(t) => (
+        <>
+          <div className="h-full w-full flex flex-col gap-4 py-6 md-py-8">
+            {/* Archived Badge */}
+            {isArchived && isStoryOwner && (
+              <div className="mb-4">
+                <div className="inline-flex items-center px-4 py-2 bg-yellow-100 text-yellow-800 rounded-full text-base font-semibold">
+                  <span className="mr-3 text-lg">📁</span>
+                  {t('stories.archived') || 'Archived'}
+                </div>
               </div>
-            </div>
-            <div className="space-y-4">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  console.log('Navigating to /stories');
-                  setTimeout(() => {
-                    router.replace('/stories');
-                  }, 0);
-                }}
-                className="inline-block px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
-              >
-                📚 Browse Other Stories
-              </button>
-              <div className="text-sm text-gray-500">
-                <p>Or</p>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('Navigating to /stories/new');
-                    setTimeout(() => {
-                      router.replace('/stories/new');
-                    }, 0);
-                  }}
-                  className="text-orange-500 hover:text-orange-600 underline font-medium"
-                >
-                  ✍️ Create Your Own Adventure
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+            )}
 
-        {/* Normal Story Content (only show if not archived for guests) */}
-        {(!isArchived || isStoryOwner) && (
-          <>
-            {/* Title and Share Section */}
-            <section>
-              {/* Mobile: Back and action buttons on one row above title */}
-              <div className="flex gap-2 items-center justify-between md:hidden">
-                {isStoryOwner ? (
+            {/* Playful Archived Message for Guests */}
+            {isArchived && !isStoryOwner && (
+              <div className="max-w-2xl mx-auto p-8 text-center">
+                <div className="mb-6">
+                  <div className="text-6xl mb-4">🗑️</div>
+                  <h1 className="text-3xl font-bold text-gray-800 mb-4">
+                    {t('stories.archiveMessage.title') ||
+                      'Oops! This story went on vacation! 🏖️'}
+                  </h1>
+                  <p className="text-lg text-gray-600 mb-6">
+                    {t('stories.archiveMessage.description') ||
+                      'Looks like this travel tale has been archived and is taking a well-deserved break. The author decided to put it in the digital attic for now.'}
+                  </p>
+                  <div className="bg-gradient-to-r from-orange-100 to-yellow-100 p-6 rounded-lg border-2 border-dashed border-orange-300">
+                    <p className="text-orange-800 font-medium mb-2">
+                      {t('stories.archiveMessage.text.title') ||
+                        '💡 What happened here?'}
+                    </p>
+                    <p className="text-orange-700 text-sm">
+                      {t('stories.archiveMessage.text.description') ||
+                        "The story owner has archived this content. It's like putting a book back on the shelf - it's still there, just not on display for everyone to see!"}
+                    </p>
+                  </div>
+                </div>
+                <div className="space-y-4">
                   <button
                     type="button"
-                    onClick={() => router.replace('/stories')}
-                    className="flex items-center gap-2 py-2 text-gray-800"
-                  >
-                    <IconChevronLeft className="size-5" />
-                    <span className="text-base">My Stories</span>
-                  </button>
-                ) : (
-                  <div />
-                )}
-                <div className="flex gap-3">
-                  {isStoryOwner && !editMode && (
-                    <EditDeleteMenu
-                      onEdit={() => {
-                        if (isArchived) {
-                          notifications.show({
-                            title: 'Cannot Edit',
-                            message: 'Archived stories cannot be edited',
-                            color: 'yellow',
-                          });
-                          return;
-                        }
-                        setEditMode(true);
-                        setOriginal({ title, body, images: editImages });
-                      }}
-                      onDelete={() => {
-                        if (isArchived) {
-                          notifications.show({
-                            title: 'Cannot Delete',
-                            message: 'Archived stories cannot be deleted',
-                            color: 'yellow',
-                          });
-                          return;
-                        }
-                        setShowDelete(true);
-                      }}
-                    />
-                  )}
-
-                  {!editMode && (
-                    <button
-                      onClick={handleShare}
-                      className="flex items-center gap-2 text-gray-600 hover:text-gray-900 cursor-pointer"
-                    >
-                      <PiShareFat size={20} />
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-3">
-                {editMode ? (
-                  <input
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    className="border-b-2 w-full flex-1 text-[32px] font-semibold text-gray-900 leading-tight mt-2 md:mt-0"
-                  />
-                ) : (
-                  <h1 className="text-[32px] font-semibold text-gray-900 leading-tight">
-                    {title}
-                  </h1>
-                )}
-                <div className="hidden md:flex gap-2 justify-end md:ml-2 md:align-middle">
-                  {isStoryOwner && !editMode && (
-                    <EditDeleteMenu
-                      onEdit={() => {
-                        if (isArchived) {
-                          notifications.show({
-                            title: 'Cannot Edit',
-                            message: 'Archived stories cannot be edited',
-                            color: 'yellow',
-                          });
-                          return;
-                        }
-                        setEditMode(true);
-                        setOriginal({ title, body, images: editImages });
-                      }}
-                      onDelete={() => {
-                        if (isArchived) {
-                          notifications.show({
-                            title: 'Cannot Delete',
-                            message: 'Archived stories cannot be deleted',
-                            color: 'yellow',
-                          });
-                          return;
-                        }
-                        setShowDelete(true);
-                      }}
-                    />
-                  )}
-
-                  {!editMode && (
-                    <button
-                      onClick={handleShare}
-                      className="flex items-center gap-2 text-gray-600 hover:text-gray-900 cursor-pointer"
-                    >
-                      <PiShareFat size={20} />
-                    </button>
-                  )}
-                </div>
-              </div>
-            </section>
-
-            {/* Author and Date Info Section */}
-            <Section>
-              <div className="flex items-start gap-3">
-                <div className="flex-shrink-0">
-                  <Avatar
-                    src={userImageSrc}
-                    size="md"
-                    radius="xl"
-                    color="orange"
-                    name={storyAuthor}
-                    alt={`${storyAuthor}'s avatar`}
-                  />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm text-gray-600 mb-1">
-                    <span className="font-medium text-gray-900">
-                      {storyAuthor}
-                    </span>
-                    <span className="mx-2">•</span>
-                    <span>{storyDate}</span>
-                  </div>
-                  <div className="text-sm">
-                    {editMode ? (
-                      <span className="text-blue-400 cursor-not-allowed">
-                        {storyExperience}
-                      </span>
-                    ) : (
-                      <a
-                        href={`/discoveries/${experience_id}`}
-                        className="text-gray-500 hover:text-blue-800 hover:underline flex items-center gap-1 transition-colors duration-200"
-                      >
-                        {storyExperience}
-                        <HiExternalLink size={14} className="inline" />
-                      </a>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </Section>
-
-            {/* Photo Grid or Carousel Section */}
-            <Section>
-              {editMode ? (
-                <div className="mb-4">
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">
-                    Story Images:
-                  </h4>
-                  <ImageUploader
-                    onImageUpload={(files) => {
-                      // Handle both adding new images and removing existing ones
-                      setEditImages((prev) => {
-                        // If files array is smaller than prev, it means images were removed
-                        if (files.length < prev.length) {
-                          // Find which images were removed by comparing names
-                          const remainingNames = files
-                            .map((f) => f.name)
-                            .filter(Boolean);
-                          return prev.filter((img) => {
-                            // Keep existing images that are still in the files array
-                            if (img.isExisting) {
-                              return (
-                                img.name && remainingNames.includes(img.name)
-                              );
-                            }
-                            // Keep new images that are still in the files array
-                            return (
-                              img.name && remainingNames.includes(img.name)
-                            );
-                          });
-                        } else {
-                          // Adding new images - apply deduplication
-                          const existingNames = prev
-                            .map((img) => img.name)
-                            .filter(Boolean);
-
-                          // Filter out files that already exist based on name
-                          const newFiles = files.filter((file) => {
-                            if (!file.name) return true; // Allow files without names
-                            return !existingNames.includes(file.name);
-                          });
-
-                          // Add only new, non-duplicate files
-                          return [
-                            ...prev,
-                            ...newFiles.map((f) => ({
-                              image: f.image || '',
-                              name: f.name,
-                              isExisting: false, // Mark new images
-                            })),
-                          ];
-                        }
-                      });
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('Navigating to /stories');
+                      setTimeout(() => {
+                        router.replace('/stories');
+                      }, 0);
                     }}
-                    allowMultiple={true}
-                    isStandalone={true}
-                    className="mt-2"
-                    // Pass existing images to show them in the uploader
-                    fetchImages={editImages.map((img) => ({
-                      image: img.image || '',
-                      name: img.name || '',
-                      isExisting: img.isExisting,
-                    }))}
+                    className="inline-block px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
                   >
-                    <ImageUploadIcon
-                      className="size-50 text-white color-orange-500"
-                      size={100}
-                    />
-                  </ImageUploader>
+                    {t('stories.archiveMessage.button.browse') ||
+                      '📚 Browse Other Stories'}
+                  </button>
+                  <div className="text-sm text-gray-500">
+                    <p>Or</p>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('Navigating to /stories/new');
+                        setTimeout(() => {
+                          router.replace('/stories/new');
+                        }, 0);
+                      }}
+                      className="text-orange-500 hover:text-orange-600 underline font-medium"
+                    >
+                      {t('stories.archiveMessage.button.create') ||
+                        '✍️ Create Your Own Adventure'}
+                    </button>
+                  </div>
                 </div>
-              ) : images.length > 0 ? (
-                <div className="relative w-full rounded-lg">
-                  <NewCarousel
-                    items={images}
-                    enableInfiniteLoop={false}
-                    slideGap={16}
-                    renderItem={renderCarouselItem}
-                  />
-                </div>
-              ) : (
-                <div className="relative w-full rounded-lg overflow-hidden">
-                  <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 animate-pulse">
-                    <div className="w-full h-full flex items-center justify-center">
-                      <div className="flex flex-col items-center gap-2">
-                        <div className="w-12 h-12 bg-gray-300 rounded-full animate-pulse"></div>
-                        <div className="h-4 bg-gray-300 rounded w-32 animate-pulse"></div>
+              </div>
+            )}
+
+            {/* Normal Story Content (only show if not archived for guests) */}
+            {(!isArchived || isStoryOwner) && (
+              <>
+                {/* Title and Share Section */}
+                <section>
+                  {/* Mobile: Back and action buttons on one row above title */}
+                  <div className="flex gap-2 items-center justify-between md:hidden">
+                    {isStoryOwner ? (
+                      <button
+                        type="button"
+                        onClick={() => router.replace('/stories')}
+                        className="flex items-center gap-2 py-2 text-gray-800"
+                      >
+                        <IconChevronLeft className="size-5" />
+                        <span className="text-base">
+                          {t('stories.myStories') || 'My Stories'}
+                        </span>
+                      </button>
+                    ) : (
+                      <div />
+                    )}
+                    <div className="flex gap-3">
+                      {isStoryOwner && !editMode && (
+                        <EditDeleteMenu
+                          onEdit={() => {
+                            if (isArchived) {
+                              notifications.show({
+                                title:
+                                  t('stories.edit.reject.title') ||
+                                  'Cannot Edit',
+                                message:
+                                  t('stories.edit.reject.message') ||
+                                  'Archived stories cannot be edited',
+                                color: 'yellow',
+                              });
+                              return;
+                            }
+                            setEditMode(true);
+                            setOriginal({ title, body, images: editImages });
+                          }}
+                          onDelete={() => {
+                            if (isArchived) {
+                              notifications.show({
+                                title:
+                                  t('stories.delete.reject.title') ||
+                                  'Cannot Delete',
+                                message:
+                                  t('stories.delete.reject.message') ||
+                                  'Archived stories cannot be deleted',
+                                color: 'yellow',
+                              });
+                              return;
+                            }
+                            setShowDelete(true);
+                          }}
+                        />
+                      )}
+
+                      {!editMode && (
+                        <button
+                          onClick={handleShare}
+                          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 cursor-pointer"
+                        >
+                          <PiShareFat size={20} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-3">
+                    {editMode ? (
+                      <input
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        className="border-b-2 w-full flex-1 text-[32px] font-semibold text-gray-900 leading-tight mt-2 md:mt-0"
+                      />
+                    ) : (
+                      <h1 className="text-[32px] font-semibold text-gray-900 leading-tight">
+                        {title}
+                      </h1>
+                    )}
+                    <div className="hidden md:flex gap-2 justify-end md:ml-2 md:align-middle">
+                      {isStoryOwner && !editMode && (
+                        <EditDeleteMenu
+                          onEdit={() => {
+                            if (isArchived) {
+                              notifications.show({
+                                title:
+                                  t('stories.edit.reject.title') ||
+                                  'Cannot Edit',
+                                message:
+                                  t('stories.edit.reject.message') ||
+                                  'Archived stories cannot be edited',
+                                color: 'yellow',
+                              });
+                              return;
+                            }
+                            setEditMode(true);
+                            setOriginal({ title, body, images: editImages });
+                          }}
+                          onDelete={() => {
+                            if (isArchived) {
+                              notifications.show({
+                                title:
+                                  t('stories.delete.reject.title') ||
+                                  'Cannot Delete',
+                                message:
+                                  t('stories.delete.reject.message') ||
+                                  'Archived stories cannot be deleted',
+                                color: 'yellow',
+                              });
+                              return;
+                            }
+                            setShowDelete(true);
+                          }}
+                        />
+                      )}
+
+                      {!editMode && (
+                        <button
+                          onClick={handleShare}
+                          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 cursor-pointer"
+                        >
+                          <PiShareFat size={20} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </section>
+
+                {/* Author and Date Info Section */}
+                <Section>
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0">
+                      <Avatar
+                        src={userImageSrc}
+                        size="md"
+                        radius="xl"
+                        color="orange"
+                        name={storyAuthor}
+                        alt={`${storyAuthor}'s avatar`}
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm text-gray-600 mb-1">
+                        <span className="font-medium text-gray-900">
+                          {storyAuthor}
+                        </span>
+                        <span className="mx-2">•</span>
+                        <span>{storyDate}</span>
+                      </div>
+                      <div className="text-sm">
+                        {editMode ? (
+                          <span className="text-blue-400 cursor-not-allowed">
+                            {storyExperience}
+                          </span>
+                        ) : (
+                          <a
+                            href={`/discoveries/${experience_id}`}
+                            className="text-gray-500 hover:text-blue-800 hover:underline flex items-center gap-1 transition-colors duration-200"
+                          >
+                            {storyExperience}
+                            <HiExternalLink size={14} className="inline" />
+                          </a>
+                        )}
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
-            </Section>
+                </Section>
 
-            {/* Story Content Section */}
-            <Section>
-              <div className="text-base font-normal text-gray-800 pb-4">
-                {editMode ? (
-                  <textarea
-                    value={body}
-                    onChange={(e) => setBody(e.target.value)}
-                    className="w-full border rounded p-2 min-h-[200px]"
-                  />
-                ) : isFirstAccess &&
-                  storyContent &&
-                  storyContent.length > 0 &&
-                  !isArchived ? (
-                  <div className="space-y-2">
-                    <TypingText
-                      text={body}
-                      duration={5}
-                      onComplete={() => {
-                        // Clean up session storage when typing animation is fully displayed and finished
-                        if (typeof window !== 'undefined') {
-                          const sessionKey = `story-${story.id}-first-access`;
-                          sessionStorage.removeItem(sessionKey);
-                        }
-                      }}
-                    />
+                {/* Photo Grid or Carousel Section */}
+                <Section>
+                  {editMode ? (
+                    <div className="mb-4">
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">
+                        {t('stories.edit.images.title') || 'Story Images:'}
+                      </h4>
+                      <ImageUploader
+                        onImageUpload={(files) => {
+                          // Handle both adding new images and removing existing ones
+                          setEditImages((prev) => {
+                            // If files array is smaller than prev, it means images were removed
+                            if (files.length < prev.length) {
+                              // Find which images were removed by comparing names
+                              const remainingNames = files
+                                .map((f) => f.name)
+                                .filter(Boolean);
+                              return prev.filter((img) => {
+                                // Keep existing images that are still in the files array
+                                if (img.isExisting) {
+                                  return (
+                                    img.name &&
+                                    remainingNames.includes(img.name)
+                                  );
+                                }
+                                // Keep new images that are still in the files array
+                                return (
+                                  img.name && remainingNames.includes(img.name)
+                                );
+                              });
+                            } else {
+                              // Adding new images - apply deduplication
+                              const existingNames = prev
+                                .map((img) => img.name)
+                                .filter(Boolean);
+
+                              // Filter out files that already exist based on name
+                              const newFiles = files.filter((file) => {
+                                if (!file.name) return true; // Allow files without names
+                                return !existingNames.includes(file.name);
+                              });
+
+                              // Add only new, non-duplicate files
+                              return [
+                                ...prev,
+                                ...newFiles.map((f) => ({
+                                  image: f.image || '',
+                                  name: f.name,
+                                  isExisting: false, // Mark new images
+                                })),
+                              ];
+                            }
+                          });
+                        }}
+                        allowMultiple={true}
+                        isStandalone={true}
+                        className="mt-2"
+                        // Pass existing images to show them in the uploader
+                        fetchImages={editImages.map((img) => ({
+                          image: img.image || '',
+                          name: img.name || '',
+                          isExisting: img.isExisting,
+                        }))}
+                      >
+                        <ImageUploadIcon
+                          className="size-50 text-white color-orange-500"
+                          size={100}
+                        />
+                      </ImageUploader>
+                    </div>
+                  ) : images.length > 0 ? (
+                    <div className="relative w-full rounded-lg">
+                      <NewCarousel
+                        items={images}
+                        enableInfiniteLoop={false}
+                        slideGap={16}
+                        renderItem={renderCarouselItem}
+                      />
+                    </div>
+                  ) : (
+                    <div className="relative w-full rounded-lg overflow-hidden">
+                      <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 animate-pulse">
+                        <div className="w-full h-full flex items-center justify-center">
+                          <div className="flex flex-col items-center gap-2">
+                            <div className="w-12 h-12 bg-gray-300 rounded-full animate-pulse"></div>
+                            <div className="h-4 bg-gray-300 rounded w-32 animate-pulse"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </Section>
+
+                {/* Story Content Section */}
+                <Section>
+                  <div className="text-base font-normal text-gray-800 pb-4">
+                    {editMode ? (
+                      <textarea
+                        value={body}
+                        onChange={(e) => setBody(e.target.value)}
+                        className="w-full border rounded p-2 min-h-[200px]"
+                      />
+                    ) : isFirstAccess &&
+                      storyContent &&
+                      storyContent.length > 0 &&
+                      !isArchived ? (
+                      <div className="space-y-2">
+                        <TypingText
+                          text={body}
+                          duration={5}
+                          onComplete={() => {
+                            // Clean up session storage when typing animation is fully displayed and finished
+                            if (typeof window !== 'undefined') {
+                              const sessionKey = `story-${story.id}-first-access`;
+                              sessionStorage.removeItem(sessionKey);
+                            }
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div>
+                        <p className="whitespace-pre-line">{body}</p>
+                      </div>
+                    )}
                   </div>
-                ) : (
-                  <div>
-                    <p className="whitespace-pre-line">{body}</p>
-                  </div>
+                </Section>
+
+                {/* Edit Mode Buttons Section */}
+                {editMode && (
+                  <Section>
+                    <div className="flex gap-2 mt-2">
+                      <button
+                        className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 transition-colors disabled:opacity-50"
+                        onClick={handleSaveChanges}
+                        disabled={isEditing || isSaving}
+                      >
+                        {isSaving
+                          ? t('stories.edit.images.saving') || 'Saving...'
+                          : t('stories.edit.images.save') || 'Save'}
+                      </button>
+                      <button
+                        className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition-colors"
+                        onClick={() => {
+                          setEditMode(false);
+                          setTitle(original.title);
+                          setBody(original.body);
+                          setEditImages(original.images);
+                          setIsSaving(false);
+                        }}
+                        disabled={isEditing || isSaving}
+                      >
+                        {t('common.cancel') || 'Cancel'}
+                      </button>
+                    </div>
+                  </Section>
                 )}
-              </div>
-            </Section>
 
-            {/* Edit Mode Buttons Section */}
-            {editMode && (
-              <Section>
-                <div className="flex gap-2 mt-2">
-                  <button
-                    className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 transition-colors disabled:opacity-50"
-                    onClick={handleSaveChanges}
-                    disabled={isEditing || isSaving}
-                  >
-                    {isSaving ? 'Saving...' : 'Save'}
-                  </button>
-                  <button
-                    className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition-colors"
-                    onClick={() => {
-                      setEditMode(false);
-                      setTitle(original.title);
-                      setBody(original.body);
-                      setEditImages(original.images);
-                      setIsSaving(false);
-                    }}
-                    disabled={isEditing || isSaving}
-                  >
-                    Cancel
-                  </button>
+                {/* Follow-up Questions Section */}
+                {!editMode && (
+                  <Section>
+                    <FollowUpQuestions
+                      questions={follow_up_questions || []}
+                      experienceId={experience_id}
+                      disabled={editMode}
+                    />
+                  </Section>
+                )}
+
+                {/* Photo Modal */}
+                {iconicPhotos.length > 0 && (
+                  <IconicPhotoModal
+                    photos={iconicPhotos}
+                    selectedIndex={selectedPhotoIndex}
+                    onClose={() => setSelectedPhotoIndex(null)}
+                    onNavigate={(newIndex) => setSelectedPhotoIndex(newIndex)}
+                  />
+                )}
+              </>
+            )}
+
+            {/* Delete Modal */}
+            {showDelete && (
+              <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+                <div className="bg-white p-6 rounded shadow-lg w-80">
+                  <p className="text-lg font-semibold mb-4">
+                    {isArchived
+                      ? t('stories.delete.archivedTitle') ||
+                        'Are you sure you want to permanently delete this archived story?'
+                      : t('stories.delete.title') ||
+                        'Are you sure you want to delete this story?'}
+                  </p>
+                  <p className="text-sm text-gray-600 mb-4">
+                    {isArchived
+                      ? t('stories.delete.archivedDescription') ||
+                        'This archived story will be permanently deleted and cannot be recovered.'
+                      : t('stories.delete.description') ||
+                        'This action cannot be undone.'}
+                  </p>
+                  <div className="flex gap-2 mt-4">
+                    <button
+                      className="flex-1 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition-colors"
+                      onClick={() => setShowDelete(false)}
+                      disabled={isDeleting}
+                    >
+                      {t('common.cancel') || 'Cancel'}
+                    </button>
+                    <button
+                      className="flex-1 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors disabled:opacity-50"
+                      onClick={handleDelete}
+                      disabled={isDeleting}
+                    >
+                      {isDeleting
+                        ? t('stories.delete.deleting') || 'Deleting...'
+                        : t('stories.delete.delete') || 'Delete'}
+                    </button>
+                  </div>
                 </div>
-              </Section>
-            )}
-
-            {/* Follow-up Questions Section */}
-            {!editMode && (
-              <Section>
-                <FollowUpQuestions
-                  questions={follow_up_questions || []}
-                  experienceId={experience_id}
-                  disabled={editMode}
-                />
-              </Section>
-            )}
-
-            {/* Photo Modal */}
-            {iconicPhotos.length > 0 && (
-              <IconicPhotoModal
-                photos={iconicPhotos}
-                selectedIndex={selectedPhotoIndex}
-                onClose={() => setSelectedPhotoIndex(null)}
-                onNavigate={(newIndex) => setSelectedPhotoIndex(newIndex)}
-              />
-            )}
-          </>
-        )}
-
-        {/* Delete Modal */}
-        {showDelete && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded shadow-lg w-80">
-              <p className="text-lg font-semibold mb-4">
-                {isArchived
-                  ? 'Are you sure you want to permanently delete this archived story?'
-                  : 'Are you sure you want to delete this story?'}
-              </p>
-              <p className="text-sm text-gray-600 mb-4">
-                {isArchived
-                  ? 'This archived story will be permanently deleted and cannot be recovered.'
-                  : 'This action cannot be undone.'}
-              </p>
-              <div className="flex gap-2 mt-4">
-                <button
-                  className="flex-1 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition-colors"
-                  onClick={() => setShowDelete(false)}
-                  disabled={isDeleting}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="flex-1 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors disabled:opacity-50"
-                  onClick={handleDelete}
-                  disabled={isDeleting}
-                >
-                  {isDeleting ? 'Deleting...' : 'Delete'}
-                </button>
               </div>
-            </div>
+            )}
           </div>
-        )}
-      </div>
-      {/* Sticky Chatbox at the bottom */}
-      {!editMode && (
-        <StickyChatbox
-          className="bg-gray-50"
-          isHome={false}
-          isMobile={isMobile}
-          hasMessages={false}
-          initialSuggestions={[]}
-          onSend={handleChatSend}
-          disabled={editMode}
-        />
+          {/* Sticky Chatbox at the bottom */}
+          {!editMode && (
+            <StickyChatbox
+              className="bg-gray-50"
+              isHome={false}
+              isMobile={isMobile}
+              hasMessages={false}
+              initialSuggestions={[]}
+              onSend={handleChatSend}
+              disabled={editMode}
+            />
+          )}
+        </>
       )}
-    </>
+    </Translation>
   );
 }

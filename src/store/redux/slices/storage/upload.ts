@@ -128,10 +128,28 @@ const StorageCloudRunApi = createApi({
       transformResponse: (res: { data: CloudRunSupabaseStorageRes }) =>
         res.data,
     }),
+
+    deleteMediaAsset: builder.mutation<
+      {
+        message?: string;
+        detail?: any;
+      },
+      {
+        bucket_name: string;
+        media_query_values: string[];
+        query_type?: 'url' | 'id';
+      }
+    >({
+      query: (params) => ({
+        url: `/supabase/storage/delete`,
+        method: 'POST',
+        body: params,
+      }),
+      transformResponse: (res: { data: { message: string } }) => res.data,
+    }),
   }),
 });
 
-export const { useUploadImageCloudRunMutation } = StorageCloudRunApi;
 export const {
   useUploadImageMutation,
   useUploadVideoMutation,
@@ -139,5 +157,10 @@ export const {
   useCreateMediaAssetMutation,
   useInitResumableMutation,
 } = StorageApi;
+
 export const { useUploadResumableMutation } = MultipartApi;
+
+export const { useUploadImageCloudRunMutation, useDeleteMediaAssetMutation } =
+  StorageCloudRunApi;
+
 export { StorageApi, MultipartApi, StorageCloudRunApi };

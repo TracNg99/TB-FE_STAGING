@@ -9,6 +9,7 @@
   },
   "common": {
     "loading": "Chargement...",
+    "redirecting": "Redirection en cours...",
     "error": "Erreur",
     "success": "Succès",
     "cancel": "Annuler",
@@ -37,20 +38,47 @@
     "time": "Temps",
     "welcome": "Bienvenue",
     "dashboard": "Tableau de bord",
-    "overview": "Aperçu",
-    "insightsAtGlance": "Vos insights en un coup d'œil",
-    "explorersVisited": "explorateurs ont visité",
+    "overview": "Vue d'ensemble",
+    "insightsAtGlance": "Aperçu rapide",
+    "explorersVisited": "explorateurs ayant visité",
     "about": "À propos",
-    "activitiesYoullExperience": "Activités que vous vivrez",
-    "iconicPhotos": "Photos emblématiques",
-    "experienceNotFound": "Expérience non trouvée.",
+    "activitiesYoullExperience": "Activités à vivre",
+    "iconicPhotos": "Photos incontournables",
+    "experienceNotFound": "Aucune expérience trouvée",
     "showQrCode": "Afficher le code QR",
     "copyLinkToClipboard": "Copier le lien dans le presse-papiers",
     "playAudio": "Lire l'audio",
     "linkCopiedToClipboard": "Lien copié dans le presse-papiers !",
-    "followUpQuestions": "Questions de suivi"
+    "followUpQuestions": "Questions de suivi",
+    "submit": "Soumettre"
   },
   "auth": {
+    "otpVerification": {
+      "title": "Vérification OTP",
+      "description": "Un e-mail de récupération a été envoyé à {email}.\nVeuillez vérifier votre boîte de réception pour valider l'OTP.",
+      "successTitle": "OTP vérifié avec succès !",
+      "successMessage": "OTP vérifié avec succès !",
+      "errorTitle": "Échec de la vérification OTP !",
+      "errorMessage": "Échec de la vérification OTP. Veuillez réessayer."
+    },
+    "accountRecovery": {
+      "title": "Récupération du compte",
+      "description": "Un e-mail de récupération a été envoyé à {email}.\nVeuillez vérifier votre boîte de réception pour valider l'OTP.",
+      "sendRecoveryEmail": "Envoyer l'e-mail de récupération",
+      "successTitle": "Récupération du compte réussie !",
+      "successMessage": "Compte récupéré avec succès !",
+      "errorTitle": "Échec de la récupération du compte !",
+      "errorMessage": "Échec de la récupération du compte. Veuillez réessayer."
+    },
+    "resetPassword": {
+      "title": "Réinitialiser le mot de passe",
+      "description": "Entrez votre nouveau mot de passe.",
+      "goToLogin": "Aller à la page de connexion",
+      "successTitle": "Mot de passe réinitialisé avec succès !",
+      "successMessage": "Mot de passe réinitialisé avec succès !",
+      "errorTitle": "Échec de la réinitialisation du mot de passe !",
+      "errorMessage": "La réinitialisation du mot de passe a échoué. Veuillez réessayer."
+    },
     "login": "Connexion",
     "register": "S'inscrire",
     "email": "Email",
@@ -95,11 +123,11 @@
     "exploreNow": "Explorez maintenant",
     "bookNow": "Réservez maintenant",
     "viewDetails": "Voir les détails",
-    "addToWishlist": "Ajouter à la liste des souhaits",
-    "shareExperience": "Partager l'expérience",
+    "addToWishlist": "Ajouter aux favoris",
+    "shareExperience": "Partager mon expérience",
     "rateExperience": "Notez l'expérience",
     "created": "créé",
-    "activitiesYoullExperience": "Activités que vous vivrez",
+    "activitiesYoullExperience": "Activités à vivre",
     "error": "Erreur lors du chargement des expériences",
     "hours": "heures",
     "highlights": "Points forts",
@@ -116,9 +144,14 @@
     "noExperiencesFound": "Aucune expérience trouvée pour cette adresse."
   },
   "stories": {
+    "sidebar": {
+      "title": "Histoires",
+      "newStory": "Créer une histoire",
+      "myStories": "Mes récits"
+    },
     "title": "Racontez votre récit de voyage",
     "newStory": "Nouvelle histoire",
-    "myStories": "Mes histoires de voyage",
+    "myTravelStories": "Mes histoires de voyage",
     "publishedStories": "Histoires publiées",
     "draftStories": "Brouillons",
     "publish": "Publier",
@@ -145,7 +178,44 @@
     "noStoriesFoundAllStories": "Vous n'avez pas encore créé d'histoires de voyage. Commencez à partager vos aventures !",
     "noStoriesFoundFilter": "Aucun récit trouvé pour les filtres sélectionnés.",
     "untitledStory": "Histoire sans titre",
-    "createYourFirstStory": "Créez votre première histoire"
+    "createYourFirstStory": "Créez votre première histoire",
+    "archivedStories": "Récits archivés",
+    "myStories": "Mes récits",
+    "archived": "Archivé",
+    "published": "Publié",
+    "archiveMessage": {
+      "title": "Oups ! Ce récit est parti en vacances ! 🏖️",
+      "description": "On dirait que ce récit de voyage a été archivé et prend une pause bien méritée. L'auteur a décidé de le ranger dans le grenier numérique pour le moment.",
+      "text": {
+        "title": "💡 Que s'est-il passé ici ?",
+        "description": "Le propriétaire du récit a archivé ce contenu. C'est comme remettre un livre sur une étagère - il est toujours là, mais pas exposé à la vue de tous !"
+      },
+      "button": {
+        "browse": "📚 Parcourir d'autres récits",
+        "create": "✍️ Créez votre propre aventure"
+      }
+    },
+    "edit": {
+      "title": "Modifier le récit",
+      "description": "Modifiez votre récit",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "saving": "Enregistrement...",
+      "reject": {
+        "title": "Modification non autorisée",
+        "message": "Les récits archivés ne peuvent pas être modifiés"
+      },
+      "images": {
+        "title": "Images du récit :",
+        "cancel": "Annuler",
+        "save": "Enregistrer",
+        "saving": "Enregistrement...",
+        "reject": {
+          "title": "Modification non autorisée",
+          "message": "Les récits archivés ne peuvent pas être modifiés"
+        }
+      }
+    }
   },
   "chat": {
     "askAnything": "Demandez n'importe quoi...",

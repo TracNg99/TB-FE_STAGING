@@ -4,7 +4,7 @@ import { ActionIcon } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconMicrophone } from '@tabler/icons-react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 
 // import PulsingFab from "./pulsing-button";
 import { cn } from '@/utils/class';
@@ -53,7 +53,7 @@ interface VoiceButtonForm {
   existingTexts: string;
   onUnsupportDetected?: () => void;
   onAudioRecorded?: (audioBlob: Blob) => void;
-  isInterrupted?: boolean;
+  // isInterrupted?: boolean;
   disabled?: boolean;
 }
 
@@ -75,7 +75,7 @@ const VoiceToTextButton: React.FC<VoiceButtonForm> = ({
   className,
   asModal = false,
   customIcon,
-  isInterrupted,
+  // isInterrupted,
   disabled = false,
   // onAudioRecorded,
 }) => {
@@ -93,15 +93,12 @@ const VoiceToTextButton: React.FC<VoiceButtonForm> = ({
   //   null,
   // );
   // const audioChunks = useRef<BlobPart[]>([]);
-  useEffect(() => {
-    console.log('isInterrupted', isInterrupted);
-    // console.log('isListening', isListening);
-    // console.log('recognitionInstance', recognitionInstance.current);
-    if (isInterrupted) {
-      console.log('Interrupted');
-      stopListening();
-    }
-  }, [isInterrupted]);
+  // useEffect(() => {
+  //   if (isInterrupted) {
+  //     console.log('Interrupted');
+  //     stopListening();
+  //   }
+  // }, [isInterrupted]);
 
   const SpeechRecognition =
     (typeof window !== 'undefined' && (window as any).SpeechRecognition) ||

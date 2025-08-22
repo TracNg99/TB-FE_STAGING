@@ -4,6 +4,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import React from 'react';
 
 import SubSidebar from '@/components/layouts/SubSidebar';
+import Translation from '@/components/translation';
 import { cn } from '@/utils/class';
 
 interface StoriesSidebarProps {
@@ -26,38 +27,42 @@ const StoriesSidebar: React.FC<StoriesSidebarProps> = ({
     router.push('/stories/new');
   };
 
-  const handleShowMyStories = () => {
+  const handleShowmyTravelStories = () => {
     router.push('/stories');
   };
 
   return (
-    <SubSidebar
-      title="Stories"
-      isSidebarOpen={isSidebarOpen}
-      isPinned={isPinned}
-      onSidebarLeave={onSidebarLeave}
-      onTogglePin={onTogglePin}
-    >
-      <button
-        onClick={handleCreateStory}
-        className={cn(
-          'w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors',
-          pathname?.startsWith('/stories/new') && 'bg-[#FFEEE6] text-black',
-        )}
-      >
-        Create a story
-      </button>
+    <Translation>
+      {(t) => (
+        <SubSidebar
+          title={t('stories.sidebar.title')}
+          isSidebarOpen={isSidebarOpen}
+          isPinned={isPinned}
+          onSidebarLeave={onSidebarLeave}
+          onTogglePin={onTogglePin}
+        >
+          <button
+            onClick={handleCreateStory}
+            className={cn(
+              'w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors',
+              pathname?.startsWith('/stories/new') && 'bg-[#FFEEE6] text-black',
+            )}
+          >
+            {t('stories.sidebar.newStory')}
+          </button>
 
-      <button
-        onClick={handleShowMyStories}
-        className={cn(
-          'mt-2 w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors',
-          pathname === '/stories' && 'bg-[#FFEEE6] text-black',
-        )}
-      >
-        My stories
-      </button>
-    </SubSidebar>
+          <button
+            onClick={handleShowmyTravelStories}
+            className={cn(
+              'mt-2 w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors',
+              pathname === '/stories' && 'bg-[#FFEEE6] text-black',
+            )}
+          >
+            {t('stories.sidebar.myStories')}
+          </button>
+        </SubSidebar>
+      )}
+    </Translation>
   );
 };
 

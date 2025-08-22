@@ -12,6 +12,7 @@ import {
   useState,
 } from 'react';
 
+import { useI18n } from '@/contexts/i18n-provider';
 import { BusinessProfile } from '@/store/redux/slices/business/profile';
 import {
   useLogOutMutation,
@@ -33,7 +34,7 @@ export const PUBLIC_ROUTES = [
   '/auth/register/business',
   '/auth/login/business',
   '/discoveries',
-  '/stories/',
+  // '/stories/',
 ];
 
 export type AuthContextType = {
@@ -72,6 +73,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const params = useParams<{ experienceId: string }>();
   const experienceId = params?.experienceId;
   const router = useRouter();
+  const { changeLanguage } = useI18n();
   const [user, setUser] = useState<(Profile & BusinessProfile) | null>(null);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [roleTracker, setRoleTracker] = useState<string | null>();
@@ -95,7 +97,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (!isSessionExpired.current) {
       router.replace('/auth/login');
     }
-
   }, [logOut, pathname, router]);
 
   useEffect(() => {
@@ -103,7 +104,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const jwt = localStorage.getItem('jwt') || '';
       const role = localStorage.getItem('role') || '';
       try {
-        const isValidJwt = await isAuthenticated(jwt);
+        const isValidJwt = isAuthenticated(jwt);
 
         // Redirect to role-based dashboard if on root path with valid JWT and role
         if (pathname === '/auth/login' && isValidJwt && role) {
@@ -159,7 +160,8 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           pathname !== '/auth/register/business' &&
           pathname !== '/auth/login/business' &&
           pathname !== '/auth/reset-password' &&
-          pathname !== '/auth/forgot-password'
+          pathname !== '/auth/forgot-password' &&
+          pathname !== '/auth/callbackv1'
         ) {
           const currentPath = sessionStorage.getItem('currentPath') || '';
           if (currentPath) {
@@ -184,8 +186,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           role === 'user' &&
           (pathname.includes('business') ||
             (pathname.includes('experiences') && pathname.includes('edit')) ||
-            (pathname.includes('experiences') &&
-              pathname.includes('create')) ||
+            (pathname.includes('experiences') && pathname.includes('create')) ||
             (pathname.includes('activities') && pathname.includes('create')))
         ) {
           router.replace('/auth/login/business'); // Redirect to a login
@@ -229,14 +230,15 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const role = localStorage.getItem('role') || '';
     const expiresAt = sessionStorage.getItem('expiresAt') || '';
     const refreshToken = sessionStorage.getItem('refreshToken') || '';
-    setRoleTracker(role);
+    if (role !== '') {
+      setRoleTracker(role);
+    }
 
     const checkExpirationAndRefresh = async () => {
-      const isValid = await isAuthenticated(jwt);
-      const expTime = Number(expiresAt) * 1000 - 60 * 5 * 1000;
-      const isExpired = Date.now() > expTime;
-      if ((!isExpired || !expiresAt) && isValid) return;
-
+      // const isValid = isAuthenticated(jwt);
+      const expTime = expiresAt ? Number(expiresAt) * 1000 - 60 * 5 * 1000 : 0;
+      const isExpired = expiresAt ? Date.now() > expTime : null;
+      if (!isExpired) return;
       console.log('Session expired, refreshing...');
       try {
         const { access_token, refresh_token, expires_at, user_id } =
@@ -262,7 +264,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     checkExpirationAndRefresh();
 
     const checkAuthValid = async () => {
-      const isValid = await isAuthenticated(jwt);
+      const isValid = isAuthenticated(jwt);
       if (!isValid && !isSessionExpired.current) {
         notifications.show({
           title: 'Session Expired',
@@ -293,6 +295,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         JSON.stringify(profile?.data.company_ids),
       );
       sessionStorage.setItem('language', profile?.data.language);
+      changeLanguage(profile?.data.language.split('-')[0]);
     }
   }, [
     profile,
@@ -304,15 +307,18 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     roleTracker,
     router,
     refreshSession,
+    // changeLanguage,
   ]);
 
-  const authCtxValues = useMemo(() => ({
-    user,
-    isDefault,
-    setIsDefault,
-    logout,
-  }), [user, isDefault, setIsDefault, logout]);
-
+  const authCtxValues = useMemo(
+    () => ({
+      user,
+      isDefault,
+      setIsDefault,
+      logout,
+    }),
+    [user, isDefault, setIsDefault, logout],
+  );
   // Show a loading state while checking authentication
   if (isCheckingAuth) {
     return (
@@ -323,9 +329,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <AuthContext
-      value={authCtxValues}
-    >
+    <AuthContext value={authCtxValues}>
       {children}
       {/* <Suspense>
         <SearchParamsPH/>

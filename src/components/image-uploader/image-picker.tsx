@@ -3,7 +3,10 @@ import { IconCloudUpload } from '@tabler/icons-react';
 import heic2any from 'heic2any';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { useUploadImageCloudRunMutation } from '@/store/redux/slices/storage/upload';
+import {
+  useDeleteMediaAssetMutation,
+  useUploadImageCloudRunMutation,
+} from '@/store/redux/slices/storage/upload';
 
 import DropzoneUploader from './image-picker-dropzone';
 
@@ -113,7 +116,15 @@ interface UploadHandlerProps {
     }>,
   ) => void;
   onImageUpload: (
-    images: Array<{ image: string | null; name: string | null } & File>,
+    images: Array<
+      {
+        image: string | null;
+        name: string | null;
+        isExisting?: boolean;
+        isLoading?: boolean;
+        id?: string | null;
+      } & File
+    >,
   ) => void;
   withResize?: boolean;
   allowMultiple?: boolean;
@@ -210,19 +221,27 @@ export const handleImageUpload = ({
 
       if (withUploader) {
         console.log('uploading to storage');
-        setSelectedImages(
-          updatedImages.map((img: any, index: number) => {
+        const initialMediaWithStates = updatedImages.map(
+          (img: {
+            image: string | null;
+            name: string | null;
+            isExisting?: boolean;
+            isLoading?: boolean;
+            id?: string | null;
+          }) => {
             return {
               image: img.image,
-              name: `img-${index}-${img.name}`,
+              name: img.name,
               isExisting: img.isExisting ?? false,
               isLoading: img.isLoading ?? true,
               id: img.id || null,
             };
-          }),
+          },
         );
+        setSelectedImages(initialMediaWithStates);
+        onImageUpload(initialMediaWithStates as any);
         handleMediaUploadToStorage?.(
-          updatedImages as {
+          initialMediaWithStates as {
             image: string | null;
             name: string | null;
             isExisting?: boolean;
@@ -259,6 +278,9 @@ interface ImageUploaderProps {
       image: string | null;
       name: string | null;
       id?: string | null;
+      isExisting?: boolean;
+      isLoading?: boolean;
+      isError?: boolean;
     })[],
   ) => void;
   withDropzone?: boolean;
@@ -269,6 +291,9 @@ interface ImageUploaderProps {
     image: string | null;
     name: string | null;
     isExisting?: boolean;
+    isLoading?: boolean;
+    isError?: boolean;
+    id?: string | null;
   }[];
   withResize?: boolean;
   isStandalone?: boolean;
@@ -287,7 +312,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   allowAddNew = true,
   allowMultiple = false,
   asBlob = false,
-  fetchImages = [],
+  fetchImages,
   withResize = false,
   isStandalone = false,
   disabled = false,
@@ -308,6 +333,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   const [isCleared, setIsCleared] = useState<boolean>(false);
 
   const [uploadImageCloudRun] = useUploadImageCloudRunMutation();
+  const [deleteMediaAsset] = useDeleteMediaAssetMutation();
 
   const handleMediaUploadToStorage = useCallback(
     (
@@ -319,14 +345,16 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         id?: string | null;
       }[],
     ) => {
-      const existingImages = item.filter((img) => img.isExisting);
+      // const existingImages = item.filter((img) => img.isExisting);
       const uploadedImages: {
         image: string | null;
         name: string | null;
         id?: string | null;
-      }[] = existingImages;
+        isExisting?: boolean;
+        isLoading?: boolean;
+      }[] = [];
       const nonExistingImages = item.filter((img) => !img.isExisting);
-      nonExistingImages.forEach((img, index) => {
+      nonExistingImages.forEach((img) => {
         const payload = {
           media: {
             mimeType: 'image/jpeg',
@@ -339,29 +367,44 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
           .unwrap()
           .then(({ url, id }) => {
             setSelectedImages((prev) => {
-              return prev.map((img) => {
+              return prev.map((selectedImg) => {
                 if (
-                  img.isLoading &&
-                  !img.id &&
-                  img.name?.includes(`${index}`)
+                  selectedImg.isLoading &&
+                  !selectedImg.id &&
+                  selectedImg.name === img.name
                 ) {
                   return {
-                    ...img,
+                    ...selectedImg,
                     isLoading: false,
                     isExisting: true,
                     image: url,
                     id,
                   };
                 }
-                return img;
+                return selectedImg;
               });
             });
             uploadedImages.push({
               image: url as string,
               name: img.name as string,
+              isExisting: true,
+              isLoading: false,
               id,
             });
-            onImageUpload(uploadedImages as any);
+
+            const updatedImages = item?.map((image) => {
+              const uploaded = uploadedImages.find(
+                (uploadedImg) => uploadedImg.name === image.name,
+              );
+              if (uploaded) {
+                return uploaded;
+              }
+              return image;
+            });
+
+            console.log('updatedImages after upload:', updatedImages);
+
+            onImageUpload(updatedImages as any); // Notify parent component
           })
           .catch((error) => {
             console.error('Error uploading image:', error);
@@ -394,6 +437,22 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
 
   const handleRemoveImage = (index: number) => {
     const updatedImages = selectedImages.filter((_, i) => i !== index);
+
+    console.log('updatedImages during deletion:', updatedImages);
+
+    if (withUploader) {
+      deleteMediaAsset({
+        bucket_name: 'story',
+        media_query_values: [updatedImages?.[index]?.id as string],
+      })
+        .unwrap()
+        .then(({ message }) => {
+          console.log('deleted', message);
+        })
+        .catch((error) => {
+          console.log('error deleting', error);
+        });
+    }
     setSelectedImages(updatedImages);
 
     const updatedFiles = updatedImages.map((image) => {
@@ -416,7 +475,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (fetchImages.length > 0) {
+    if (fetchImages && fetchImages?.length > 0) {
       setSelectedImages(fetchImages);
     }
   }, [fetchImages]);

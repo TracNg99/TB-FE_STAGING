@@ -10,6 +10,7 @@
   "common": {
     "about": "소개",
     "loading": "로딩 중...",
+    "redirecting": "리디렉션 중...",
     "error": "오류",
     "success": "성공",
     "cancel": "취소",
@@ -22,7 +23,7 @@
     "next": "다음",
     "previous": "이전",
     "search": "검색",
-    "filter": "필터",
+    "filter": "필터링",
     "sort": "정렬",
     "upload": "업로드",
     "download": "다운로드",
@@ -36,21 +37,48 @@
     "time": "시간",
     "welcome": "환영합니다",
     "dashboard": "대시보드",
-    "overview": "개요",
+    "overview": "한눈에 보기",
     "insightsAtGlance": "한눈에 보는 인사이트",
-    "explorersVisited": "명의 탐험가들이 방문했어요",
+    "explorersVisited": "탐험가 방문",
     "create": "생성",
     "update": "업데이트",
-    "activitiesYoullExperience": "체험할 수 있는 활동",
-    "iconicPhotos": "대표 사진",
-    "experienceNotFound": "경험을 찾을 수 없습니다.",
+    "activitiesYoullExperience": "경험할 수 있는 활동",
+    "iconicPhotos": "잊지 못할 사진",
+    "experienceNotFound": "해당 경험을 찾을 수 없습니다.",
     "showQrCode": "QR 코드 보기",
     "copyLinkToClipboard": "링크를 클립보드에 복사",
     "playAudio": "오디오 재생",
     "linkCopiedToClipboard": "링크가 클립보드에 복사되었습니다!",
-    "followUpQuestions": "추가 질문"
+    "followUpQuestions": "후속 질문",
+    "submit": "제출"
   },
   "auth": {
+    "otpVerification": {
+      "title": "OTP 인증",
+      "description": "복구 이메일이 {email}로 전송되었습니다.\nOTP를 확인하려면 받은 편지함을 확인하세요.",
+      "successTitle": "OTP 인증 성공!",
+      "successMessage": "OTP가 성공적으로 인증되었습니다!",
+      "errorTitle": "OTP 인증 실패!",
+      "errorMessage": "OTP 인증에 실패했습니다. 다시 시도해 주세요."
+    },
+    "accountRecovery": {
+      "title": "계정 복구",
+      "description": "복구 이메일이 {email}로 전송되었습니다.\nOTP를 확인하려면 받은 편지함을 확인하세요.",
+      "sendRecoveryEmail": "복구 이메일 보내기",
+      "successTitle": "계정 복구 성공!",
+      "successMessage": "계정이 성공적으로 복구되었습니다!",
+      "errorTitle": "계정 복구 실패!",
+      "errorMessage": "계정 복구에 실패했습니다. 다시 시도해 주세요."
+    },
+    "resetPassword": {
+      "title": "비밀번호 재설정",
+      "description": "새 비밀번호를 입력하세요.",
+      "goToLogin": "로그인 페이지로 이동",
+      "successTitle": "비밀번호 재설정 성공!",
+      "successMessage": "비밀번호가 성공적으로 재설정되었습니다!",
+      "errorTitle": "비밀번호 재설정 실패!",
+      "errorMessage": "비밀번호 재설정에 실패했습니다. 다시 시도해 주세요."
+    },
     "login": "로그인",
     "register": "회원가입",
     "email": "이메일",
@@ -95,11 +123,11 @@
     "exploreNow": "지금 탐험하기",
     "bookNow": "지금 예약하기",
     "viewDetails": "자세히 보기",
-    "addToWishlist": "위시리스트에 추가",
-    "shareExperience": "경험 공유하기",
+    "addToWishlist": "찜하기",
+    "shareExperience": "경험 공유",
     "rateExperience": "경험 평가하기",
     "created": "생성됨",
-    "activitiesYoullExperience": "체험할 수 있는 활동",
+    "activitiesYoullExperience": "경험할 수 있는 활동",
     "error": "경험 로딩 오류",
     "hours": "시간",
     "highlights": "하이라이트",
@@ -116,9 +144,14 @@
     "noExperiencesFound": "이 주소에 대한 경험을 찾을 수 없습니다."
   },
   "stories": {
+    "sidebar": {
+      "title": "스토리",
+      "newStory": "스토리 만들기",
+      "myStories": "내 스토리"
+    },
     "title": "여행 이야기를 들려주세요",
     "newStory": "새로운 스토리",
-    "myStories": "내 여행 스토리",
+    "myTravelStories": "내 여행 스토리",
     "publishedStories": "게시된 스토리",
     "draftStories": "임시 저장 스토리",
     "publish": "게시",
@@ -145,7 +178,44 @@
     "noStoriesFoundAllStories": "아직 여행 스토리를 작성하지 않았습니다. 모험을 공유해보세요!",
     "noStoriesFoundFilter": "해당 필터에 대한 스토리를 찾을 수 없습니다.",
     "untitledStory": "제목 없는 스토리",
-    "createYourFirstStory": "첫 번째 스토리 만들기"
+    "createYourFirstStory": "첫 번째 스토리 만들기",
+    "archivedStories": "보관된 스토리",
+    "myStories": "내 스토리",
+    "archived": "보관됨",
+    "published": "게시됨",
+    "archiveMessage": {
+      "title": "앗! 이 스토리는 휴가를 떠났어요! 🏖️",
+      "description": "이 여행 이야기는 보관되어 잘 쉬고 있는 것 같아요. 작성자가 잠시 디지털 다락방에 넣어두기로 결정했습니다.",
+      "text": {
+        "title": "💡 여기서 무슨 일이 있었나요?",
+        "description": "스토리 소유자가 이 콘텐츠를 보관했습니다. 책을 책장에 다시 꽂아두는 것과 같아요. 여전히 그 자리에 있지만, 모두에게 전시되지는 않습니다!"
+      },
+      "button": {
+        "browse": "📚 다른 스토리 둘러보기",
+        "create": "✍️ 나만의 모험 만들기"
+      }
+    },
+    "edit": {
+      "title": "스토리 편집",
+      "description": "스토리 편집",
+      "cancel": "취소",
+      "save": "저장",
+      "saving": "저장 중...",
+      "reject": {
+        "title": "편집 불가",
+        "message": "보관된 스토리는 편집할 수 없습니다"
+      },
+      "images": {
+        "title": "스토리 이미지:",
+        "cancel": "취소",
+        "save": "저장",
+        "saving": "저장 중...",
+        "reject": {
+          "title": "편집 불가",
+          "message": "보관된 스토리는 편집할 수 없습니다"
+        }
+      }
+    }
   },
   "chat": {
     "askAnything": "무엇이든 물어보세요...",

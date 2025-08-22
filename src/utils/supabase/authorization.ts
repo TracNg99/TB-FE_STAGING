@@ -1,19 +1,25 @@
-import { getSupabaseClient } from './client';
+// import { getSupabaseClient } from './client';
+import { jwtDecode } from 'jwt-decode';
 
-export default async function isAuthenticated(token: string) {
+export default function isAuthenticated(token: string) {
+  if (!token || token === '') {
+    return false;
+  }
   // Using supabase-js getUser function to validate the token without exposing supbase project secret key
-  const supabase = getSupabaseClient(token);
+  const decodedToken = jwtDecode(token);
 
   try {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser(token);
-
-    if (!user) {
+    if (!decodedToken) {
       return false;
     }
 
-    return { data: user!.id };
+    const expTime = Number(decodedToken!.exp) * 1000;
+    const isExpired = Date.now() > expTime;
+    if (isExpired) {
+      return false;
+    }
+
+    return { data: decodedToken!.exp };
   } catch (err) {
     console.error('Unexpected error during authentication:', err);
     return false;

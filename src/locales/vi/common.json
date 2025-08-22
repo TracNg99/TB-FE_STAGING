@@ -10,6 +10,7 @@
   "common": {
     "about": "Giới thiệu",
     "loading": "Đang tải...",
+    "redirecting": "Đang chuyển hướng...",
     "error": "Lỗi",
     "success": "Thành công",
     "cancel": "Hủy",
@@ -36,21 +37,48 @@
     "time": "Thời gian",
     "welcome": "Chào mừng",
     "dashboard": "Bảng điều khiển",
-    "overview": "Tổng quan",
-    "insightsAtGlance": "Dữ liệu nổi bật",
-    "explorersVisited": "người khám phá đã ghé thăm",
+    "overview": "Tổng quan chung",
+    "insightsAtGlance": "Tổng quan nhanh",
+    "explorersVisited": "Lượt khám phá",
     "create": "Tạo",
     "update": "Cập nhật",
-    "activitiesYoullExperience": "Các hoạt động bạn sẽ trải nghiệm",
-    "iconicPhotos": "Những bức ảnh biểu tượng",
-    "experienceNotFound": "Không tìm thấy trải nghiệm.",
+    "activitiesYoullExperience": "Hoạt động nổi bật",
+    "iconicPhotos": "Ảnh nổi bật",
+    "experienceNotFound": "Không có trải nghiệm phù hợp",
     "showQrCode": "Hiển thị mã QR",
     "copyLinkToClipboard": "Sao chép liên kết vào clipboard",
     "playAudio": "Phát âm thanh",
     "linkCopiedToClipboard": "Liên kết đã được sao chép vào clipboard!",
-    "followUpQuestions": "Câu hỏi tiếp theo"
+    "followUpQuestions": "Câu hỏi tiếp theo",
+    "submit": "Gửi"
   },
   "auth": {
+    "otpVerification": {
+      "title": "Xác minh OTP",
+      "description": "Email khôi phục đã được gửi đến {email}.\nVui lòng kiểm tra hộp thư để xác minh OTP.",
+      "successTitle": "Xác minh OTP thành công!",
+      "successMessage": "OTP đã được xác minh thành công!",
+      "errorTitle": "Xác minh OTP thất bại!",
+      "errorMessage": "Xác minh OTP thất bại. Vui lòng thử lại."
+    },
+    "accountRecovery": {
+      "title": "Khôi phục tài khoản",
+      "description": "Email khôi phục đã được gửi đến {email}.\nVui lòng kiểm tra hộp thư để xác minh OTP.",
+      "sendRecoveryEmail": "Gửi email khôi phục",
+      "successTitle": "Khôi phục tài khoản thành công!",
+      "successMessage": "Tài khoản đã được khôi phục thành công!",
+      "errorTitle": "Khôi phục tài khoản thất bại!",
+      "errorMessage": "Khôi phục tài khoản thất bại. Vui lòng thử lại."
+    },
+    "resetPassword": {
+      "title": "Đặt lại mật khẩu",
+      "description": "Nhập mật khẩu mới của bạn.",
+      "goToLogin": "Đến trang đăng nhập",
+      "successTitle": "Đặt lại mật khẩu thành công!",
+      "successMessage": "Mật khẩu đã được đặt lại thành công!",
+      "errorTitle": "Đặt lại mật khẩu thất bại!",
+      "errorMessage": "Đặt lại mật khẩu thất bại. Vui lòng thử lại."
+    },
     "login": "Đăng nhập",
     "register": "Đăng ký",
     "email": "Email",
@@ -92,11 +120,11 @@
     "exploreNow": "Khám phá ngay",
     "bookNow": "Đặt ngay",
     "viewDetails": "Xem chi tiết",
-    "addToWishlist": "Thêm vào danh sách yêu thích",
-    "shareExperience": "Chia sẻ trải nghiệm",
+    "addToWishlist": "Thêm vào mục yêu thích",
+    "shareExperience": "Chia sẻ hành trình",
     "rateExperience": "Đánh giá trải nghiệm",
     "created": "đã tạo",
-    "activitiesYoullExperience": "Các hoạt động bạn sẽ trải nghiệm",
+    "activitiesYoullExperience": "Hoạt động nổi bật",
     "error": "Lỗi khi tải trải nghiệm",
     "hours": "Giờ",
     "highlights": "Tính năng nổi bật",
@@ -113,9 +141,14 @@
     "noExperiencesFound": "Không tìm thấy trải nghiệm nào cho địa chỉ này."
   },
   "stories": {
+    "sidebar": {
+      "title": "Câu chuyện",
+      "newStory": "Tạo câu chuyện",
+      "myStories": "Câu chuyện của tôi"
+    },
     "title": "Kể câu chuyện du lịch của bạn",
     "newStory": "Câu chuyện mới",
-    "myStories": "Câu chuyện du lịch của tôi",
+    "myTravelStories": "Câu chuyện du lịch của tôi",
     "publishedStories": "Câu chuyện đã xuất bản",
     "draftStories": "Câu chuyện nháp",
     "publish": "Xuất bản",
@@ -142,7 +175,44 @@
     "noStoriesFoundAllStories": "Bạn chưa tạo câu chuyện du lịch nào. Hãy bắt đầu chia sẻ cuộc phiêu lưu của bạn!",
     "noStoriesFoundFilter": "Không tìm thấy câu chuyện nào cho bộ lọc này.",
     "untitledStory": "Câu chuyện không có tiêu đề",
-    "createYourFirstStory": "Tạo câu chuyện đầu tiên của bạn"
+    "createYourFirstStory": "Tạo câu chuyện đầu tiên của bạn",
+    "archivedStories": "Câu chuyện đã lưu trữ",
+    "myStories": "Câu chuyện của tôi",
+    "archived": "Đã lưu trữ",
+    "published": "Đã xuất bản",
+    "archiveMessage": {
+      "title": "Ối! Câu chuyện này đang đi nghỉ mát! 🏖️",
+      "description": "Có vẻ như câu chuyện du lịch này đã được lưu trữ và đang có một kỳ nghỉ xứng đáng. Tác giả đã quyết định cất nó vào kho kỹ thuật số của họ một thời gian.",
+      "text": {
+        "title": "💡 Chuyện gì đã xảy ra ở đây?",
+        "description": "Chủ nhân của câu chuyện đã lưu trữ nội dung này. Hãy coi nó như việc đặt một cuốn sách trở lại giá sách—nó vẫn ở đó, chỉ là không được trưng bày cho mọi người xem!"
+      },
+      "button": {
+        "browse": "📚 Duyệt các câu chuyện khác",
+        "create": "✍️ Tạo cuộc phiêu lưu của riêng bạn"
+      }
+    },
+    "edit": {
+      "title": "Chỉnh sửa câu chuyện",
+      "description": "Chỉnh sửa câu chuyện của bạn",
+      "cancel": "Hủy",
+      "save": "Lưu",
+      "saving": "Đang lưu...",
+      "reject": {
+        "title": "Không được phép chỉnh sửa",
+        "message": "Không thể chỉnh sửa các câu chuyện đã lưu trữ"
+      },
+      "images": {
+        "title": "Hình ảnh câu chuyện:",
+        "cancel": "Hủy",
+        "save": "Lưu",
+        "saving": "Đang lưu...",
+        "reject": {
+          "title": "Không được phép chỉnh sửa",
+          "message": "Không thể chỉnh sửa các câu chuyện đã lưu trữ"
+        }
+      }
+    }
   },
   "chat": {
     "askAnything": "Hỏi bất cứ điều gì...",

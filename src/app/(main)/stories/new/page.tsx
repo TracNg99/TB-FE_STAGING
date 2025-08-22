@@ -37,10 +37,16 @@ const storySchema = z.object({
           image: z.string(),
           name: z.string(),
           id: z.string(),
+          isLoading: z.boolean().optional(),
+          isExisting: z.boolean().optional(),
         }),
       ]),
     )
     .min(1, 'Must upload at least 1 photo'),
+  defaultExperienceOption: z
+    .string()
+    .optional()
+    .default('No experience selected'),
 });
 
 type StorySchema = z.infer<typeof storySchema>;
@@ -49,8 +55,6 @@ const NewStoryPage = () => {
   const router = useRouter();
   const [experiences, setExperiences] = useState<string[]>([]);
   const [isConfirmClicked, setIsConfirmClicked] = useState<boolean>(false);
-  const [defaultExperienceOption, setDefaultExperienceOption] =
-    useState<string>('No experience selected');
   const [uploadStory, { isLoading: isUploading }] =
     useUploadStoryAgentMutation();
 
@@ -65,7 +69,7 @@ const NewStoryPage = () => {
   }, [experiencesData]);
 
   const handleInputsUpload = async (userInputs: StorySchema) => {
-    if (userInputs.experience === defaultExperienceOption) {
+    if (userInputs.experience === userInputs.defaultExperienceOption) {
       notifications.show({
         title: 'Warning: No experience was selected',
         message: 'Please choose an experience for your story!',
@@ -195,6 +199,7 @@ const NewStoryPage = () => {
 
   const watchedMedia = form.watch('media');
   const watchedNotes = form.watch('notes');
+  // const watchedDefaultExperienceOption = form.watch('defaultExperienceOption');
 
   if (isUploading || isConfirmClicked) {
     return <StoryCreationLoading />;
@@ -213,11 +218,20 @@ const NewStoryPage = () => {
   );
 
   return (
-    <form className="pt-8" onSubmit={form.handleSubmit(handleInputsUpload)}>
-      <Translation>
-        {(t) => {
-          setDefaultExperienceOption(t('stories.defaultExperienceOption'));
-          return (
+    <Translation>
+      {(t) => {
+        const translatedDefaultExperienceOption = t(
+          'stories.defaultExperienceOption',
+        );
+        form.setValue(
+          'defaultExperienceOption',
+          translatedDefaultExperienceOption,
+        );
+        return (
+          <form
+            className="pt-8"
+            onSubmit={form.handleSubmit(handleInputsUpload)}
+          >
             <Section className="flex flex-col gap-x-8 gap-y-4 lg:gap-y-8 max-w-5xl mx-auto px-4 mb-8">
               <p className=" hidden md:block text-base-black font-semibold text-display-sm">
                 {t('stories.shareYourTravelStory')}
@@ -243,7 +257,7 @@ const NewStoryPage = () => {
                     }}
                     renderOption={renderSelectOption}
                     error={form.formState.errors.experience?.message}
-                    data={experiences}
+                    data={[...experiences, translatedDefaultExperienceOption]}
                     onChange={onChange}
                     value={value as any}
                   />
@@ -285,8 +299,8 @@ const NewStoryPage = () => {
                           return {
                             image: item.image,
                             name: item.name,
-                            isExisting: true,
-                            isLoading: false,
+                            isExisting: item.isExisting,
+                            isLoading: item.isLoading,
                             id: item.id,
                           };
                         })}
@@ -301,7 +315,9 @@ const NewStoryPage = () => {
                 />
               </div>
               {watchedMedia.length > 0 &&
-                form.watch('experience') !== defaultExperienceOption && (
+                watchedMedia.every((item: any) => !item.isLoading) &&
+                form.watch('experience') !==
+                  translatedDefaultExperienceOption && (
                   <>
                     <div className="relative mb-4 lg:mb-0">
                       <Textarea
@@ -327,7 +343,7 @@ const NewStoryPage = () => {
                           });
                         }}
                         onTranscribe={(e) => handleTranscription(e)}
-                        isInterrupted={isConfirmClicked || isUploading}
+                        // isInterrupted={isConfirmClicked || isUploading}
                       />
                     </div>
                     <div className="w-full flex justify-center">
@@ -346,10 +362,10 @@ const NewStoryPage = () => {
                   </>
                 )}
             </Section>
-          );
-        }}
-      </Translation>
-    </form>
+          </form>
+        );
+      }}
+    </Translation>
   );
 };
 

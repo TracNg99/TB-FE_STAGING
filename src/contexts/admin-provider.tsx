@@ -1,6 +1,12 @@
 'use client';
 
-import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from 'react';
 
 type AdminCardContextType = {
   showCard: boolean;
@@ -10,13 +16,15 @@ type AdminCardContextType = {
 
 const AdminCardContext = createContext<AdminCardContextType>({
   showCard: false,
-  openCard: () => { },
-  closeCard: () => { },
+  openCard: () => {},
+  closeCard: () => {},
 });
 
 export const useAdminCardModal = () => useContext(AdminCardContext);
 
-export function AdminCardProvider({ children }: Readonly<{ children: React.ReactNode }>) {
+export function AdminCardProvider({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
   const [showCard, setShowCard] = useState(false);
   const openCard = useCallback(() => {
     setShowCard(true);

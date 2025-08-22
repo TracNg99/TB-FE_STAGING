@@ -94,8 +94,8 @@ export default function RootLayout({
         )}
       >
         <ReduxProvider>
-          <AuthProvider>
-            <I18nProvider>
+          <I18nProvider>
+            <AuthProvider>
               <ChatProvider>
                 <MantineProvider theme={theme} defaultColorScheme="light">
                   <ModalsProvider>
@@ -104,8 +104,8 @@ export default function RootLayout({
                   </ModalsProvider>
                 </MantineProvider>
               </ChatProvider>
-            </I18nProvider>
-          </AuthProvider>
+            </AuthProvider>
+          </I18nProvider>
         </ReduxProvider>
       </body>
     </html>

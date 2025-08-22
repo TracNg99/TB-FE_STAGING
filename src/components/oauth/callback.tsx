@@ -37,7 +37,7 @@ const OAuthCallback = () => {
 
   // Use RTK Query to fetch user data after OAuth
   const { data, error, isFetching } = useFetchUserAfterOAuthQuery(
-    { accessToken, refreshToken }, // Pass as an object for flexibility
+    { accessToken: accessToken!, refreshToken: refreshToken! }, // Pass as an object for flexibility
     { skip: !accessToken }, // Skip query if no access token is available
   );
 

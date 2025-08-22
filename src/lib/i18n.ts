@@ -2,13 +2,18 @@
 export const defaultNS = 'common';
 
 export const supportedLanguages = [
-  { code: 'en', name: 'English', nativeName: 'English' },
-  { code: 'ko', name: 'Korean', nativeName: '한국어' },
-  { code: 'zh', name: 'Chinese', nativeName: '中文' },
-  { code: 'fr', name: 'French', nativeName: 'Français' },
-  { code: 'ja', name: 'Japanese', nativeName: '日本語' },
-  { code: 'ru', name: 'Russian', nativeName: 'Русский' },
-  { code: 'vi', name: 'Vietnamese', nativeName: 'Tiếng Việt' },
+  { code: 'en', long_code: 'en-US', name: 'English', nativeName: 'English' },
+  { code: 'ko', long_code: 'ko-KR', name: 'Korean', nativeName: '한국어' },
+  { code: 'zh', long_code: 'zh-CN', name: 'Chinese', nativeName: '中文' },
+  { code: 'fr', long_code: 'fr-FR', name: 'French', nativeName: 'Français' },
+  { code: 'ja', long_code: 'ja-JP', name: 'Japanese', nativeName: '日本語' },
+  { code: 'ru', long_code: 'ru-RU', name: 'Russian', nativeName: 'Русский' },
+  {
+    code: 'vi',
+    long_code: 'vi-VN',
+    name: 'Vietnamese',
+    nativeName: 'Tiếng Việt',
+  },
 ];
 
 // Export type for resources

@@ -10,6 +10,7 @@
   "common": {
     "about": "About",
     "loading": "Loading...",
+    "redirecting": "Redirecting...",
     "error": "Error",
     "success": "Success",
     "cancel": "Cancel",
@@ -48,7 +49,8 @@
     "copyLinkToClipboard": "Copy link to clipboard",
     "playAudio": "Play audio",
     "linkCopiedToClipboard": "Link copied to clipboard!",
-    "followUpQuestions": "Follow-up Questions"
+    "followUpQuestions": "Follow-up Questions",
+    "submit": "Submit"
   },
   "auth": {
     "login": "Login",
@@ -64,7 +66,33 @@
     "createAccount": "Create Account",
     "logout": "Logout",
     "registerSuccess": "Account created successfully!",
-    "registerError": "Something went wrong, please try again!"
+    "registerError": "Something went wrong, please try again!",
+    "otpVerification": {
+      "title": "OTP Verification",
+      "description": "A recovery email has been sent to {email}.\nPlease check your inbox to verify OTP.",
+      "successTitle": "OTP Verified Successfully!",
+      "successMessage": "OTP verified successfully!",
+      "errorTitle": "OTP Verification Failed!",
+      "errorMessage": "Failed to verify OTP. Please try again."
+    },
+    "accountRecovery": {
+      "title": "Account Recovery",
+      "description": "A recovery email has been sent to {email}.\nPlease check your inbox to verify OTP.",
+      "sendRecoveryEmail": "Send Recovery Email",
+      "successTitle": "Account Recovery Successful!",
+      "successMessage": "Account recovery successful!",
+      "errorTitle": "Account Recovery Failed!",
+      "errorMessage": "Failed to recover account. Please try again."
+    },
+    "resetPassword": {
+      "title": "Reset Password",
+      "description": "Enter your new password.",
+      "goToLogin": "Go to Login page",
+      "successTitle": "Password Reset Successful!",
+      "successMessage": "Password reset successful!",
+      "errorTitle": "Password Reset Failed!",
+      "errorMessage": "Failed to reset password. Please try again."
+    }
   },
   "profile": {
     "firstName": "First Name",
@@ -112,8 +140,12 @@
   },
   "stories": {
     "title": "Tell Your Travel Tale",
+    "sidebar": {
+      "title": "Stories",
+      "newStory": "Create a story",
+      "myStories": "My stories"
+    },
     "newStory": "New Story",
-    "myStories": "My Travel Stories",
     "publishedStories": "Published Stories",
     "draftStories": "Draft Stories",
     "publish": "Publish",
@@ -140,7 +172,59 @@
     "noStoriesFoundAllStories": "You haven't created any travel stories yet. Start sharing your adventures!",
     "noStoriesFoundFilter": "No stories found for.",
     "untitledStory": "Untitled Story",
-    "createYourFirstStory": "Create your first story"
+    "createYourFirstStory": "Create your first story",
+    "myTravelStories": "My Travel Stories",
+    "archivedStories": "Archived Stories",
+    "myStories": "My Stories",
+    "archived": "Archived",
+    "published": "Published",
+    "archiveMessage": {
+      "title": "Oops! This story went on vacation! 🏖️",
+      "description": "Looks like this travel tale has been archived and is taking a well-deserved break. The author decided to put it in the digital attic for now.",
+      "text": {
+        "title": "💡 What happened here?",
+        "description": "The story owner has archived this content. It's like putting a book back on the shelf - it's still there, just not on display for everyone to see!"
+      },
+      "button": {
+        "browse": "📚 Browse Other Stories",
+        "create": "✍️ Create Your Own Adventure"
+      }
+    },
+    "edit": {
+      "title": "Edit Story",
+      "description": "Edit your story",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving...",
+      "reject": {
+        "title": "Edit Not Allowed",
+        "message": "Archived stories cannot be edited"
+      },
+      "images": {
+        "title": "Story Images:",
+        "cancel": "Cancel",
+        "save": "Save",
+        "saving": "Saving...",
+        "reject": {
+          "title": "Edit Not Allowed",
+          "message": "Archived stories cannot be edited"
+        }
+      }
+    },
+    "delete": {
+      "title": "Are you sure you want to delete this story?",
+      "description": "This action cannot be undone.",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "deleting": "Deleting...",
+      "archivedTitle": "Are you sure you want to permanently delete this archived story?",
+      "archivedDescription": "This archived story will be permanently deleted and cannot be recovered.",
+      "reject": {
+        "title": "Delete Not Allowed",
+        "message": "Archived stories cannot be deleted"
+      }
+    },
+    "loginToView": "Login to view all stories"
   },
   "chat": {
     "askAnything": "Ask anything...",

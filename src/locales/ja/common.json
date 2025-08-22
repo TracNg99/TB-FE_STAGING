@@ -9,6 +9,7 @@
   },
   "common": {
     "loading": "読み込み中...",
+    "redirecting": "リダイレクト中...",
     "error": "エラー",
     "success": "成功",
     "cancel": "キャンセル",
@@ -37,20 +38,48 @@
     "time": "時間",
     "welcome": "ようこそ",
     "dashboard": "ダッシュボード",
-    "overview": "概要",
-    "insightsAtGlance": "一目でわかるインサイト",
-    "explorersVisited": "人の探検者が訪れました",
+    "overview": "全体概要",
+    "insightsAtGlance": "インサイト一目で",
+    "explorersVisited": "探検者数",
     "about": "アプリ情報",
-    "activitiesYoullExperience": "体験できるアクティビティ",
-    "iconicPhotos": "象徴的な写真",
-    "experienceNotFound": "体験が見つかりません。",
+    "activitiesYoullExperience": "おすすめアクティビティ",
+    "iconicPhotos": "思い出の写真",
+    "experienceNotFound": "該当する体験がありません",
     "showQrCode": "QRコードを表示",
     "copyLinkToClipboard": "リンクをクリップボードにコピー",
     "playAudio": "オーディオを再生",
     "linkCopiedToClipboard": "リンクがクリップボードにコピーされました！",
-    "followUpQuestions": "フォローアップ質問"
+    "followUpQuestions": "フォローアップの質問",
+    "submit": "送信"
   },
   "auth": {
+    "submit": "送信",
+    "otpVerification": {
+      "title": "OTP認証",
+      "description": "リカバリーメールが {email} に送信されました。\nOTPを確認するために受信箱をご確認ください。",
+      "successTitle": "OTP認証成功！",
+      "successMessage": "OTPが正常に認証されました！",
+      "errorTitle": "OTP認証失敗！",
+      "errorMessage": "OTP認証に失敗しました。再度お試しください。"
+    },
+    "accountRecovery": {
+      "title": "アカウント復旧",
+      "description": "リカバリーメールが {email} に送信されました。\nOTPを確認するために受信箱をご確認ください。",
+      "sendRecoveryEmail": "リカバリーメールを送信",
+      "successTitle": "アカウント復旧成功！",
+      "successMessage": "アカウントが正常に復旧されました！",
+      "errorTitle": "アカウント復旧失敗！",
+      "errorMessage": "アカウントの復旧に失敗しました。再度お試しください。"
+    },
+    "resetPassword": {
+      "title": "パスワード再設定",
+      "description": "新しいパスワードを入力してください。",
+      "goToLogin": "ログインページへ",
+      "successTitle": "パスワード再設定成功！",
+      "successMessage": "パスワードが正常に再設定されました！",
+      "errorTitle": "パスワード再設定失敗！",
+      "errorMessage": "パスワードの再設定に失敗しました。再度お試しください。"
+    },
     "login": "ログイン",
     "register": "登録",
     "email": "メール",
@@ -94,11 +123,11 @@
     "exploreNow": "今すぐ探索",
     "bookNow": "今すぐ予約",
     "viewDetails": "詳細を見る",
-    "addToWishlist": "ウィッシュリストに追加",
-    "shareExperience": "体験を共有",
+    "addToWishlist": "お気に入りに追加",
+    "shareExperience": "体験をシェア",
     "rateExperience": "体験を評価",
     "created": "作成済み",
-    "activitiesYoullExperience": "体験できるアクティビティ",
+    "activitiesYoullExperience": "おすすめアクティビティ",
     "error": "体験の読み込みエラー",
     "hours": "時間",
     "highlights": "ハイライト",
@@ -115,9 +144,14 @@
     "noExperiencesFound": "この住所の体験が見つかりませんでした。"
   },
   "stories": {
+    "sidebar": {
+      "title": "ストーリー",
+      "newStory": "ストーリーを作成",
+      "myStories": "マイストーリー"
+    },
     "title": "旅行の物語を語ってください",
     "newStory": "新しいストーリー",
-    "myStories": "私の旅行ストーリー",
+    "myTravelStories": "私の旅行ストーリー",
     "publishedStories": "公開済みストーリー",
     "draftStories": "下書きストーリー",
     "publish": "公開",
@@ -144,7 +178,44 @@
     "noStoriesFoundAllStories": "まだ旅行ストーリーを作成していません。冒険をシェアしてみましょう！",
     "noStoriesFoundFilter": "指定された条件のストーリーは見つかりませんでした。",
     "untitledStory": "タイトルなしのストーリー",
-    "createYourFirstStory": "最初のストーリーを作成"
+    "createYourFirstStory": "最初のストーリーを作成",
+    "archivedStories": "アーカイブされたストーリー",
+    "myStories": "マイストーリー",
+    "archived": "アーカイブ済み",
+    "published": "公開済み",
+    "archiveMessage": {
+      "title": "おっと！このストーリーは休暇中です！🏖️",
+      "description": "この旅行記はアーカイブされ、ゆっくり休んでいるようです。作者が一時的にデジタルな屋根裏部屋に保管することにしました。",
+      "text": {
+        "title": "💡 ここで何が起きたの？",
+        "description": "ストーリーの所有者がこのコンテンツをアーカイブしました。本を本棚に戻すようなものです。まだそこにありますが、誰にでも見えるようには展示されていません！"
+      },
+      "button": {
+        "browse": "📚 他のストーリーを閲覧する",
+        "create": "✍️ 自分だけの冒険を作成する"
+      }
+    },
+    "edit": {
+      "title": "ストーリーを編集",
+      "description": "ストーリーを編集する",
+      "cancel": "キャンセル",
+      "save": "保存",
+      "saving": "保存中...",
+      "reject": {
+        "title": "編集は許可されていません",
+        "message": "アーカイブされたストーリーは編集できません"
+      },
+      "images": {
+        "title": "ストーリーの画像：",
+        "cancel": "キャンセル",
+        "save": "保存",
+        "saving": "保存中...",
+        "reject": {
+          "title": "編集は許可されていません",
+          "message": "アーカイブされたストーリーは編集できません"
+        }
+      }
+    }
   },
   "chat": {
     "askAnything": "何でもお聞きください...",

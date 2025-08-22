@@ -10,6 +10,7 @@
   "common": {
     "about": "关于我们",
     "loading": "加载中...",
+    "redirecting": "正在跳转...",
     "error": "错误",
     "success": "成功",
     "cancel": "取消",
@@ -36,21 +37,48 @@
     "time": "时间",
     "welcome": "欢迎",
     "dashboard": "仪表板",
-    "overview": "概述",
-    "insightsAtGlance": "精彩数据一览",
-    "explorersVisited": "位探险家已访问",
+    "overview": "总览",
+    "insightsAtGlance": "一目了然",
+    "explorersVisited": "探险家访问次数",
     "create": "创建",
     "update": "更新",
-    "activitiesYoullExperience": "您将体验的活动",
-    "iconicPhotos": "标志性的照片",
-    "experienceNotFound": "经验未找到。",
+    "activitiesYoullExperience": "可体验活动",
+    "iconicPhotos": "精选照片",
+    "experienceNotFound": "未找到相关体验",
     "showQrCode": "显示二维码",
     "copyLinkToClipboard": "复制链接到剪贴板",
     "playAudio": "播放音频",
     "linkCopiedToClipboard": "链接已复制到剪贴板！",
-    "followUpQuestions": "跟进问题"
+    "followUpQuestions": "后续问题",
+    "submit": "提交"
   },
   "auth": {
+    "otpVerification": {
+      "title": "OTP 验证",
+      "description": "恢复邮件已发送至 {email}。\n请检查您的收件箱以验证 OTP。",
+      "successTitle": "OTP 验证成功！",
+      "successMessage": "OTP 验证成功！",
+      "errorTitle": "OTP 验证失败！",
+      "errorMessage": "OTP 验证失败，请重试。"
+    },
+    "accountRecovery": {
+      "title": "账户恢复",
+      "description": "恢复邮件已发送至 {email}。\n请检查您的收件箱以验证 OTP。",
+      "sendRecoveryEmail": "发送恢复邮件",
+      "successTitle": "账户恢复成功！",
+      "successMessage": "账户恢复成功！",
+      "errorTitle": "账户恢复失败！",
+      "errorMessage": "账户恢复失败，请重试。"
+    },
+    "resetPassword": {
+      "title": "重置密码",
+      "description": "请输入新密码。",
+      "goToLogin": "前往登录页面",
+      "successTitle": "密码重置成功！",
+      "successMessage": "密码重置成功！",
+      "errorTitle": "密码重置失败！",
+      "errorMessage": "密码重置失败，请重试。"
+    },
     "login": "登录",
     "register": "注册",
     "email": "邮箱",
@@ -89,15 +117,15 @@
     "date": "日期",
     "duration": "持续时间",
     "participants": "参与者",
-    "activitiesYoullExperience": "您将体验的活动",
+    "activitiesYoullExperience": "可体验活动",
     "popularExperiences": "流行体验",
     "featuredExperiences": "特色体验",
     "discover": "发现美好之地",
     "exploreNow": "现在探索",
     "bookNow": "现在预订",
     "viewDetails": "查看详情",
-    "addToWishlist": "添加到愿望清单",
-    "shareExperience": "分享体验",
+    "addToWishlist": "收藏",
+    "shareExperience": "分享我的体验",
     "rateExperience": "评价体验",
     "created": "创建于",
     "error": "加载体验时出错",
@@ -116,9 +144,14 @@
     "noExperiencesFound": "未找到此地址的体验。"
   },
   "stories": {
+    "sidebar": {
+      "title": "故事",
+      "newStory": "创建故事",
+      "myStories": "我的故事"
+    },
     "title": "讲述您的旅行故事",
     "newStory": "新故事",
-    "myStories": "我的旅行故事",
+    "myTravelStories": "我的旅行故事",
     "publishedStories": "已发布故事",
     "draftStories": "草稿故事",
     "publish": "发布",
@@ -145,7 +178,44 @@
     "noStoriesFoundAllStories": "您还没有创建任何旅行故事。开始分享您的冒险吧！",
     "noStoriesFoundFilter": "未找到该筛选器的故事。",
     "untitledStory": "无标题故事",
-    "createYourFirstStory": "创建您的第一个故事"
+    "createYourFirstStory": "创建您的第一个故事",
+    "archivedStories": "已存档故事",
+    "myStories": "我的故事",
+    "archived": "已存档",
+    "published": "已发布",
+    "archiveMessage": {
+      "title": "哎呀！这个故事去度假了！🏖️",
+      "description": "看来这篇旅行故事已经被存档，正在享受应得的休息。作者决定暂时将它存放在数字阁楼里。",
+      "text": {
+        "title": "💡 这里发生了什么？",
+        "description": "故事所有者已将此内容存档。这就像把一本书放回书架——它仍然在那里，只是没有展示给所有人看！"
+      },
+      "button": {
+        "browse": "📚 浏览其他故事",
+        "create": "✍️ 创造您自己的冒险"
+      }
+    },
+    "edit": {
+      "title": "编辑故事",
+      "description": "编辑您的故事",
+      "cancel": "取消",
+      "save": "保存",
+      "saving": "保存中...",
+      "reject": {
+        "title": "不允许编辑",
+        "message": "已存档的故事不能编辑"
+      },
+      "images": {
+        "title": "故事图片：",
+        "cancel": "取消",
+        "save": "保存",
+        "saving": "保存中...",
+        "reject": {
+          "title": "不允许编辑",
+          "message": "已存档的故事不能编辑"
+        }
+      }
+    }
   },
   "chat": {
     "askAnything": "询问任何问题...",
