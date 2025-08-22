@@ -255,8 +255,11 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (access_token && refresh_token && expires_at && user_id) {
           setRoleTracker(role);
           setUser(null);
+          // Will be wiped on session timeout
           localStorage.setItem('jwt', access_token);
           localStorage.setItem('userId', user_id);
+
+          // Will not be wiped on session timeout
           sessionStorage.setItem('refreshToken', refresh_token);
           sessionStorage.setItem('expiresAt', expires_at);
           refetch();
@@ -300,8 +303,10 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         'companies',
         JSON.stringify(profile?.data.company_ids),
       );
-      sessionStorage.setItem('language', profile?.data.language);
-      changeLanguage(profile?.data.language.split('-')[0]);
+      if (roleTracker === 'user') {
+        sessionStorage.setItem('language', profile?.data?.language || 'en-US');
+        changeLanguage(profile?.data?.language?.split('-')[0] || 'en');
+      }
     }
   }, [
     profile,
@@ -313,7 +318,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     roleTracker,
     router,
     refreshSession,
-    // changeLanguage,
   ]);
 
   const authCtxValues = useMemo(
