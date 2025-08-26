@@ -52,9 +52,9 @@ const titleStatusMap = {
 
 export default function DiscoveriesLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   const { currentLanguage } = useI18n();
   const role = localStorage.getItem('role') || '';
   const [showCard, setShowCard] = useState(false);

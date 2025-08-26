@@ -110,16 +110,16 @@ const ExperienceDetailPage = () => {
   const { open, Drawer: AudioDrawerPortal } = useAudioDrawer(
     experience
       ? {
-        experience: {
-          id: experience.id,
-          name: experience.name,
-          primary_photo: experience.primary_photo,
-          created_by: experience.created_by,
-          owned_by: experience.owned_by,
-          owner: (experience as any).owner,
-        },
-        activities: activitiesMinimal,
-      }
+          experience: {
+            id: experience.id,
+            name: experience.name,
+            primary_photo: experience.primary_photo,
+            created_by: experience.created_by,
+            owned_by: experience.owned_by,
+            owner: (experience as any).owner,
+          },
+          activities: activitiesMinimal,
+        }
       : undefined,
   );
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(

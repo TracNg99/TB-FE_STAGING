@@ -2,15 +2,15 @@
 
 import { IconQrcode } from '@tabler/icons-react';
 import { AnimatePresence, motion } from 'framer-motion';
+import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useMemo, useState } from 'react';
 
 import QRModal from '@/components/qr-code/qr-modal';
-import StickyTitleChipsHeader from '@/components/sharing/StickyTitleChipsHeader';
+import DiscoveriesHeader from '@/components/sharing/DiscoveriesHeader';
 import { Translation } from '@/components/translation';
 import { useI18n } from '@/contexts/i18n-provider';
 import { useSidebar } from '@/contexts/sidebar-provider';
-// import { useTranslation } from 'react-i18next';
 import {
   Experience,
   useGetScopedExperiencesQuery,
@@ -191,20 +191,40 @@ const DiscoveriesMain: React.FC = () => {
     <Translation>
       {(t) => (
         <div className="h-full relative flex flex-col mb-20">
-          {/* Sticky Header and Chips */}
-          <StickyTitleChipsHeader
+          <DiscoveriesHeader
             title={t('experiences.title')}
-            filters={actualAddresses}
-            selected={selectedAddress}
-            onSelect={(address) => {
-              const params = new URLSearchParams(
-                Array.from(searchParams.entries()),
-              );
-              params.set('address', address);
-              router.push(`/discoveries?${params.toString()}`);
-            }}
-            className="sticky top-0"
+            subTitle={t('experiences.subtitle')}
+            className="mb-3"
           />
+
+          {/* Sticky filters */}
+          {actualAddresses && actualAddresses.length > 0 && (
+            <div className="sticky z-1 top-0 pb-3 bg-gray-50">
+              <div className="pt-3 flex gap-3 flex-nowrap overflow-x-auto scrollbar-hide">
+                {actualAddresses.map((filter) => (
+                  <button
+                    key={filter}
+                    className={cn(
+                      'px-4 py-2 rounded-full text-md font-medium transition-all border-2 cursor-pointer hover:shadow-sm whitespace-nowrap flex-shrink-0',
+                      selectedAddress === filter
+                        ? 'bg-orange-50 text-black border-orange-500'
+                        : 'bg-orange-50 text-black border-transparent hover:bg-orange-100',
+                    )}
+                    onClick={(e) => {
+                      e.preventDefault(); // Prevent default behavior if needed
+                      const params = new URLSearchParams(
+                        Array.from(searchParams.entries()),
+                      );
+                      params.set('address', filter);
+                      router.push(`/discoveries?${params.toString()}`);
+                    }}
+                  >
+                    {filter}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Scrollable Content Area */}
           <div className="flex-1 py-3 overflow-y-auto bg-gray-50">
@@ -235,101 +255,30 @@ const DiscoveriesMain: React.FC = () => {
                     )}
                     {experiences.length > 0 && (
                       <div className="space-y-6">
-                        {/* First (featured) card */}
-                        <div
-                          className={cn(
-                            'rounded-md overflow-hidden transition-shadow border relative cursor-pointer hover:shadow-lg',
-                          )}
-                          style={{ borderColor: '#E2E2E2' }}
-                          onClick={() =>
-                            experiences[0].id &&
-                            experiences[0].status === 'active' &&
-                            router.push(`/discoveries/${experiences[0].id}`)
-                          }
-                        >
-                          <div className="aspect-[16/7] overflow-hidden relative">
-                            <img
-                              src={experiences[0].primary_photo || ''}
-                              alt={experiences[0].name || ''}
-                              className={cn(
-                                'w-full h-full object-cover transition-transform duration-300 hover:scale-105',
-                              )}
-                            />
-                            {role === 'business' && (
-                              <button
-                                className={cn(
-                                  'absolute bottom-3 right-3 p-2 rounded-md hover:bg-gray-100/50 cursor-pointer',
-                                )}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setShowCard(true);
-                                  setExperience(experiences[0]);
-                                }}
-                              >
-                                <img
-                                  src="/assets/edit.svg"
-                                  alt="Edit"
-                                  className="w-10 h-10"
-                                />
-                              </button>
-                            )}
-                          </div>
-                          <div className="p-6">
-                            <div className="flex items-center gap-2 mb-3">
-                              <h2
-                                className="text-xl font-bold flex-1 break-words"
-                                style={{ color: '#333333' }}
-                              >
-                                {experiences[0].name}
-                              </h2>
-                              {/* QR Icon Button (moved next to title) */}
-                              <button
-                                className="ml-2 p-1 rounded text-gray-700 hover:text-orange-500 transition focus:outline-none"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setQrModal({
-                                    open: true,
-                                    id: experiences[0].id,
-                                    name: experiences[0].name || '',
-                                  });
-                                }}
-                              >
-                                <IconQrcode className="w-5 h-5" />
-                              </button>
-                            </div>
-                            <p
-                              className="text-md leading-relaxed"
-                              style={{ color: '#333333' }}
-                            >
-                              {experiences[0].thumbnail_description ||
-                                experiences[0].description ||
-                                ''}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Grid for the rest */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          {experiences.slice(1).map((exp, idx) => (
+                          {experiences.map((exp, idx) => (
                             <div
                               key={exp.id || idx}
-                              className={cn(
-                                'rounded-md overflow-hidden transition-shadow border relative cursor-pointer hover:shadow-lg',
-                              )}
-                              style={{ borderColor: '#E2E2E2' }}
-                              onClick={() =>
-                                exp.id &&
-                                // exp.status === 'active' &&
-                                router.push(`/discoveries/${exp.id}`)
-                              }
+                              className="border-[#E2E2E2] rounded-md overflow-hidden transition-shadow border relative group hover:shadow-lg"
                             >
+                              {exp.id && (
+                                <Link
+                                  href={`/discoveries/${exp.id}`}
+                                  aria-label={
+                                    exp.name
+                                      ? `View ${exp.name}`
+                                      : 'View experience'
+                                  }
+                                  className="absolute inset-0 z-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
+                                >
+                                  <span aria-hidden="true" />
+                                </Link>
+                              )}
                               <div className="aspect-[4/3] overflow-hidden relative">
                                 <img
                                   src={exp.primary_photo || ''}
                                   alt={exp.name || ''}
-                                  className={cn(
-                                    'w-full h-full object-cover transition-transform duration-300 hover:scale-105',
-                                  )}
+                                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                                 />
                                 {role === 'business' && (
                                   <button
@@ -350,15 +299,12 @@ const DiscoveriesMain: React.FC = () => {
                               </div>
                               <div className="p-4">
                                 <div className="flex items-center gap-2 mb-2">
-                                  <h3
-                                    className="text-base font-bold flex-1 break-words"
-                                    style={{ color: '#333333' }}
-                                  >
+                                  <h3 className="text-[#333333] text-base font-bold flex-1 break-words">
                                     {exp.name}
                                   </h3>
                                   {/* QR Icon Button */}
                                   <button
-                                    className="ml-2 p-1 rounded text-gray-700 hover:text-orange-500 transition focus:outline-none"
+                                    className="ml-2 p-1 rounded text-gray-700 hover:text-orange-500 transition focus:outline-none relative z-3"
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       setQrModal({
