@@ -2,7 +2,7 @@ import { Box, Modal, Text, useMantineTheme } from '@mantine/core';
 import QRCode from 'qrcode';
 import React, { useEffect, useState } from 'react';
 
-const baseUrl =
+export const baseUrl =
   process.env.NEXT_PUBLIC_STAGING_URL ||
   process.env.NEXT_PUBLIC_BASE_URL ||
   'http://localhost:3000';
@@ -11,7 +11,6 @@ type QRModalComponentProps = {
   contentId?: string;
   path?: string;
   displayText: string;
-  locationId?: string;
   backgroundImage?: string;
   open: boolean;
   onClose: () => void;

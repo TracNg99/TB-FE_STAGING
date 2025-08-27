@@ -4,10 +4,11 @@ import { IconQrcode } from '@tabler/icons-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
+import DiscoveriesHeader from '@/components/discoveries/DiscoveriesHeader';
+import WelcomeModal from '@/components/modals/WelcomeModal';
 import QRModal from '@/components/qr-code/qr-modal';
-import DiscoveriesHeader from '@/components/sharing/DiscoveriesHeader';
 import { Translation } from '@/components/translation';
 import { useI18n } from '@/contexts/i18n-provider';
 import { useSidebar } from '@/contexts/sidebar-provider';
@@ -41,8 +42,11 @@ const ADDRESS_LIST = [
 
 const DiscoveriesMain: React.FC = () => {
   const { experiencesStatus } = useSidebar();
-  const { currentLanguage } = useI18n();
+  const { currentLanguage, changeLanguage } = useI18n();
+
   const searchParams = useSearchParams();
+  const isFromQRScan = searchParams.get('fromQR') == 'true';
+  const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(false);
 
   // Initialize state with actual storage values to ensure consistent skip conditions
   const role = useMemo<string>(() => {
@@ -68,17 +72,18 @@ const DiscoveriesMain: React.FC = () => {
   }, []);
 
   const language = useMemo(() => {
+    if (typeof window === 'undefined') return 'en-US';
     const language_code = sessionStorage.getItem('language') || '';
-    return language_code.split('-')[0];
-  }, [sessionStorage.getItem('language')]);
+    return language_code.split('-')[0] || 'en-US';
+  }, []);
 
   const selectedAddress =
     searchParams.get('address') ||
     (role === 'business'
       ? 'All'
       : firstAddressLanguageMap[
-          currentLanguage as keyof typeof firstAddressLanguageMap
-        ]);
+      currentLanguage as keyof typeof firstAddressLanguageMap
+      ]);
   const router = useRouter();
   const {
     data: addressMap,
@@ -116,7 +121,7 @@ const DiscoveriesMain: React.FC = () => {
     let finalMap: Record<string, Experience[]> = {};
     const localizedFirstSelection =
       firstAddressLanguageMap[
-        currentLanguage as keyof typeof firstAddressLanguageMap
+      currentLanguage as keyof typeof firstAddressLanguageMap
       ];
     if ((!!role && role !== 'business') || !role) {
       finalMap = addressMap || {};
@@ -157,7 +162,7 @@ const DiscoveriesMain: React.FC = () => {
     let addresses: any[] = [];
     const localizedFirstSelection =
       firstAddressLanguageMap[
-        currentLanguage as keyof typeof firstAddressLanguageMap
+      currentLanguage as keyof typeof firstAddressLanguageMap
       ];
     if ((!!role && role !== 'business') || !role || role === '') {
       addresses = Object.keys(addressMap || {});
@@ -187,10 +192,36 @@ const DiscoveriesMain: React.FC = () => {
     }
   }, [addressMap, scopedExperiences, role, experiencesStatus, currentLanguage]);
 
+  const handleContinue = ({
+    email,
+    language,
+  }: {
+    email: string;
+    language: string;
+  }) => {
+    sessionStorage.setItem('email', email);
+    sessionStorage.setItem('language', language);
+    changeLanguage(language.split('-')[0]);
+    setIsWelcomeModalOpen(false);
+  };
+
+  useEffect(() => {
+    const jwt = localStorage.getItem('jwt');
+    if (isFromQRScan && (!jwt || jwt === '' || jwt === null)) {
+      setIsWelcomeModalOpen(true);
+    }
+  }, [isFromQRScan]);
+
   return (
     <Translation>
       {(t) => (
-        <div className="h-full relative flex flex-col mb-20">
+        <div className="relative h-full flex flex-col mb-20 pt-6">
+          <WelcomeModal
+            isOpen={isWelcomeModalOpen}
+            onContinue={handleContinue}
+            companyId='e744cb1b-cac8-4399-ac28-d63d39921325'
+          />
+
           <DiscoveriesHeader
             title={t('experiences.title')}
             subTitle={t('experiences.subtitle')}

@@ -302,15 +302,16 @@ const ExperienceApi = createApi({
 
     uploadOnboardingInfo: builder.mutation<
       void,
-      { email: string; language: string; experienceId: string }
+      { email: string; language: string; experienceId?: string; companyId?: string }
     >({
-      query: ({ email, language, experienceId }) => ({
+      query: ({ email, language, experienceId, companyId }) => ({
         url: '/experiences/public/traveler-info',
         method: 'POST',
         body: {
           email,
           language,
           experience_id: experienceId,
+          company_id: companyId
         },
       }),
     }),
@@ -338,3 +339,4 @@ export const {
   useUploadOnboardingInfoMutation,
 } = ExperienceApi;
 export { ExperienceApi };
+
