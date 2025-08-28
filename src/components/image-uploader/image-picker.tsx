@@ -220,7 +220,6 @@ export const handleImageUpload = ({
         : validImages.slice(0, 1); // Only take the first image if allowMultiple is false
 
       if (withUploader) {
-        console.log('uploading to storage');
         const initialMediaWithStates = updatedImages.map(
           (img: {
             image: string | null;
@@ -250,7 +249,6 @@ export const handleImageUpload = ({
           }[],
         );
       } else {
-        console.log('not uploading to storage');
         setSelectedImages(updatedImages);
         if (validImages.length < uploadedImages.length) {
           setImageError?.(true);
@@ -404,8 +402,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
               return image;
             });
 
-            console.log('updatedImages after upload:', updatedImages);
-
             onImageUpload(updatedImages as any); // Notify parent component
           })
           .catch((error) => {
@@ -439,8 +435,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
 
   const handleRemoveImage = (index: number) => {
     const updatedImages = selectedImages.filter((_, i) => i !== index);
-
-    console.log('updatedImages during deletion:', updatedImages);
 
     if (withUploader) {
       deleteMediaAsset({
