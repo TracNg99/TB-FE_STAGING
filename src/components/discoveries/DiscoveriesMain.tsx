@@ -82,8 +82,8 @@ const DiscoveriesMain: React.FC = () => {
     (role === 'business'
       ? 'All'
       : firstAddressLanguageMap[
-      currentLanguage as keyof typeof firstAddressLanguageMap
-      ]);
+          currentLanguage as keyof typeof firstAddressLanguageMap
+        ]);
   const router = useRouter();
   const {
     data: addressMap,
@@ -121,7 +121,7 @@ const DiscoveriesMain: React.FC = () => {
     let finalMap: Record<string, Experience[]> = {};
     const localizedFirstSelection =
       firstAddressLanguageMap[
-      currentLanguage as keyof typeof firstAddressLanguageMap
+        currentLanguage as keyof typeof firstAddressLanguageMap
       ];
     if ((!!role && role !== 'business') || !role) {
       finalMap = addressMap || {};
@@ -162,7 +162,7 @@ const DiscoveriesMain: React.FC = () => {
     let addresses: any[] = [];
     const localizedFirstSelection =
       firstAddressLanguageMap[
-      currentLanguage as keyof typeof firstAddressLanguageMap
+        currentLanguage as keyof typeof firstAddressLanguageMap
       ];
     if ((!!role && role !== 'business') || !role || role === '') {
       addresses = Object.keys(addressMap || {});
@@ -219,7 +219,7 @@ const DiscoveriesMain: React.FC = () => {
           <WelcomeModal
             isOpen={isWelcomeModalOpen}
             onContinue={handleContinue}
-            companyId='e744cb1b-cac8-4399-ac28-d63d39921325'
+            companyId="e744cb1b-cac8-4399-ac28-d63d39921325"
           />
 
           <DiscoveriesHeader

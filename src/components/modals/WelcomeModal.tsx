@@ -53,7 +53,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
   isOpen,
   onContinue,
   experienceId,
-  companyId
+  companyId,
 }) => {
   const [currentScreen, setCurrentScreen] = useState<ScreenType>('get_info');
   const [formData, setFormData] = useState<FormData>({
@@ -101,9 +101,8 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
           email: formData.email,
           language: formData.language,
           experienceId,
-          companyId
+          companyId,
         }).unwrap();
-
       } catch (error) {
         console.error(error);
       }
@@ -287,8 +286,9 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
                 name="email"
                 value={formData.email}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 border ${emailError ? 'border-red-500' : 'border-gray-300'
-                  } rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500`}
+                className={`w-full px-3 py-2 border ${
+                  emailError ? 'border-red-500' : 'border-gray-300'
+                } rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500`}
                 placeholder="Enter your email"
                 required
               />
@@ -362,11 +362,12 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({
             currentScreen === 'get_info' &&
             (!formData.email.trim() || !!emailError)
           }
-          className={`w-full ${currentScreen === 'get_info' &&
+          className={`w-full ${
+            currentScreen === 'get_info' &&
             (!formData.email.trim() || !!emailError)
-            ? 'bg-gray-300 cursor-not-allowed'
-            : 'bg-orange-500 hover:bg-orange-600'
-            } text-white font-bold py-3 px-4 rounded-lg transition-colors`}
+              ? 'bg-gray-300 cursor-not-allowed'
+              : 'bg-orange-500 hover:bg-orange-600'
+          } text-white font-bold py-3 px-4 rounded-lg transition-colors`}
         >
           {screens[currentScreen].button_text[currentLanguage]}
         </button>

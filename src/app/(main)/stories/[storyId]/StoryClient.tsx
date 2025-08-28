@@ -71,7 +71,10 @@ interface StoryClientProps {
   firstAccess?: boolean;
 }
 
-export default function StoryClient({ story, firstAccess }: Readonly<StoryClientProps>) {
+export default function StoryClient({
+  story,
+  firstAccess,
+}: Readonly<StoryClientProps>) {
   // Hooks
   const router = useRouter();
   const { user } = useAuth();
@@ -117,14 +120,14 @@ export default function StoryClient({ story, firstAccess }: Readonly<StoryClient
     () =>
       created_at
         ? new Date(created_at).toLocaleDateString(
-          supportedLanguages.find((lang) => lang.code === currentLanguage)
-            ?.long_code,
-          {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-          },
-        )
+            supportedLanguages.find((lang) => lang.code === currentLanguage)
+              ?.long_code,
+            {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+            },
+          )
         : 'Unknown Date',
     [created_at, currentLanguage, supportedLanguages],
   );
@@ -246,18 +249,20 @@ export default function StoryClient({ story, firstAccess }: Readonly<StoryClient
     // setIsStreamed(false);
     if (
       experience_id &&
-      images &&
-      images.length > 0 &&
+      media_assets &&
+      media_assets?.length > 0 &&
       isFirstAccess &&
       !isStreamed.current
     ) {
       // setIsStreamed(true);
+      const imageToUpload =
+        media_assets?.map((item) => item.url).filter(Boolean) || [];
       isStreamed.current = true;
       streamStoryImage({
         payload: {
           story_id: storyId || '',
           experience_id: experience_id || '',
-          images: images || [],
+          images: imageToUpload,
         },
         onChunk: handleOnProgress,
       })
@@ -275,7 +280,7 @@ export default function StoryClient({ story, firstAccess }: Readonly<StoryClient
     }
   }, [
     experience_id,
-    images,
+    media_assets,
     isFirstAccess,
     handleOnProgress,
     streamStoryImage,
@@ -1035,16 +1040,16 @@ export default function StoryClient({ story, firstAccess }: Readonly<StoryClient
                   <p className="text-lg font-semibold mb-4">
                     {isArchived
                       ? t('stories.delete.archivedTitle') ||
-                      'Are you sure you want to permanently delete this archived story?'
+                        'Are you sure you want to permanently delete this archived story?'
                       : t('stories.delete.title') ||
-                      'Are you sure you want to delete this story?'}
+                        'Are you sure you want to delete this story?'}
                   </p>
                   <p className="text-sm text-gray-600 mb-4">
                     {isArchived
                       ? t('stories.delete.archivedDescription') ||
-                      'This archived story will be permanently deleted and cannot be recovered.'
+                        'This archived story will be permanently deleted and cannot be recovered.'
                       : t('stories.delete.description') ||
-                      'This action cannot be undone.'}
+                        'This action cannot be undone.'}
                   </p>
                   <div className="flex gap-2 mt-4">
                     <button
