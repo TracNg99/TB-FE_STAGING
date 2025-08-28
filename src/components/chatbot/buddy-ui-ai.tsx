@@ -363,15 +363,6 @@ const BuddyAI = ({ context }: { context?: { [key: string]: string } }) => {
     },
   );
 
-  // const {
-  //   data: historyData,
-  //   refetch: refetchHistoryData,
-  //   isLoading: isHistoryLoading,
-  //   isFetching: isHistoryFetching,
-  // } = useGetAllChatThreadsQuery(undefined, {
-  //   skip: !user,
-  // });
-
   const {
     data: historyData,
     refetch: refetchHistoryData,

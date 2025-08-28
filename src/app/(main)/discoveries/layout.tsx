@@ -66,10 +66,18 @@ export default function DiscoveriesLayout({
       currentLanguage as keyof typeof firstAddressLanguageMap
     ] ||
     ADDRESS_LIST[0];
-  const companies = sessionStorage.getItem('companies')
-    ? JSON.parse(sessionStorage.getItem('companies') || '')
-    : null;
-  const companyId = sessionStorage.getItem('company_id') || '';
+  const companies = useMemo(
+    () =>
+      sessionStorage.getItem('companies') !== null &&
+      sessionStorage.getItem('companies') !== undefined
+        ? JSON.parse(sessionStorage.getItem('companies') ?? '[]')
+        : null,
+    [],
+  );
+  const companyId = useMemo(
+    () => sessionStorage.getItem('company_id') || '',
+    [],
+  );
 
   const language = useMemo(() => {
     return sessionStorage.getItem('language') || '';

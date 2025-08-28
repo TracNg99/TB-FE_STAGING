@@ -55,7 +55,7 @@
   "auth": {
     "otpVerification": {
       "title": "Vérification OTP",
-      "description": "Un e-mail de récupération a été envoyé à {email}.\nVeuillez vérifier votre boîte de réception pour valider l'OTP.",
+      "description": "Un e-mail de récupération a été envoyé à {{email}}.\nVeuillez vérifier votre boîte de réception pour valider l'OTP.",
       "successTitle": "OTP vérifié avec succès !",
       "successMessage": "OTP vérifié avec succès !",
       "errorTitle": "Échec de la vérification OTP !",
@@ -63,7 +63,7 @@
     },
     "accountRecovery": {
       "title": "Récupération du compte",
-      "description": "Un e-mail de récupération a été envoyé à {email}.\nVeuillez vérifier votre boîte de réception pour valider l'OTP.",
+      "description": "Un e-mail de récupération a été envoyé à {{email}}.\nVeuillez vérifier votre boîte de réception pour valider l'OTP.",
       "sendRecoveryEmail": "Envoyer l'e-mail de récupération",
       "successTitle": "Récupération du compte réussie !",
       "successMessage": "Compte récupéré avec succès !",

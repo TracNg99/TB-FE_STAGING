@@ -56,7 +56,7 @@
     "submit": "送信",
     "otpVerification": {
       "title": "OTP認証",
-      "description": "リカバリーメールが {email} に送信されました。\nOTPを確認するために受信箱をご確認ください。",
+      "description": "リカバリーメールが {{email}} に送信されました。\nOTPを確認するために受信箱をご確認ください。",
       "successTitle": "OTP認証成功！",
       "successMessage": "OTPが正常に認証されました！",
       "errorTitle": "OTP認証失敗！",
@@ -64,7 +64,7 @@
     },
     "accountRecovery": {
       "title": "アカウント復旧",
-      "description": "リカバリーメールが {email} に送信されました。\nOTPを確認するために受信箱をご確認ください。",
+      "description": "リカバリーメールが {{email}} に送信されました。\nOTPを確認するために受信箱をご確認ください。",
       "sendRecoveryEmail": "リカバリーメールを送信",
       "successTitle": "アカウント復旧成功！",
       "successMessage": "アカウントが正常に復旧されました！",

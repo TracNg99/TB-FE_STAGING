@@ -55,7 +55,7 @@
   "auth": {
     "otpVerification": {
       "title": "Xác minh OTP",
-      "description": "Email khôi phục đã được gửi đến {email}.\nVui lòng kiểm tra hộp thư để xác minh OTP.",
+      "description": "Email khôi phục đã được gửi đến {{email}}.\nVui lòng kiểm tra hộp thư để xác minh OTP.",
       "successTitle": "Xác minh OTP thành công!",
       "successMessage": "OTP đã được xác minh thành công!",
       "errorTitle": "Xác minh OTP thất bại!",
@@ -63,7 +63,7 @@
     },
     "accountRecovery": {
       "title": "Khôi phục tài khoản",
-      "description": "Email khôi phục đã được gửi đến {email}.\nVui lòng kiểm tra hộp thư để xác minh OTP.",
+      "description": "Email khôi phục đã được gửi đến {{email}}.\nVui lòng kiểm tra hộp thư để xác minh OTP.",
       "sendRecoveryEmail": "Gửi email khôi phục",
       "successTitle": "Khôi phục tài khoản thành công!",
       "successMessage": "Tài khoản đã được khôi phục thành công!",

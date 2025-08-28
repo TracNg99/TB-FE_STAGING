@@ -25,10 +25,11 @@ import { Translation } from '@/components/translation';
 // import { useUploadImageCloudRunMutation } from '@/store/redux/slices/storage/upload';
 import { useGetAllExperiencesQuery } from '@/store/redux/slices/user/experience';
 import { useUploadStoryAgentMutation } from '@/store/redux/slices/user/storyAgent';
+import { cn } from '@/utils/class';
 
 const storySchema = z.object({
   experience: z.string().nonempty('Select an experience'),
-  notes: z.string().optional(),
+  notes: z.string().nonempty('Add a note'),
   media: z
     .array(
       z.union([
@@ -110,46 +111,6 @@ const NewStoryPage = () => {
       setIsConfirmClicked(false);
       return;
     }
-
-    // const mediaUrls = (
-    //   await Promise.all(
-    //     userInputs.media.map(async (item) => {
-    //       if (typeof item === 'string') {
-    //         return item; // Already a URL
-    //       }
-    //       try {
-    //         const payload = {
-    //           media: {
-    //             mimeType: 'image/jpeg',
-    //             body: (item as { image: string; name: string }).image,
-    //           },
-    //           bucket_name: 'story',
-    //         };
-    //         const { url, id } = await uploadImageCloudRun(payload).unwrap();
-    //         return { url, id };
-    //       } catch (error) {
-    //         console.error('Error uploading image:', error);
-    //         notifications.show({
-    //           title: 'Error uploading image',
-    //           message: 'Failed to upload one or more images.',
-    //           color: 'red',
-    //         });
-    //         setIsConfirmClicked(false);
-    //         return null;
-    //       }
-    //     }),
-    //   )
-    // ).filter((item) => item !== null) as { url: string; id: string }[];
-
-    // if (mediaUrls.length === 0) {
-    //   notifications.show({
-    //     title: 'Error uploading image',
-    //     message: 'Failed to upload one or more images.',
-    //     color: 'red',
-    //   });
-    //   setIsConfirmClicked(false);
-    //   return;
-    // }
 
     // Use RTK Query mutation to upload story
     try {
@@ -280,6 +241,7 @@ const NewStoryPage = () => {
                         // withResize={true}
                         // asBlob={true}
                         withUploader={true}
+                        uploaderBucketName="story"
                         isStandalone={true}
                         fetchImages={watchedMedia.map((item) => {
                           if (typeof item === 'string') {
@@ -315,7 +277,6 @@ const NewStoryPage = () => {
                 />
               </div>
               {watchedMedia.length > 0 &&
-                watchedMedia.every((item: any) => !item.isLoading) &&
                 form.watch('experience') !==
                   translatedDefaultExperienceOption && (
                   <>
@@ -348,10 +309,33 @@ const NewStoryPage = () => {
                     </div>
                     <div className="w-full flex justify-center">
                       <AiButton
-                        additionalClassName="w-full md:w-auto h-16 disabled:opacity-50 text-white bg-orange-500 hover:bg-orange-600 cursor-pointer text-white px-8 py-4 flex items-center justify-center gap-2"
+                        additionalClassName={cn(
+                          `
+                          w-full md:w-auto h-16 
+                          text-white 
+                          bg-orange-500
+                          text-white 
+                          px-8 py-4 flex items-center 
+                          justify-center gap-2`,
+                          !form.formState.isSubmitting &&
+                            watchedMedia.length > 0 &&
+                            watchedMedia.every(
+                              (item: any) => !item.isLoading,
+                            ) &&
+                            watchedNotes !== ''
+                            ? 'hover:bg-orange-300 cursor-pointer'
+                            : 'cursor-not-allowed disabled:opacity-50',
+                        )}
                         type="submit"
                         displayText={t('stories.generateAIAssistedStory')}
-                        disabled={form.formState.isSubmitting}
+                        disabled={
+                          form.formState.isSubmitting ||
+                          (watchedMedia.length === 0 &&
+                            watchedMedia.every(
+                              (item: any) => item.isLoading,
+                            )) ||
+                          watchedNotes === ''
+                        }
                         onClick={() => {
                           handleInputsUpload(form.getValues());
                         }}

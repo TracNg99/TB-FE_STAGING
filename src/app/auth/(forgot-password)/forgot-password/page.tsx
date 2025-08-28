@@ -173,7 +173,7 @@ function ForgotPasswordPage() {
                     href="/auth/login"
                     className="text-[#FF4B12] hover:underline"
                   >
-                    {t('auth.backToLogin') || 'Back to Login'}
+                    {t('auth.resetPassword.goToLogin') || 'Go to Login'}
                   </Link>
                 </div>
               </div>
@@ -186,8 +186,7 @@ function ForgotPasswordPage() {
                   {t('auth.otpVerification.title') || 'OTP Verification'}
                 </Title>
                 <Text className="text-center text-pretty">
-                  {t('auth.otpVerification.description') ||
-                    'A recovery email has been sent to {email}.\nPlease check your inbox to verify OTP.'}
+                  {t('auth.otpVerification.description', { email: email })}
                 </Text>
                 <form
                   onSubmit={(e) =>

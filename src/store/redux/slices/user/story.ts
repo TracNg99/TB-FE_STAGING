@@ -108,6 +108,26 @@ interface StoryEditingReqProps {
   story_content: string;
 }
 
+interface StoryImageProps {
+  story_id: string;
+  experience_id: string;
+  prompt?: string;
+  images: string[];
+}
+
+interface StoryImageRes {
+  event: string;
+  data?: {
+    image: string;
+  };
+  error?: string;
+}
+
+interface StoryImageReq {
+  payload: StoryImageProps;
+  onChunk: (chunk: StoryImageRes) => void;
+}
+
 const StoryApi = createApi({
   reducerPath: 'story',
   baseQuery,
@@ -447,10 +467,193 @@ const streamStoryApi = createApi({
         },
       }),
     }),
+
+    streamStoryImage: builder.mutation<StoryImageRes, StoryImageReq>({
+      query: ({ payload, onChunk }) => ({
+        url: `/story/image/generations`,
+        method: 'POST',
+        body: payload,
+        headers: {
+          Accept: 'text/event-stream',
+        },
+        responseHandler: async (response: any) => {
+          if (!response.ok) {
+            console.error(
+              '[STREAM DEBUG story.ts] Response not OK:',
+              response.status,
+              response.statusText,
+            );
+            const errorText = await response
+              .text()
+              .catch(() => `Request failed with status ${response.status}`);
+            onChunk({
+              event: 'error',
+              error:
+                errorText || `Request failed with status ${response.status}`,
+            });
+            throw new Error(
+              errorText || `Request failed with status ${response.status}`,
+            );
+          }
+          if (!response.body) {
+            console.error('[STREAM DEBUG story.ts] No response body.');
+            onChunk({
+              event: 'error',
+              error: 'No response body received for streaming.',
+            });
+            throw new Error('No response body received for streaming.');
+          }
+          console.log(
+            '[STREAM DEBUG story.ts] Response OK, body exists. Starting stream processing.',
+          );
+
+          return new Promise<StoryImageRes>((resolve, reject) => {
+            const reader = response.body!.getReader();
+            const decoder = new TextDecoder();
+            let accumulatedData = '';
+            let eventCount = 0;
+            let lastValidStoryStreamRes: StoryImageRes | null = null;
+
+            const processStream = async () => {
+              try {
+                console.log(
+                  '[STREAM DEBUG story.ts] processStream: Calling reader.read()...',
+                );
+                const { done, value } = await reader.read();
+
+                if (done) {
+                  // console.log('[STREAM DEBUG story.ts] processStream: Stream is DONE.');
+                  if (lastValidStoryStreamRes) {
+                    // console.log('[STREAM DEBUG story.ts] processStream: Resolving with the last valid parsed event:', lastValidStoryStreamRes);
+                    onChunk({
+                      event: 'done',
+                      data: lastValidStoryStreamRes.data,
+                    });
+                    resolve(lastValidStoryStreamRes);
+                  } else if (accumulatedData.trim()) {
+                    // console.log('[STREAM DEBUG story.ts] processStream: Stream DONE, no prior valid events, but accumulatedData exists:', accumulatedData);
+                    const finalRawEvent = JSON.parse(accumulatedData.trim());
+                    // console.log('[STREAM DEBUG story.ts] processStream: Parsed finalRawEvent from accumulatedData:', finalRawEvent);
+                    if (
+                      finalRawEvent &&
+                      typeof finalRawEvent.event === 'string' &&
+                      finalRawEvent.data
+                    ) {
+                      const finalStoryStreamRes: StoryImageRes = {
+                        event: finalRawEvent.event,
+                        data: finalRawEvent.data,
+                      };
+                      console.log(
+                        '[STREAM DEBUG story.ts] processStream: Resolving with final event from accumulatedData:',
+                        finalStoryStreamRes,
+                      );
+                      onChunk({
+                        event: 'done',
+                        data: finalStoryStreamRes.data,
+                      });
+                      resolve(finalStoryStreamRes);
+                    } else {
+                      // console.warn('[STREAM DEBUG story.ts] processStream: Stream ended. Accumulated data did not parse into a conclusive event. Rejecting.');
+                      onChunk({
+                        event: 'error',
+                        error:
+                          'Stream ended without a conclusive SSE event from accumulated data.',
+                      });
+                      reject(
+                        new Error(
+                          'Stream ended without a conclusive SSE event from accumulated data.',
+                        ),
+                      );
+                    }
+                  } else {
+                    // console.warn('[STREAM DEBUG story.ts] processStream: Stream ended. No valid events processed and no remaining data. Rejecting.');
+                    onChunk({
+                      event: 'error',
+                      error: 'Stream ended without any valid SSE event.',
+                    });
+                    reject(
+                      new Error('Stream ended without any valid SSE event.'),
+                    );
+                  }
+                  return;
+                }
+
+                const chunk = decoder.decode(value, { stream: true });
+                // console.log('[STREAM DEBUG story.ts] processStream: Received CHUNK:', chunk);
+                accumulatedData += chunk;
+
+                let eventBoundaryIndex;
+                while (
+                  (eventBoundaryIndex = accumulatedData.indexOf('\n\n')) >= 0
+                ) {
+                  eventCount++;
+                  const eventString = accumulatedData.substring(
+                    0,
+                    eventBoundaryIndex,
+                  );
+                  accumulatedData = accumulatedData.substring(
+                    eventBoundaryIndex + 2,
+                  );
+                  // console.log(`[STREAM DEBUG story.ts] processStream: Found event string #${eventCount}:`, eventString);
+
+                  if (eventString.trim()) {
+                    const parsedRawEvent = JSON.parse(eventString);
+                    // console.log(`[STREAM DEBUG story.ts] processStream: Parsed event #${eventCount}:`, parsedRawEvent);
+
+                    if (
+                      parsedRawEvent &&
+                      typeof parsedRawEvent.event === 'string' &&
+                      parsedRawEvent.data
+                    ) {
+                      const currentChunkRes: StoryImageRes = {
+                        event: parsedRawEvent.event,
+                        data: parsedRawEvent.data,
+                      };
+                      lastValidStoryStreamRes = currentChunkRes;
+                      console.log(
+                        `[STREAM DEBUG story.ts] processStream: Event #${eventCount} is valid. Calling onChunk with:`,
+                        currentChunkRes,
+                      );
+                      onChunk(currentChunkRes);
+                    } else {
+                      console.log(
+                        `[STREAM DEBUG story.ts] processStream: Event #${eventCount} parsed but not valid for storing (event type or data missing).`,
+                      );
+                    }
+                  }
+                }
+
+                // console.log('[STREAM DEBUG story.ts] processStream: No complete event in current accumulation or processed all in chunk, continuing to read stream...');
+                processStream();
+              } catch (error) {
+                // console.error('[STREAM DEBUG story.ts] processStream: ERROR during stream processing:', error);
+                const errorMessage =
+                  error instanceof Error
+                    ? error.message
+                    : 'Unknown streaming error';
+                onChunk({
+                  event: 'error',
+                  error: errorMessage,
+                });
+                reject(
+                  error instanceof Error
+                    ? error
+                    : new Error('Unknown streaming error'),
+                );
+              }
+            };
+
+            // console.log('[STREAM DEBUG story.ts] Kicking off processStream...');
+            processStream();
+          });
+        },
+      }),
+    }),
   }),
 });
 
-export const { useStreamStoryMutation } = streamStoryApi;
+export const { useStreamStoryMutation, useStreamStoryImageMutation } =
+  streamStoryApi;
 
 export const { useEditStoryMutation } = storyCloudRunApi;
 

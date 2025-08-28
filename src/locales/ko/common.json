@@ -55,7 +55,7 @@
   "auth": {
     "otpVerification": {
       "title": "OTP 인증",
-      "description": "복구 이메일이 {email}로 전송되었습니다.\nOTP를 확인하려면 받은 편지함을 확인하세요.",
+      "description": "복구 이메일이 {{email}}로 전송되었습니다.\nOTP를 확인하려면 받은 편지함을 확인하세요.",
       "successTitle": "OTP 인증 성공!",
       "successMessage": "OTP가 성공적으로 인증되었습니다!",
       "errorTitle": "OTP 인증 실패!",
@@ -63,7 +63,7 @@
     },
     "accountRecovery": {
       "title": "계정 복구",
-      "description": "복구 이메일이 {email}로 전송되었습니다.\nOTP를 확인하려면 받은 편지함을 확인하세요.",
+      "description": "복구 이메일이 {{email}}로 전송되었습니다.\nOTP를 확인하려면 받은 편지함을 확인하세요.",
       "sendRecoveryEmail": "복구 이메일 보내기",
       "successTitle": "계정 복구 성공!",
       "successMessage": "계정이 성공적으로 복구되었습니다!",

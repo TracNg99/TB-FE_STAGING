@@ -55,7 +55,7 @@
   "auth": {
     "otpVerification": {
       "title": "OTP 验证",
-      "description": "恢复邮件已发送至 {email}。\n请检查您的收件箱以验证 OTP。",
+      "description": "恢复邮件已发送至 {{email}}。\n请检查您的收件箱以验证 OTP。",
       "successTitle": "OTP 验证成功！",
       "successMessage": "OTP 验证成功！",
       "errorTitle": "OTP 验证失败！",
@@ -63,7 +63,7 @@
     },
     "accountRecovery": {
       "title": "账户恢复",
-      "description": "恢复邮件已发送至 {email}。\n请检查您的收件箱以验证 OTP。",
+      "description": "恢复邮件已发送至 {{email}}。\n请检查您的收件箱以验证 OTP。",
       "sendRecoveryEmail": "发送恢复邮件",
       "successTitle": "账户恢复成功！",
       "successMessage": "账户恢复成功！",

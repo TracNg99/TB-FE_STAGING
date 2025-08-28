@@ -11,13 +11,14 @@ import { cn } from '@/utils/class';
 
 type FeatureCarouselProps<T> = {
   items: T[];
-  renderItem: (item: T, index: number) => React.ReactNode;
+  renderItem: (item: T, index: number, isLoading?: boolean) => React.ReactNode;
   className?: string;
   showControls?: boolean;
   controlsPosition?: 'sides' | 'bottom' | 'none';
   enableInfiniteLoop?: boolean;
   slideGap?: number;
   align?: 'start' | 'center' | 'end';
+  loadingIndices?: { index: number; isLoading: boolean }[];
 };
 
 export default function FeatureCarousel<T>({
@@ -29,6 +30,7 @@ export default function FeatureCarousel<T>({
   enableInfiniteLoop = false,
   slideGap = 16,
   align,
+  loadingIndices,
 }: FeatureCarouselProps<T>) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: enableInfiniteLoop,
@@ -129,7 +131,11 @@ export default function FeatureCarousel<T>({
             {items.map((item, index) => (
               <div key={index} className="flex-shrink-0">
                 <AnimatePresence mode="wait">
-                  {renderItem(item, index)}
+                  {renderItem(
+                    item,
+                    index,
+                    loadingIndices?.find((i) => i.index === index)?.isLoading,
+                  )}
                 </AnimatePresence>
               </div>
             ))}

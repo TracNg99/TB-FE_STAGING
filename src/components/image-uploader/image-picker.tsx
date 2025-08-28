@@ -302,6 +302,7 @@ interface ImageUploaderProps {
   children?: React.ReactNode;
   disabled?: boolean;
   withUploader?: boolean;
+  uploaderBucketName?: string;
 }
 
 const ImageUploader: React.FC<ImageUploaderProps> = ({
@@ -317,6 +318,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   isStandalone = false,
   disabled = false,
   withUploader = false,
+  uploaderBucketName = 'experience',
 }) => {
   const [selectedImages, setSelectedImages] = useState<
     {
@@ -360,7 +362,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
             mimeType: 'image/jpeg',
             body: img.image as string,
           },
-          bucket_name: 'story',
+          bucket_name: uploaderBucketName,
         };
 
         uploadImageCloudRun(payload)

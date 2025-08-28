@@ -1,11 +1,11 @@
 'use client';
 
-import { Avatar, Popover, UnstyledButton } from '@mantine/core';
+import { Avatar, Loader, Popover, UnstyledButton } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconChevronLeft } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { HiExternalLink } from 'react-icons/hi';
 import { PiShareFat } from 'react-icons/pi';
 
@@ -27,6 +27,7 @@ import {
   useDeleteStoryMutation,
   // useUpdateStoryMutation,
   useEditStoryMutation,
+  useStreamStoryImageMutation,
 } from '@/store/redux/slices/user/story';
 
 const EditDeleteMenu = ({
@@ -78,6 +79,7 @@ export default function StoryClient({ story, firstAccess }: Readonly<StoryClient
   const [deleteStory, { isLoading: isDeleting }] = useDeleteStoryMutation();
   const [editStory, { isLoading: isEditing }] = useEditStoryMutation();
   const [uploadImageCloudRun] = useUploadImageCloudRunMutation();
+  const [streamStoryImage] = useStreamStoryImageMutation();
 
   // Story data extraction
   const {
@@ -130,10 +132,33 @@ export default function StoryClient({ story, firstAccess }: Readonly<StoryClient
     () => experiences?.name || 'Unknown Experience',
     [experiences?.name],
   );
-  const images = useMemo(
-    () => media_assets?.map((item) => item.url).filter(Boolean) || [],
-    [media_assets],
-  );
+  const [streamedImage, setStreamedImage] = useState<string>('');
+
+  // Use useMemo to check for first access (don't cleanup immediately)
+  const isFirstAccess = useMemo(() => {
+    if (typeof window !== 'undefined') {
+      const sessionKey = `story-${story.id}-first-access`;
+      const hasFirstAccess = sessionStorage.getItem(sessionKey) === 'true';
+      if (hasFirstAccess) {
+        // Don't remove session storage here - will be cleaned up when animation completes
+        return true;
+      }
+      return false;
+    }
+
+    return {
+      isFirstAccess: firstAccess || false,
+      showTypingAnimation: firstAccess || false,
+    };
+  }, [story.id, story.created_at, firstAccess]);
+
+  const images = useMemo(() => {
+    const urls = media_assets?.map((item) => item.url).filter(Boolean) || [];
+    if (isFirstAccess) {
+      return [streamedImage, ...urls];
+    }
+    return urls;
+  }, [media_assets, streamedImage, isFirstAccess]);
 
   const handleImageLoad = useCallback((_imageUrl: string) => {
     // Image loaded successfully - could be used for analytics or debugging
@@ -144,6 +169,7 @@ export default function StoryClient({ story, firstAccess }: Readonly<StoryClient
     // Handle image load error - could be used for analytics or debugging
     // console.log('Image failed to load:', imageUrl);
   }, []);
+
   const iconicPhotos = useMemo(
     () =>
       images.map((url, index) => ({
@@ -181,6 +207,21 @@ export default function StoryClient({ story, firstAccess }: Readonly<StoryClient
     body: storyContent,
     images: initialEditImages,
   });
+  const isStreamed = useRef(false);
+
+  const handleOnProgress = useCallback(
+    ({ event, data }: { event: string; data?: { image: string } }) => {
+      if (event !== 'error') {
+        setStreamedImage(data?.image || '');
+      }
+
+      if (event === 'completed') {
+        const sessionKey = `story-${story.id}-first-access`;
+        sessionStorage.removeItem(sessionKey);
+      }
+    },
+    [story.id],
+  );
 
   // Reset saving state when edit mode changes
   useEffect(() => {
@@ -188,24 +229,6 @@ export default function StoryClient({ story, firstAccess }: Readonly<StoryClient
       setIsSaving(false);
     }
   }, [editMode]);
-
-  // Use useMemo to check for first access (don't cleanup immediately)
-  const isFirstAccess = useMemo(() => {
-    if (typeof window !== 'undefined') {
-      const sessionKey = `story-${story.id}-first-access`;
-      const hasFirstAccess = sessionStorage.getItem(sessionKey) === 'true';
-      if (hasFirstAccess) {
-        // Don't remove session storage here - will be cleaned up when animation completes
-        return true;
-      }
-      return false;
-    }
-
-    return {
-      isFirstAccess: firstAccess || false,
-      showTypingAnimation: firstAccess || false,
-    };
-  }, [story.id, story.created_at, firstAccess]);
 
   // Computed flags
   const isStoryOwner = useMemo(() => {
@@ -219,62 +242,133 @@ export default function StoryClient({ story, firstAccess }: Readonly<StoryClient
     [],
   );
 
+  useEffect(() => {
+    // setIsStreamed(false);
+    if (
+      experience_id &&
+      images &&
+      images.length > 0 &&
+      isFirstAccess &&
+      !isStreamed.current
+    ) {
+      // setIsStreamed(true);
+      isStreamed.current = true;
+      streamStoryImage({
+        payload: {
+          story_id: storyId || '',
+          experience_id: experience_id || '',
+          images: images || [],
+        },
+        onChunk: handleOnProgress,
+      })
+        .unwrap()
+        .then((result) => {
+          setStreamedImage(result.data?.image || '');
+        })
+        .catch((error) => {
+          console.error('Error streaming story image:', error);
+        })
+        .finally(() => {
+          // setIsStreaming(false);
+          console.log('Image streaming completed');
+        });
+    }
+  }, [
+    experience_id,
+    images,
+    isFirstAccess,
+    handleOnProgress,
+    streamStoryImage,
+  ]);
+
   // Callbacks
   const renderCarouselItem = useCallback(
     (photo: string, index: number) => (
-      <motion.div
-        key={photo}
-        layout // This enables smooth layout transitions when items are added/removed
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{
-          duration: 0.3,
-          ease: 'easeInOut',
-          layout: { duration: 0.4, ease: 'easeInOut' }, // Smooth position swapping
-        }}
-        className="h-full flex items-center justify-center rounded-md border border-gray-200 bg-white flex-shrink-0 cursor-pointer overflow-hidden relative"
-        onClick={() => setSelectedPhotoIndex(index)}
-      >
-        {/* Loading skeleton - shown while image is loading */}
-        <div className="absolute inset-0 w-[320px] bg-gradient-to-br from-gray-100 to-gray-200 animate-pulse flex items-center justify-center">
-          <div className="flex flex-col items-center gap-4">
-            <div className="w-16 h-16 bg-gray-300 rounded-full animate-pulse"></div>
-            <div className="flex flex-col gap-2 items-center">
-              <div className="h-3 bg-gray-300 rounded w-24 animate-pulse"></div>
-              <div className="h-3 bg-gray-300 rounded w-20 animate-pulse"></div>
+      <>
+        {photo === '' && (
+          <div
+            className={`
+        h-full w-full flex flex-col 
+        items-center justify-center 
+        rounded-md border 
+        border-gray-200 
+        bg-[url(/assets/generation_bg.png)] bg-cover bg-center
+        flex-shrink-0
+        overflow-hidden relative
+      `}
+          >
+            <div
+              className={`
+          w-full h-full flex flex-col 
+          items-center justify-center 
+          overflow-wrap gap-4 
+          bg-white/30 backdrop-blur-sm px-15
+        `}
+            >
+              <span className="text-white text-md text-wrap">
+                Just a moment! We have a surprise for you...
+              </span>
+              <Loader size="md" type="oval" color="orange" />
             </div>
           </div>
-        </div>
+        )}
+        {photo !== '' && (
+          <motion.div
+            key={photo}
+            layout // This enables smooth layout transitions when items are added/removed
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{
+              duration: 0.3,
+              ease: 'easeInOut',
+              layout: { duration: 0.4, ease: 'easeInOut' }, // Smooth position swapping
+            }}
+            className="h-full flex items-center justify-center rounded-md border border-gray-200 bg-white flex-shrink-0 cursor-pointer overflow-hidden relative"
+            onClick={() => setSelectedPhotoIndex(index)}
+          >
+            {/* Loading skeleton - shown while image is loading */}
+            <div className="absolute inset-0 w-full bg-gradient-to-br from-gray-100 to-gray-200 animate-pulse flex items-center justify-center">
+              <div className="w-full h-full flex flex-col items-center gap-4 px-15">
+                <div className="w-16 h-16 bg-gray-300 rounded-full animate-pulse"></div>
+                <div className="flex flex-col gap-2 items-center justify-center">
+                  <div className="h-3 bg-gray-300 rounded w-24 animate-pulse"></div>
+                  <div className="h-3 bg-gray-300 rounded w-20 animate-pulse"></div>
+                </div>
+              </div>
+            </div>
 
-        <img
-          src={photo}
-          alt={photo}
-          className="w-auto h-80 md:h-96 object-cover rounded-md relative z-10"
-          onLoad={(e) => {
-            // Image loaded successfully - hide skeleton and show image
-            e.currentTarget.style.opacity = '1';
-            e.currentTarget.previousElementSibling?.classList.add('hidden');
-            handleImageLoad(photo);
-          }}
-          onError={(e) => {
-            // Handle image load error - show error fallback
-            e.currentTarget.style.display = 'none';
-            e.currentTarget.previousElementSibling?.classList.add('hidden');
-            e.currentTarget.nextElementSibling?.classList.remove('hidden');
-            handleImageError(photo);
-          }}
-          style={{ opacity: 0, transition: 'opacity 0.3s ease-in-out' }}
-        />
+            <img
+              src={photo}
+              alt={photo}
+              data-original="/assets/generation_bg.png"
+              className="w-auto h-80 md:h-96 object-cover rounded-md relative z-10"
+              onLoad={(e) => {
+                // Image loaded successfully - hide skeleton and show image
+                e.currentTarget.style.opacity = '1';
+                e.currentTarget.previousElementSibling?.classList.add('hidden');
+                handleImageLoad(photo);
+              }}
+              onError={(e) => {
+                // Handle image load error - show error fallback
+                e.currentTarget.style.display = 'none';
+                e.currentTarget.previousElementSibling?.classList.add('hidden');
+                e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                handleImageError(photo);
+              }}
+              style={{ opacity: 0, transition: 'opacity 0.3s ease-in-out' }}
+            />
 
-        {/* Fallback for failed images */}
-        <div className="hidden w-auto h-80 md:h-96 bg-gray-100 items-center justify-center rounded-md">
-          <div className="text-gray-400 text-sm text-center">
-            <div className="w-8 h-8 bg-gray-300 rounded-full mx-auto mb-2 animate-pulse"></div>
-            Image unavailable
-          </div>
-        </div>
-      </motion.div>
+            {/* Fallback for failed images */}
+            <div className="hidden w-auto h-80 md:h-96 bg-gray-100 items-center justify-center rounded-md">
+              <div className="text-gray-400 text-sm text-center">
+                <div className="w-8 h-8 bg-gray-300 rounded-full mx-auto mb-2 animate-pulse"></div>
+                Image unavailable
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </>
     ),
     [handleImageLoad, handleImageError],
   );
@@ -864,13 +958,13 @@ export default function StoryClient({ story, firstAccess }: Readonly<StoryClient
                         <TypingText
                           text={body}
                           duration={5}
-                          onComplete={() => {
-                            // Clean up session storage when typing animation is fully displayed and finished
-                            if (typeof window !== 'undefined') {
-                              const sessionKey = `story-${story.id}-first-access`;
-                              sessionStorage.removeItem(sessionKey);
-                            }
-                          }}
+                          // onComplete={() => {
+                          //   // Clean up session storage when typing animation is fully displayed and finished
+                          //   if (typeof window !== 'undefined') {
+                          //     const sessionKey = `story-${story.id}-first-access`;
+                          //     sessionStorage.removeItem(sessionKey);
+                          //   }
+                          // }}
                         />
                       </div>
                     ) : (

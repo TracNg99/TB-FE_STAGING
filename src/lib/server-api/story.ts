@@ -1,4 +1,4 @@
-// lib/server-api/story.ts
+// lib/server-api/server-api/story.ts/streamImage
 // Server-side story API functions for Next.js server components
 //
 // This file provides server-side equivalents of RTK Query story endpoints that:
@@ -168,5 +168,145 @@ export async function uploadStoryAgent(payload: any): Promise<{
       error: error instanceof Error ? error.message : 'Failed to upload story',
       isSuccess: false,
     };
+  }
+}
+
+// Server-side image generation streaming API
+export async function generateImageStream(
+  payload: {
+    prompt?: string;
+    experience_id: string;
+    media: string[];
+  },
+  onProgress?: (event: string, data: { image?: string }) => void,
+  onError?: (error: string) => void,
+) {
+  try {
+    const response = await fetch(
+      'https://travelbuddy-agents-server-797173526974.us-central1.run.app/api/v1/story/image/generations',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'text/event-stream',
+        },
+        body: JSON.stringify(payload),
+        cache: 'no-cache',
+      },
+    );
+
+    if (!response.ok) {
+      const errorMessage = `Failed to generate image stream: ${response.statusText}`;
+      onError?.(errorMessage);
+      throw new Error(errorMessage);
+    }
+
+    // Check if response is SSE
+    const contentType = response.headers.get('content-type');
+    if (!contentType?.includes('text/event-stream')) {
+      console.warn(
+        '⚠️ Response is not SSE, falling back to regular JSON parsing',
+      );
+      const rawData = await response.json();
+
+      if (!rawData?.data?.url) {
+        console.warn('⚠️ No image URL received:', rawData);
+      }
+
+      // onComplete?.(rawData);
+      return {
+        data: rawData,
+        isLoading: false,
+        error: null,
+        isSuccess: true,
+      };
+    }
+
+    // Handle SSE stream
+    const reader = response.body?.getReader();
+    if (!reader) {
+      throw new Error('Failed to get response reader');
+    }
+
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let eventCount = 0;
+    let lastValidStreamRes: any | null = null;
+    let finalData = null;
+
+    try {
+      const { done, value } = await reader.read();
+
+      if (done) {
+        if (lastValidStreamRes) {
+          onProgress?.('done', lastValidStreamRes);
+        } else if (buffer.trim()) {
+          finalData = JSON.parse(buffer.trim());
+          onProgress?.('done', finalData);
+        } else {
+          onError?.(
+            'Stream ended without a conclusive SSE event from accumulated data.',
+          );
+        }
+      }
+
+      // Decode the chunk and add to buffer
+      buffer = decoder.decode(value, { stream: true });
+
+      let eventBoundaryIndex;
+      while ((eventBoundaryIndex = buffer.indexOf('\n\n')) >= 0) {
+        eventCount++;
+        const eventString = buffer.substring(0, eventBoundaryIndex);
+        buffer = buffer.substring(eventBoundaryIndex + 2);
+
+        if (eventString.trim()) {
+          const parsedRawEvent = JSON.parse(eventString);
+          debugApiResponse(parsedRawEvent, '/api/v1/story/image/generations');
+
+          if (
+            parsedRawEvent &&
+            typeof parsedRawEvent.event === 'string' &&
+            parsedRawEvent.data
+          ) {
+            const currentChunkRes = {
+              event: parsedRawEvent.event,
+              data: parsedRawEvent.data,
+            };
+            lastValidStreamRes = currentChunkRes;
+            console.log(
+              `[STREAM DEBUG server-api/story.ts/streamImage] processStream: Event #${eventCount} is valid. Calling onChunk with:`,
+              currentChunkRes,
+            );
+            onProgress?.(currentChunkRes.event, currentChunkRes.data);
+          } else {
+            console.log(
+              `[STREAM DEBUG server-api/story.ts/streamImage] processStream: Event #${eventCount} parsed but not valid for storing (event type or data missing).`,
+            );
+          }
+        }
+      }
+    } finally {
+      reader.releaseLock();
+    }
+
+    // return {
+    //   data: finalData,
+    //   isLoading: false,
+    //   error: null,
+    //   isSuccess: true,
+    // };
+  } catch (error) {
+    console.error('❌ Error generating image stream:', error);
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : 'Failed to generate image stream';
+    onError?.(errorMessage);
+    // return {
+    //   data: null,
+    //   isLoading: false,
+    //   error: errorMessage,
+    //   isSuccess: false,
+    // };
   }
 }
