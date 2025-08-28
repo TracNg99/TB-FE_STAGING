@@ -43,7 +43,7 @@ const DiscoveriesHeader: React.FC<StickyTitleChipsHeaderProps> = ({
           fill
           priority
           sizes="(max-width: 1024px) 100vw, 1024px"
-          className="object-cover lg:rounded-sm"
+          className="object-cover lg:rounded-b-sm"
         />
       </div>
 
@@ -79,7 +79,7 @@ const DiscoveriesHeader: React.FC<StickyTitleChipsHeaderProps> = ({
         open={qrOpen}
         onClose={() => setQrOpen(false)}
         path={qrPath}
-        displayText="Discover Experiences"
+        displayText="Discover Wink experiences"
       />
     </div>
   );

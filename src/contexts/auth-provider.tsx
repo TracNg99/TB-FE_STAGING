@@ -110,7 +110,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const role = localStorage.getItem('role') || '';
       const isGuest = localStorage.getItem('isGuest') == 'true';
       try {
-        const isValidJwt = await isAuthenticated(jwt);
+        const isValidJwt = isAuthenticated(jwt);
         if (isGuest && pathname === '/') {
           setIsCheckingAuth(false);
 
@@ -239,14 +239,11 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     },
   );
 
-  const {
-    data: businessProfile,
-    // error: businessProfileErr,
-    refetch: businessProfileRefetch,
-  } = useGetCurrentBusinessProfileQuery(undefined, {
-    skip: !roleTracker || roleTracker !== 'business',
-    refetchOnMountOrArgChange: true,
-  });
+  const { data: businessProfile, refetch: businessProfileRefetch } =
+    useGetCurrentBusinessProfileQuery(undefined, {
+      skip: !roleTracker || roleTracker !== 'business',
+      refetchOnMountOrArgChange: true,
+    });
 
   useEffect(() => {
     const jwt = localStorage.getItem('jwt') || '';
@@ -258,11 +255,10 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     const checkExpirationAndRefresh = async () => {
-      // const isValid = isAuthenticated(jwt);
       const expTime = expiresAt ? Number(expiresAt) * 1000 - 60 * 5 * 1000 : 0;
       const isExpired = expiresAt ? Date.now() > expTime : null;
       if (!isExpired) return;
-      console.log('Session expired, refreshing...');
+
       try {
         const { access_token, refresh_token, expires_at, user_id } =
           await refreshSession({

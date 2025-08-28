@@ -73,10 +73,10 @@ const QRModal: React.FC<QRModalComponentProps> = ({
           display: 'flex',
           flexDirection: 'column',
           gap: theme.spacing.md,
-          width: '90%',
           maxWidth: 600,
           maxHeight: '90vh',
           alignItems: 'center',
+          justifyContent: 'center',
           padding: theme.spacing.md,
           borderRadius: theme.radius.md,
         }}

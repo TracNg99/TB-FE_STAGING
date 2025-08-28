@@ -7,7 +7,6 @@ import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { HiExternalLink } from 'react-icons/hi';
-import { PiShareFat } from 'react-icons/pi';
 
 import { ImageUploadIcon } from '@/assets/image-upload-icon';
 import { TypingText } from '@/components/animate-ui/text/typing';
@@ -17,6 +16,7 @@ import ImageUploader from '@/components/image-uploader/image-picker';
 import Section from '@/components/layouts/section';
 import IconicPhotoModal from '@/components/modals/IconicPhotoModal';
 import NewCarousel from '@/components/new-carousel';
+import ShareOnSocialMedia from '@/components/sharing/SocialShare';
 import { Translation } from '@/components/translation';
 import { useAuth } from '@/contexts/auth-provider';
 import { useI18n } from '@/contexts/i18n-provider';
@@ -25,24 +25,23 @@ import { Profile } from '@/store/redux/slices/user/profile';
 import {
   StoryProps,
   useDeleteStoryMutation,
-  // useUpdateStoryMutation,
   useEditStoryMutation,
   useStreamStoryImageMutation,
 } from '@/store/redux/slices/user/story';
 
-const EditDeleteMenu = ({
+function EditDeleteMenu({
   onEdit,
   onDelete,
-}: {
+}: Readonly<{
   onEdit: () => void;
   onDelete: () => void;
-}) => {
+}>) {
   return (
     <Translation>
       {(t) => (
         <Popover position="bottom-end" withArrow>
           <Popover.Target>
-            <UnstyledButton className="p-2 text-gray-600 hover:text-gray-900 transition-colors cursor-pointer">
+            <UnstyledButton className="h-8 w-8 hover:bg-zinc-300 rounded-full cursor-pointer flex items-center justify-center">
               <span className="text-xl">⋯</span>
             </UnstyledButton>
           </Popover.Target>
@@ -64,7 +63,87 @@ const EditDeleteMenu = ({
       )}
     </Translation>
   );
+}
+
+type ImageItem = {
+  image: string | null;
+  name: string | null;
+  isExisting: boolean;
 };
+
+function StoryActions({
+  editMode,
+  isStoryOwner,
+  isArchived,
+  title,
+  body,
+  editImages,
+  setEditMode,
+  setOriginal,
+  setShowDelete,
+  t,
+}: Readonly<{
+  editMode: boolean;
+  isStoryOwner: boolean;
+  isArchived: boolean;
+  title: string;
+  body: string;
+  editImages: Array<{
+    image: string | null;
+    name: string | null;
+    isExisting: boolean;
+  }>;
+  setEditMode: (value: boolean) => void;
+  setOriginal: (value: {
+    title: string;
+    body: string;
+    images: typeof editImages;
+  }) => void;
+  setShowDelete: (value: boolean) => void;
+  t: (key: string) => string;
+}>) {
+  const onEdit = useCallback(() => {
+    if (isArchived) {
+      notifications.show({
+        title: t('stories.edit.reject.title') || 'Cannot Edit',
+        message:
+          t('stories.edit.reject.message') ||
+          'Archived stories cannot be edited',
+        color: 'yellow',
+      });
+      return;
+    }
+    setEditMode(true);
+    setOriginal({ title, body, images: editImages });
+  }, [isArchived, t, setEditMode, setOriginal, title, body, editImages]);
+
+  const onDelete = useCallback(() => {
+    if (isArchived) {
+      notifications.show({
+        title: t('stories.delete.reject.title') || 'Cannot Delete',
+        message:
+          t('stories.delete.reject.message') ||
+          'Archived stories cannot be deleted',
+        color: 'yellow',
+      });
+      return;
+    }
+    setShowDelete(true);
+  }, [isArchived, t, setShowDelete]);
+
+  const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+
+  return (
+    <div className="flex gap-3 -ml-2 md:-mt-1 md:ml-0 md:-mr-1">
+      {!editMode && (
+        <ShareOnSocialMedia storyTitle={title} storyUrl={shareUrl} />
+      )}
+      {isStoryOwner && !editMode && (
+        <EditDeleteMenu onEdit={onEdit} onDelete={onDelete} />
+      )}
+    </div>
+  );
+}
 
 interface StoryClientProps {
   story: StoryProps;
@@ -200,12 +279,16 @@ export default function StoryClient({
   const [showDelete, setShowDelete] = useState(false);
   const [title, setTitle] = useState(storyTitle);
   const [body, setBody] = useState(storyContent);
-  const [editImages, setEditImages] = useState(initialEditImages);
+  const [editImages, setEditImages] = useState<ImageItem[]>(initialEditImages);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(
     null,
   );
   const [isSaving, setIsSaving] = useState(false);
-  const [original, setOriginal] = useState({
+  const [original, setOriginal] = useState<{
+    title: string;
+    body: string;
+    images: ImageItem[];
+  }>({
     title: storyTitle,
     body: storyContent,
     images: initialEditImages,
@@ -388,39 +471,6 @@ export default function StoryClient({
     },
     [router, experience_id],
   );
-  const handleShare = useCallback(() => {
-    // Check if native share API is available (mobile devices)
-    if (navigator.share && isMobile) {
-      navigator
-        .share({
-          title: storyTitle,
-          text: `Check out this travel story: ${storyTitle}`,
-          url: window.location.href,
-        })
-        .catch((error) => {
-          console.log('Error sharing:', error);
-          // Fallback to clipboard copy
-          navigator.clipboard.writeText(window.location.href);
-          if (!isMobile) {
-            notifications.show({
-              title: 'Link copied!',
-              message: 'Story link has been copied to clipboard',
-              color: 'green',
-            });
-          }
-        });
-    } else {
-      // Desktop: copy to clipboard and show notification
-      navigator.clipboard.writeText(window.location.href);
-      if (!isMobile) {
-        notifications.show({
-          title: 'Link copied!',
-          message: 'Story link has been copied to clipboard',
-          color: 'green',
-        });
-      }
-    }
-  }, [storyTitle, isMobile]);
 
   // Add delete handler
   const handleDelete = useCallback(async () => {
@@ -453,7 +503,8 @@ export default function StoryClient({
       });
       // Navigate back to stories list
       router.replace('/stories');
-    } catch (_error) {
+    } catch (error) {
+      console.error(error);
       notifications.show({
         title: 'Error',
         message: 'Failed to delete story. Please try again.',
@@ -704,52 +755,6 @@ export default function StoryClient({
                     ) : (
                       <div />
                     )}
-                    <div className="flex gap-3">
-                      {isStoryOwner && !editMode && (
-                        <EditDeleteMenu
-                          onEdit={() => {
-                            if (isArchived) {
-                              notifications.show({
-                                title:
-                                  t('stories.edit.reject.title') ||
-                                  'Cannot Edit',
-                                message:
-                                  t('stories.edit.reject.message') ||
-                                  'Archived stories cannot be edited',
-                                color: 'yellow',
-                              });
-                              return;
-                            }
-                            setEditMode(true);
-                            setOriginal({ title, body, images: editImages });
-                          }}
-                          onDelete={() => {
-                            if (isArchived) {
-                              notifications.show({
-                                title:
-                                  t('stories.delete.reject.title') ||
-                                  'Cannot Delete',
-                                message:
-                                  t('stories.delete.reject.message') ||
-                                  'Archived stories cannot be deleted',
-                                color: 'yellow',
-                              });
-                              return;
-                            }
-                            setShowDelete(true);
-                          }}
-                        />
-                      )}
-
-                      {!editMode && (
-                        <button
-                          onClick={handleShare}
-                          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 cursor-pointer"
-                        >
-                          <PiShareFat size={20} />
-                        </button>
-                      )}
-                    </div>
                   </div>
 
                   <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-3">
@@ -764,59 +769,14 @@ export default function StoryClient({
                         {title}
                       </h1>
                     )}
-                    <div className="hidden md:flex gap-2 justify-end md:ml-2 md:align-middle">
-                      {isStoryOwner && !editMode && (
-                        <EditDeleteMenu
-                          onEdit={() => {
-                            if (isArchived) {
-                              notifications.show({
-                                title:
-                                  t('stories.edit.reject.title') ||
-                                  'Cannot Edit',
-                                message:
-                                  t('stories.edit.reject.message') ||
-                                  'Archived stories cannot be edited',
-                                color: 'yellow',
-                              });
-                              return;
-                            }
-                            setEditMode(true);
-                            setOriginal({ title, body, images: editImages });
-                          }}
-                          onDelete={() => {
-                            if (isArchived) {
-                              notifications.show({
-                                title:
-                                  t('stories.delete.reject.title') ||
-                                  'Cannot Delete',
-                                message:
-                                  t('stories.delete.reject.message') ||
-                                  'Archived stories cannot be deleted',
-                                color: 'yellow',
-                              });
-                              return;
-                            }
-                            setShowDelete(true);
-                          }}
-                        />
-                      )}
-
-                      {!editMode && (
-                        <button
-                          onClick={handleShare}
-                          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 cursor-pointer"
-                        >
-                          <PiShareFat size={20} />
-                        </button>
-                      )}
-                    </div>
                   </div>
                 </section>
 
                 {/* Author and Date Info Section */}
                 <Section>
-                  <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0">
+                  <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-6 md:gap-4">
+                    {/* Left avatar column (only on md). Single column on mobile. */}
+                    <div className="md:grid items-center place-items-center md:justify-start">
                       <Avatar
                         src={userImageSrc}
                         size="md"
@@ -826,15 +786,33 @@ export default function StoryClient({
                         alt={`${storyAuthor}'s avatar`}
                       />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm text-gray-600 mb-1">
-                        <span className="font-medium text-gray-900">
-                          {storyAuthor}
-                        </span>
-                        <span className="mx-2">•</span>
-                        <span>{storyDate}</span>
+
+                    {/* Right info column */}
+                    <div className="min-w-0">
+                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-3">
+                        <div className="text-sm text-gray-600">
+                          <span className="font-medium text-gray-900">
+                            {storyAuthor}
+                          </span>
+                          <span className="mx-2">•</span>
+                          <span>{storyDate}</span>
+                        </div>
+
+                        <StoryActions
+                          editMode={editMode}
+                          isStoryOwner={isStoryOwner}
+                          isArchived={isArchived}
+                          title={title}
+                          body={body}
+                          editImages={editImages}
+                          setEditMode={setEditMode}
+                          setOriginal={setOriginal}
+                          setShowDelete={setShowDelete}
+                          t={t}
+                        />
                       </div>
-                      <div className="text-sm">
+
+                      <div className="text-sm mt-1">
                         {editMode ? (
                           <span className="text-blue-400 cursor-not-allowed">
                             {storyExperience}
@@ -842,7 +820,7 @@ export default function StoryClient({
                         ) : (
                           <a
                             href={`/discoveries/${experience_id}`}
-                            className="text-gray-500 hover:text-blue-800 hover:underline flex items-center gap-1 transition-colors duration-200"
+                            className="text-gray-500 hover:text-blue-800 hover:underline inline-flex items-center gap-1 transition-colors duration-200"
                           >
                             {storyExperience}
                             <HiExternalLink size={14} className="inline" />

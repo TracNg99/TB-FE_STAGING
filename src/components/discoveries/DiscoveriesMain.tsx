@@ -70,13 +70,7 @@ const DiscoveriesMain: React.FC = () => {
     }
     return null;
   }, []);
-
-  const language = useMemo(() => {
-    if (typeof window === 'undefined') return 'en-US';
-    const language_code = sessionStorage.getItem('language') || '';
-    return language_code.split('-')[0] || 'en-US';
-  }, []);
-
+  
   const selectedAddress =
     searchParams.get('address') ||
     (role === 'business'
@@ -85,6 +79,7 @@ const DiscoveriesMain: React.FC = () => {
           currentLanguage as keyof typeof firstAddressLanguageMap
         ]);
   const router = useRouter();
+
   const {
     data: addressMap,
     isLoading,
@@ -92,7 +87,7 @@ const DiscoveriesMain: React.FC = () => {
   } = useGetAddressExperienceMapByCompanyIdQuery(
     {
       companies: companies || [companyId],
-      language,
+      language: currentLanguage,
     },
     {
       skip: !!role && role === 'business',
@@ -202,6 +197,7 @@ const DiscoveriesMain: React.FC = () => {
     sessionStorage.setItem('email', email);
     sessionStorage.setItem('language', language);
     changeLanguage(language.split('-')[0]);
+    router.replace('/discoveries');
     setIsWelcomeModalOpen(false);
   };
 
@@ -215,10 +211,11 @@ const DiscoveriesMain: React.FC = () => {
   return (
     <Translation>
       {(t) => (
-        <div className="relative h-full flex flex-col mb-20 pt-6">
+        <div className="relative h-full flex flex-col mb-20">
           <WelcomeModal
             isOpen={isWelcomeModalOpen}
             onContinue={handleContinue}
+            // NOTE: temporarily hardcoded for demo purpose
             companyId="e744cb1b-cac8-4399-ac28-d63d39921325"
           />
 
