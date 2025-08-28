@@ -293,10 +293,54 @@ export default function StoryClient({
     body: storyContent,
     images: initialEditImages,
   });
+  const [pseudoStreamProgress, setPseudoStreamProgress] = useState(0);
+  const [progressTrigger, setProgressTrigger] = useState(false);
   const isStreamed = useRef(false);
+
+  useEffect(() => {
+    if (progressTrigger) {
+      setInterval(() => {
+        setPseudoStreamProgress((prev) => {
+          const newProgress = prev >= 80 ? 80 : prev + 10;
+          // console.log('Pseudo progress: ', prev, ' -> ', newProgress);
+  
+          if (newProgress >= 80) {
+            clearInterval(0);
+            setProgressTrigger(false);
+            return 80;
+          }
+  
+          return newProgress;
+        });
+      }, 10000);
+    }
+  }, [progressTrigger]);
+
+
+  // Pseudo-progress function that increments every 10 seconds up to 80 seconds
+  
+  
+
+  const blurClass = useMemo(() => {
+    const blurLevels = {
+      0: 'backdrop-blur-3xl',
+      10: 'backdrop-blur-2xl',
+      20: 'backdrop-blur-xl',
+      30: 'backdrop-blur-lg',
+      40: 'backdrop-blur-md',
+      50: 'backdrop-blur-sm',
+      60: 'backdrop-blur-sm',
+      70: 'backdrop-blur-xs',
+      80: 'backdrop-blur-xs'
+    };
+
+    return blurLevels[pseudoStreamProgress as keyof typeof blurLevels] || 'backdrop-blur-xl';
+  }, [pseudoStreamProgress]);
 
   const handleOnProgress = useCallback(
     ({ event, data }: { event: string; data?: { image: string } }) => {
+      setProgressTrigger(false);
+      setPseudoStreamProgress(0);
       if (event !== 'error') {
         setStreamedImage(data?.image || '');
       }
@@ -341,6 +385,7 @@ export default function StoryClient({
       const imageToUpload =
         media_assets?.map((item) => item.url).filter(Boolean) || [];
       isStreamed.current = true;
+      setProgressTrigger(true);
       streamStoryImage({
         payload: {
           story_id: storyId || '',
@@ -376,7 +421,7 @@ export default function StoryClient({
         {photo === '' && (
           <div
             className={`
-        h-full w-full flex flex-col 
+        h-[90dvw] w-full min-w-50 md:min-w-120 md:h-full flex flex-col 
         items-center justify-center 
         rounded-md border 
         border-gray-200 
@@ -387,13 +432,13 @@ export default function StoryClient({
           >
             <div
               className={`
-          w-full h-full flex flex-col 
+          w-[90dvw] h-[90dvw] md:w-full md:h-full flex flex-col 
           items-center justify-center 
           overflow-wrap gap-4 
-          bg-white/30 backdrop-blur-sm px-15
+          bg-white/30 ${blurClass} px-15
         `}
             >
-              <span className="text-white text-md text-wrap">
+              <span className="text-white text-lg md:text-2xl text-wrap">
                 Just a moment! We have a surprise for you...
               </span>
               <Loader size="md" type="oval" color="orange" />
@@ -412,12 +457,12 @@ export default function StoryClient({
               ease: 'easeInOut',
               layout: { duration: 0.4, ease: 'easeInOut' }, // Smooth position swapping
             }}
-            className="h-full flex items-center justify-center rounded-md border border-gray-200 bg-white flex-shrink-0 cursor-pointer overflow-hidden relative"
+            className="h-full w-full flex items-center justify-center rounded-md border border-gray-200 bg-white flex-shrink-0 cursor-pointer overflow-hidden relative"
             onClick={() => setSelectedPhotoIndex(index)}
           >
             {/* Loading skeleton - shown while image is loading */}
-            <div className="absolute inset-0 w-full bg-gradient-to-br from-gray-100 to-gray-200 animate-pulse flex items-center justify-center">
-              <div className="w-full h-full flex flex-col items-center gap-4 px-15">
+            <div className="absolute inset-0 w-[90dvw] min-w-[80dvw] md:min-w-120 md:w-150 bg-gradient-to-br from-gray-100 to-gray-200 animate-pulse flex items-center justify-center p-10">
+              <div className="w-full h-full flex flex-col items-center justify-center gap-4 px-15 py-10">
                 <div className="w-16 h-16 bg-gray-300 rounded-full animate-pulse"></div>
                 <div className="flex flex-col gap-2 items-center justify-center">
                   <div className="h-3 bg-gray-300 rounded w-24 animate-pulse"></div>
@@ -429,8 +474,8 @@ export default function StoryClient({
             <img
               src={photo}
               alt={photo}
-              data-original="/assets/generation_bg.png"
-              className="w-auto h-80 md:h-96 object-cover rounded-md relative z-10"
+              // data-original="/assets/placeholder.jpg"
+              className="w-[90dvw] h-[90dvw] min-w-[80dvw] md:min-w-120 md:h-96 md:w-150 rounded-md relative z-10 object-cover"
               onLoad={(e) => {
                 // Image loaded successfully - hide skeleton and show image
                 e.currentTarget.style.opacity = '1';
@@ -458,7 +503,7 @@ export default function StoryClient({
         )}
       </>
     ),
-    [handleImageLoad, handleImageError],
+    [handleImageLoad, handleImageError, blurClass],
   );
 
   const handleChatSend = useCallback(
