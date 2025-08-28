@@ -20,51 +20,168 @@ export default function SocialShare({
     [],
   );
 
+  const canWebShare = useMemo(
+    () =>
+      typeof navigator !== 'undefined' &&
+      'share' in navigator &&
+      isMobile, // only allow system share on mobile
+    [isMobile],
+  );
+
+  const handleSystemShare = useCallback(async () => {
+    if (!canWebShare) return false;
+    try {
+      await (navigator as any).share({
+        title: storyTitle,
+        text: 'Check out this travel story',
+        url: storyUrl,
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  }, [canWebShare, storyTitle, storyUrl]);
+
   const handleCopyLink = useCallback(() => {
-    navigator.clipboard.writeText(storyUrl);
-    if (!isMobile) {
+    const notifySuccess = () =>
       notifications.show({
         title: 'Link copied!',
         message: 'Story link has been copied to clipboard',
         color: 'green',
       });
+
+    const notifyManual = () =>
+      notifications.show({
+        title: 'Copy the link',
+        message:
+          'Your browser blocked programmatic copy. Please select and copy the URL.',
+        color: 'yellow',
+      });
+
+    const notifyError = () =>
+      notifications.show({
+        title: 'Unable to copy',
+        message: 'Please copy the URL manually.',
+        color: 'red',
+      });
+
+    if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+      navigator.clipboard
+        .writeText(storyUrl)
+        .then(notifySuccess)
+        .catch(() => {
+          try {
+            // Create a temporary readonly input so user can copy manually
+            const input = document.createElement('input');
+            input.value = storyUrl;
+            input.readOnly = true;
+            input.style.position = 'fixed';
+            input.style.opacity = '0';
+            input.style.pointerEvents = 'none';
+            input.setAttribute('aria-hidden', 'true');
+            document.body.appendChild(input);
+
+            input.select();
+            input.setSelectionRange(0, input.value.length);
+
+            notifyManual();
+
+            // Clean up shortly after
+            setTimeout(() => {
+              // Keep selection momentarily in case the user opens the selection UI
+              document.body.removeChild(input);
+            }, 1500);
+          } catch {
+            notifyError();
+          }
+        });
+    } else {
+      // No clipboard API available
+      try {
+        const input = document.createElement('input');
+        input.value = storyUrl;
+        input.readOnly = true;
+        input.style.position = 'fixed';
+        input.style.opacity = '0';
+        input.style.pointerEvents = 'none';
+        input.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(input);
+
+        input.select();
+        input.setSelectionRange(0, input.value.length);
+
+        // Without execCommand, we cannot force-copy; prompt the user.
+        notifyManual();
+
+        setTimeout(() => {
+          document.body.removeChild(input);
+        }, 1500);
+      } catch {
+        notifyError();
+      }
     }
-  }, [storyUrl, isMobile]);
-
-  const handleFacebookShare = useCallback(() => {
-    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(storyUrl)}`;
-    window.open(facebookUrl, '_blank', 'width=600,height=400');
   }, [storyUrl]);
 
-  const handleLinkedInShare = useCallback(() => {
-    const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(storyUrl)}`;
-    window.open(linkedInUrl, '_blank', 'width=600,height=400');
-  }, [storyUrl]);
-
-  const handleTwitterShare = useCallback(() => {
-    const text = `Check out this travel story: ${storyTitle}`;
-    const xUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(storyUrl)}`;
-    window.open(xUrl, '_blank', 'width=600,height=400');
-  }, [storyTitle, storyUrl]);
-
-  const handleInstagramShare = useCallback(() => {
-    // NOTE: Instagram doesn't allow direct URL pre-filling due to security restrictions
-    // We'll just open Instagram app/web where users can manually share
+  const handleFacebookShare = useCallback(async () => {
+    let usedSystem = false;
     if (isMobile) {
-      // Try to open Instagram app first
+      usedSystem = await handleSystemShare();
+    }
+    if (usedSystem) return;
+
+    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+      storyUrl,
+    )}`;
+    window.open(facebookUrl, '_blank', 'width=600,height=400');
+  }, [handleSystemShare, storyUrl, isMobile]);
+
+  const handleLinkedInShare = useCallback(async () => {
+    let usedSystem = false;
+    if (isMobile) {
+      usedSystem = await handleSystemShare();
+    }
+    if (usedSystem) return;
+
+    const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+      storyUrl,
+    )}`;
+    window.open(linkedInUrl, '_blank', 'width=600,height=400');
+  }, [handleSystemShare, storyUrl, isMobile]);
+
+  const handleTwitterShare = useCallback(async () => {
+    let usedSystem = false;
+    if (isMobile) {
+      usedSystem = await handleSystemShare();
+    }
+    if (usedSystem) return;
+
+    const text = `Check out this travel story: ${storyTitle}`;
+    const xUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(
+      text,
+    )}&url=${encodeURIComponent(storyUrl)}`;
+    window.open(xUrl, '_blank', 'width=600,height=400');
+  }, [handleSystemShare, storyTitle, storyUrl, isMobile]);
+
+  const handleInstagramShare = useCallback(async () => {
+    let usedSystem = false;
+    if (isMobile) {
+      usedSystem = await handleSystemShare();
+    }
+    if (usedSystem) return;
+
+    if (isMobile) {
       window.location.href = 'instagram://';
-      // Fallback to web version after a delay
       setTimeout(() => {
         window.open('https://www.instagram.com/direct/inbox', '_blank');
       }, 1000);
     } else {
       window.open('https://www.instagram.com/direct/inbox', '_blank');
     }
-  }, [isMobile]);
+  }, [handleSystemShare, isMobile]);
 
   return (
     <>
-      {/* Hidden SVG for Ins gradient definition */}
+      {/* INFO: Hidden gradient for Instagram icon */}
       <svg width="0" height="0" className="hidden">
         <defs>
           <linearGradient
