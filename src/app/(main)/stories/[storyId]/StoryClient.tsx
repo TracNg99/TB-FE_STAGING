@@ -199,14 +199,14 @@ export default function StoryClient({
     () =>
       created_at
         ? new Date(created_at).toLocaleDateString(
-            supportedLanguages.find((lang) => lang.code === currentLanguage)
-              ?.long_code,
-            {
-              month: 'short',
-              day: 'numeric',
-              year: 'numeric',
-            },
-          )
+          supportedLanguages.find((lang) => lang.code === currentLanguage)
+            ?.long_code,
+          {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+          },
+        )
         : 'Unknown Date',
     [created_at, currentLanguage, supportedLanguages],
   );
@@ -776,7 +776,7 @@ export default function StoryClient({
                 <Section>
                   <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-6 md:gap-4">
                     {/* Left avatar column (only on md). Single column on mobile. */}
-                    <div className="md:grid items-center place-items-center md:justify-start">
+                    <div className="flex justify-center items-center md:grid md:justify-start">
                       <Avatar
                         src={userImageSrc}
                         size="md"
@@ -941,13 +941,13 @@ export default function StoryClient({
                         <TypingText
                           text={body}
                           duration={5}
-                          // onComplete={() => {
-                          //   // Clean up session storage when typing animation is fully displayed and finished
-                          //   if (typeof window !== 'undefined') {
-                          //     const sessionKey = `story-${story.id}-first-access`;
-                          //     sessionStorage.removeItem(sessionKey);
-                          //   }
-                          // }}
+                        // onComplete={() => {
+                        //   // Clean up session storage when typing animation is fully displayed and finished
+                        //   if (typeof window !== 'undefined') {
+                        //     const sessionKey = `story-${story.id}-first-access`;
+                        //     sessionStorage.removeItem(sessionKey);
+                        //   }
+                        // }}
                         />
                       </div>
                     ) : (
@@ -1018,16 +1018,16 @@ export default function StoryClient({
                   <p className="text-lg font-semibold mb-4">
                     {isArchived
                       ? t('stories.delete.archivedTitle') ||
-                        'Are you sure you want to permanently delete this archived story?'
+                      'Are you sure you want to permanently delete this archived story?'
                       : t('stories.delete.title') ||
-                        'Are you sure you want to delete this story?'}
+                      'Are you sure you want to delete this story?'}
                   </p>
                   <p className="text-sm text-gray-600 mb-4">
                     {isArchived
                       ? t('stories.delete.archivedDescription') ||
-                        'This archived story will be permanently deleted and cannot be recovered.'
+                      'This archived story will be permanently deleted and cannot be recovered.'
                       : t('stories.delete.description') ||
-                        'This action cannot be undone.'}
+                      'This action cannot be undone.'}
                   </p>
                   <div className="flex gap-2 mt-4">
                     <button
