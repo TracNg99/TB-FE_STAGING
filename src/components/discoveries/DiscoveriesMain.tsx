@@ -70,7 +70,7 @@ const DiscoveriesMain: React.FC = () => {
     }
     return null;
   }, []);
-  
+
   const selectedAddress =
     searchParams.get('address') ||
     (role === 'business'

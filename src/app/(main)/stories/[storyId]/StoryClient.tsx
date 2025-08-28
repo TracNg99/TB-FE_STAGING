@@ -776,7 +776,7 @@ export default function StoryClient({
                 <Section>
                   <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-6 md:gap-4">
                     {/* Left avatar column (only on md). Single column on mobile. */}
-                    <div className="flex justify-center items-center md:grid md:justify-start">
+                    <div className="flex justify-center items-center md:justify-start">
                       <Avatar
                         src={userImageSrc}
                         size="md"
@@ -789,7 +789,7 @@ export default function StoryClient({
 
                     {/* Right info column */}
                     <div className="min-w-0">
-                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-3">
+                      <div className="flex items-center justify-between">
                         <div className="text-sm text-gray-600">
                           <span className="font-medium text-gray-900">
                             {storyAuthor}
