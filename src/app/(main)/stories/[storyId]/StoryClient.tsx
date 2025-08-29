@@ -819,9 +819,8 @@ export default function StoryClient({
 
                 {/* Author and Date Info Section */}
                 <Section>
-                  <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-6 md:gap-4">
-                    {/* Left avatar column (only on md). Single column on mobile. */}
-                    <div className="flex justify-center items-center md:justify-start">
+                  <div className="grid grid-cols-[auto_1fr] gap-3 md:gap-4">
+                    <div className="flex items-center md:justify-start">
                       <Avatar
                         src={userImageSrc}
                         size="md"

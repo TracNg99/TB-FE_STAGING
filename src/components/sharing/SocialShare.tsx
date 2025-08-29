@@ -177,7 +177,6 @@ export default function SocialShare({
   //   }
   // }, [handleSystemShare, isMobile]);
 
-
   return (
     <>
       {/* INFO: Hidden gradient for Instagram icon */}
@@ -301,4 +300,3 @@ export default function SocialShare({
 //     </svg>
 //   );
 // }
-
