@@ -199,14 +199,14 @@ export default function StoryClient({
     () =>
       created_at
         ? new Date(created_at).toLocaleDateString(
-          supportedLanguages.find((lang) => lang.code === currentLanguage)
-            ?.long_code,
-          {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-          },
-        )
+            supportedLanguages.find((lang) => lang.code === currentLanguage)
+              ?.long_code,
+            {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+            },
+          )
         : 'Unknown Date',
     [created_at, currentLanguage, supportedLanguages],
   );
@@ -301,46 +301,44 @@ export default function StoryClient({
     if (progressTrigger) {
       setInterval(() => {
         setPseudoStreamProgress((prev) => {
-          const newProgress = prev >= 80 ? 80 : prev + 10;
+          const newProgress = prev >= 80 ? 0 : prev + 10;
           // console.log('Pseudo progress: ', prev, ' -> ', newProgress);
-  
+
           if (newProgress >= 80) {
             clearInterval(0);
             setProgressTrigger(false);
             return 80;
           }
-  
+
           return newProgress;
         });
       }, 10000);
     }
   }, [progressTrigger]);
 
-
   // Pseudo-progress function that increments every 10 seconds up to 80 seconds
-  
-  
-
   const blurClass = useMemo(() => {
     const blurLevels = {
-      0: 'backdrop-blur-3xl',
-      10: 'backdrop-blur-2xl',
-      20: 'backdrop-blur-xl',
-      30: 'backdrop-blur-lg',
+      0: 'backdrop-blur-2xl',
+      10: 'backdrop-blur-xl',
+      20: 'backdrop-blur-lg',
+      30: 'backdrop-blur-md',
       40: 'backdrop-blur-md',
       50: 'backdrop-blur-sm',
       60: 'backdrop-blur-sm',
-      70: 'backdrop-blur-xs',
-      80: 'backdrop-blur-xs'
+      70: 'backdrop-blur-sm',
+      80: 'backdrop-blur-sm',
     };
 
-    return blurLevels[pseudoStreamProgress as keyof typeof blurLevels] || 'backdrop-blur-xl';
+    return (
+      blurLevels[pseudoStreamProgress as keyof typeof blurLevels] ||
+      'backdrop-blur-xl'
+    );
   }, [pseudoStreamProgress]);
 
   const handleOnProgress = useCallback(
     ({ event, data }: { event: string; data?: { image: string } }) => {
       setProgressTrigger(false);
-      setPseudoStreamProgress(0);
       if (event !== 'error') {
         setStreamedImage(data?.image || '');
       }
@@ -461,13 +459,19 @@ export default function StoryClient({
             onClick={() => setSelectedPhotoIndex(index)}
           >
             {/* Loading skeleton - shown while image is loading */}
-            <div className="absolute inset-0 w-[90dvw] min-w-[80dvw] md:min-w-120 md:w-150 bg-gradient-to-br from-gray-100 to-gray-200 animate-pulse flex items-center justify-center p-10">
-              <div className="w-full h-full flex flex-col items-center justify-center gap-4 px-15 py-10">
-                <div className="w-16 h-16 bg-gray-300 rounded-full animate-pulse"></div>
+            <div className="absolute inset-0 w-[90dvw] min-w-[80dvw] md:min-w-120 md:w-150 bg-gradient-to-br from-gray-100 to-gray-200 animate-pulse flex items-center justify-center bg-[url(/assets/generation_bg.png)] bg-cover bg-center">
+              <div
+                className={`w-full h-full flex flex-col items-center justify-center gap-4 px-15 py-10 bg-white/30 ${blurClass}`}
+              >
+                {/* <div className="w-16 h-16 bg-gray-300 rounded-full animate-pulse"></div>
                 <div className="flex flex-col gap-2 items-center justify-center">
                   <div className="h-3 bg-gray-300 rounded w-24 animate-pulse"></div>
                   <div className="h-3 bg-gray-300 rounded w-20 animate-pulse"></div>
-                </div>
+                </div> */}
+                <span className="text-white text-lg md:text-2xl text-wrap">
+                  Just a moment! We have a surprise for you...
+                </span>
+                <Loader size="md" type="oval" color="orange" />
               </div>
             </div>
 
@@ -985,13 +989,13 @@ export default function StoryClient({
                         <TypingText
                           text={body}
                           duration={5}
-                        // onComplete={() => {
-                        //   // Clean up session storage when typing animation is fully displayed and finished
-                        //   if (typeof window !== 'undefined') {
-                        //     const sessionKey = `story-${story.id}-first-access`;
-                        //     sessionStorage.removeItem(sessionKey);
-                        //   }
-                        // }}
+                          // onComplete={() => {
+                          //   // Clean up session storage when typing animation is fully displayed and finished
+                          //   if (typeof window !== 'undefined') {
+                          //     const sessionKey = `story-${story.id}-first-access`;
+                          //     sessionStorage.removeItem(sessionKey);
+                          //   }
+                          // }}
                         />
                       </div>
                     ) : (
@@ -1062,16 +1066,16 @@ export default function StoryClient({
                   <p className="text-lg font-semibold mb-4">
                     {isArchived
                       ? t('stories.delete.archivedTitle') ||
-                      'Are you sure you want to permanently delete this archived story?'
+                        'Are you sure you want to permanently delete this archived story?'
                       : t('stories.delete.title') ||
-                      'Are you sure you want to delete this story?'}
+                        'Are you sure you want to delete this story?'}
                   </p>
                   <p className="text-sm text-gray-600 mb-4">
                     {isArchived
                       ? t('stories.delete.archivedDescription') ||
-                      'This archived story will be permanently deleted and cannot be recovered.'
+                        'This archived story will be permanently deleted and cannot be recovered.'
                       : t('stories.delete.description') ||
-                      'This action cannot be undone.'}
+                        'This action cannot be undone.'}
                   </p>
                   <div className="flex gap-2 mt-4">
                     <button
